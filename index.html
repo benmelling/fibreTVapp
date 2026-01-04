@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V34: Home Preview</title>
+    <title>FibreTV V35: Remote Control</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#000000","theme_color":"#ffffff","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
@@ -18,6 +16,7 @@
             --bg-color: #000000;
             --surface-color: #1a1a1a;
             --surface-translucent: rgba(26, 26, 26, 0.95);
+            --focus-color: #ffffff;
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
@@ -35,6 +34,49 @@
             display: flex; flex-direction: column;
             user-select: none;
         }
+
+        /* --- FOCUS & HOVER EFFECTS (The "Remote" Feel) --- */
+        /* Any focusable element */
+        .focusable {
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.2s, box-shadow 0.2s;
+            border: 3px solid transparent; /* Reserve space for border */
+            outline: none;
+        }
+
+        /* The Focused State */
+        .focusable.focused, .focusable:hover {
+            transform: scale(1.05);
+            border-color: var(--focus-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+        
+        /* Nav items scale less */
+        .nav-item.focusable.focused { transform: scale(1.1); border-color: transparent; background: white; color: black; }
+
+        /* --- EXPANDING INFO PANEL (Accordion) --- */
+        .row-expander {
+            height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            background: linear-gradient(to bottom, #111, transparent);
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .row-expander.open {
+            height: 100px; /* Fixed height for info */
+            opacity: 1;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+        }
+
+        .expander-content { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+        .exp-title { font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 5px; }
+        .exp-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
+        .exp-desc { font-size: 1rem; color: #ccc; max-width: 800px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .exp-badge { background:#E50914; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; }
+
 
         /* --- SYSTEM CLOCK --- */
         .system-clock {
@@ -109,7 +151,6 @@
             cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 12px;
         }
         .v-item i { width: 20px; text-align: center; color: white; }
-        .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
 
@@ -117,7 +158,7 @@
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- LINEAR HEADER (Swapped) --- */
+        /* --- LINEAR HEADER --- */
         .linear-header {
             flex: 0 0 auto; width: 100%; border-radius: 24px;
             margin-bottom: 20px; overflow: hidden;
@@ -127,19 +168,16 @@
             height: 100%; width: 100%; display: flex; align-items: center; 
             justify-content: space-between; gap: 30px;
         }
-        /* Static Image (Left) */
         .image-box-left {
             width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
             background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .static-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s; }
-        /* Middle Text */
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
         .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-        /* Video Preview (Right) */
         .preview-box-right {
             width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
             background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -149,57 +187,35 @@
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        /* --- HOME CARDS --- */
+        /* --- CARDS & ROWS --- */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
         .section-header i { color: white; font-size: 1.1rem; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
         ::-webkit-scrollbar { display: none; }
 
-        .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
-        .card:active { transform: scale(0.96); }
-        .card:hover { transform: scale(1.03); z-index: 5; border-color: rgba(255,255,255,0.3); }
+        .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; }
         .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
         .card-title { font-weight: 700; font-size: 1rem; }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
 
-        .c-watch-tv {
-            width: 260px; height: 146px; border-radius: var(--radius-card);
-            background: linear-gradient(135deg, #E50914, #990000);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; border: 2px solid transparent; transition: 0.2s;
-        }
-        .c-watch-tv:hover { transform: scale(1.03); border-color: white; }
+        .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
 
-        /* Sizes */
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
 
-        /* CONTINUE WATCHING PREVIEW PANEL */
-        .cw-info-panel {
-            padding: 5px 10px; margin-bottom: 20px; min-height: 80px;
-            display: flex; flex-direction: column; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; /* Hidden by default until hover */
-        }
-        .cw-info-panel.visible { opacity: 1; }
-        .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
-        .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
-        .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
-        .cw-badge { background:#E50914; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; }
-
         /* EPG Items */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
         .epg-item { height: 70px; background: var(--surface-color); padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
-        .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
         .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 
         /* SmartTube */
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
         .st-meta { padding: 12px; display: flex; gap: 10px; }
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
@@ -223,59 +239,18 @@
 
     <video id="global-bg-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
 
-    <div id="overlay-player" class="overlay" style="background:black;">
-        <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
-        <h1>Now Playing</h1>
-        <button class="btn-modal btn-sec" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
-    </div>
-
-    <div id="overlay-details" class="overlay" style="padding:0;">
-        <div class="detail-layout" id="detail-bg">
-            <div class="detail-grad">
-                <div style="max-width: 500px;">
-                    <h1 id="detail-title" style="font-size: 3rem; line-height: 1; margin-bottom: 15px;">Title</h1>
-                    <p id="detail-desc" style="font-size: 1rem; color: #ddd; line-height: 1.4;">Desc...</p>
-                    <div style="display:flex; gap:10px; margin-top:20px;">
-                        <button class="btn-modal btn-pri" style="width:auto; padding: 12px 30px;" onclick="playVideo()">Play</button>
-                        <button class="btn-modal btn-sec" style="width:auto; padding: 12px 30px;" onclick="closeOverlays()">Back</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-live" class="overlay">
-        <div class="modal-box">
-            <h2 id="live-title" style="margin-top:0;">Program</h2>
-            <button class="btn-modal btn-pri" onclick="playVideo()">Watch Live</button>
-            <button class="btn-modal btn-sec" onclick="playVideo()">Restart</button>
-            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
-        </div>
-    </div>
-
-    <div id="modal-future" class="overlay">
-        <div class="modal-box">
-            <h2 id="future-title" style="margin-top:0;">Program</h2>
-            <button class="btn-modal btn-pri" onclick="closeOverlays()">Record Series</button>
-            <button class="btn-modal btn-sec" onclick="closeOverlays()">Set Reminder</button>
-            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
-        </div>
-    </div>
-
-
     <div class="top-bar-container">
         <div class="nav-capsule">
-            <div class="nav-item active" onclick="switchTab('home', this)">Home</div>
-            <div class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-            <div class="nav-item" onclick="switchTab('plus', this)">Plus</div>
-            <div class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
-            <div class="nav-item" onclick="switchTab('music', this)">Music</div>
-            <div class="nav-item" onclick="switchTab('local', this)">Local</div>
-            <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
-            <div class="nav-item icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
+            <div class="nav-item focusable active" onclick="switchTab('home', this)">Home</div>
+            <div class="nav-item focusable" onclick="switchTab('linear', this)">Linear</div>
+            <div class="nav-item focusable" onclick="switchTab('plus', this)">Plus</div>
+            <div class="nav-item focusable" onclick="switchTab('youtube', this)">YouTube</div>
+            <div class="nav-item focusable" onclick="switchTab('music', this)">Music</div>
+            <div class="nav-item focusable" onclick="switchTab('local', this)">Local</div>
+            <div class="nav-item focusable icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+            <div class="nav-item focusable icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
         </div>
     </div>
-
 
     <div class="main-content">
 
@@ -283,96 +258,36 @@
             <div style="height: 10px;"></div>
             
             <div class="section-header"><i class="fas fa-play-circle"></i> Continue Watching</div>
-            <div class="scroller">
-                <div class="c-watch-tv" onmouseover="updateHomePreview('Watch Live TV', 'Return to live broadcast', 'Jump straight back into the last watched channel.')" onclick="watchLiveTV()">
-                    <i class="fas fa-tv"></i>
-                    <span>Watch Live TV</span>
-                </div>
-
-                <div class="card c-square" onmouseover="updateHomePreview('BBC One', 'LIVE • BBC News at Six', 'Next: The One Show (19:00)')" style="background: #990000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <span style="font-weight:900; font-size:1.5rem;" class="card-text">BBC ONE</span>
-                </div>
-
-                <div class="card c-square" onmouseover="updateHomePreview('Sky Sports', 'LIVE • Saudi Arabian GP', 'Next: Chequered Flag (19:00)')" style="background: #0047AB; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <i class="fas fa-futbol fa-3x" class="card-text"></i>
-                </div>
-
-                <div class="card c-thumb" onmouseover="updateHomePreview('The Boys', 'S3 E4 • Glorious Five Year Plan', 'The boys head to Russia to find a secret weapon.')" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
-                    <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
-                </div>
-                <div class="card c-thumb" onmouseover="updateHomePreview('Fallout', 'S1 E2 • The Target', 'Lucy journeys into the unknown in search of her father.')" onclick="showDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
-                    <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
-                </div>
+            <div class="scroller" id="scroller-cw">
+                <div class="c-watch-tv focusable" data-title="Watch Live TV" data-desc="Jump back to live broadcast" onclick="watchLiveTV()"><i class="fas fa-tv"></i><span>Watch Live TV</span></div>
+                <div class="card c-square focusable" data-title="BBC One" data-meta="Live" data-desc="BBC News at Six" style="background: #990000; display:flex; flex-direction:column; justify-content:center; align-items:center;"><span style="font-weight:900; font-size:1.5rem;">BBC ONE</span></div>
+                <div class="card c-square focusable" data-title="Sky Sports" data-meta="Live" data-desc="F1: Saudi Arabian GP" style="background: #0047AB; display:flex; flex-direction:column; justify-content:center; align-items:center;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-thumb focusable" data-title="The Boys" data-meta="S3 E4" data-desc="Glorious Five Year Plan" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"><div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div></div>
+                <div class="card c-thumb focusable" data-title="Fallout" data-meta="S1 E2" data-desc="The Target" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');"><div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div></div>
             </div>
-
-            <div id="home-cw-panel" class="cw-info-panel">
-                <div id="cw-title" class="cw-info-title"></div>
-                <div id="cw-meta" class="cw-info-meta"></div>
-                <div id="cw-desc" class="cw-info-desc">Hover over an item to see details.</div>
-            </div>
+            <div class="row-expander"><div class="expander-content"><div class="exp-title"></div><div class="exp-meta"></div><div class="exp-desc"></div></div></div>
 
             <div class="section-header"><i class="fas fa-fast-forward"></i> Watch Next</div>
             <div class="scroller">
-                <div class="card c-thumb" onclick="showDetails('House of the Dragon', 'S2 E1', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
-                    <div class="card-meta"><div class="card-title">House of the Dragon</div><div class="card-sub">S2 E1</div></div>
-                </div>
-                <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
-                    <div class="card-meta"><div class="card-title">The Last of Us</div><div class="card-sub">S1 E6</div></div>
-                </div>
+                <div class="card c-thumb focusable" data-title="House of the Dragon" data-desc="The Heirs of the Dragon" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');"><div class="card-meta"><div class="card-title">House of the Dragon</div></div></div>
+                <div class="card c-thumb focusable" data-title="The Last of Us" data-desc="Look for the Light" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');"><div class="card-meta"><div class="card-title">The Last of Us</div></div></div>
             </div>
-
-            <div class="section-header"><i class="fas fa-history"></i> Recent Channels</div>
-            <div class="scroller">
-                <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
-            </div>
+            <div class="row-expander"><div class="expander-content"><div class="exp-title"></div><div class="exp-desc"></div></div></div>
 
             <div class="section-header"><i class="fas fa-film"></i> Popular Movies</div>
             <div class="scroller">
-                <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
+                <div class="card c-poster focusable" data-title="Godzilla x Kong" data-desc="The New Empire" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                <div class="card c-poster focusable" data-title="Civil War" data-desc="A race to the White House" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                <div class="card c-poster focusable" data-title="Oppenheimer" data-desc="The story of American scientist J. Robert Oppenheimer" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
             </div>
-
-            <div class="section-header"><i class="fas fa-tv"></i> Popular Series</div>
-            <div class="scroller">
-                <div class="card c-poster" onclick="showDetails('Succession', '', 'https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Ted Lasso', '', 'https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg');"></div>
-            </div>
+            <div class="row-expander"><div class="expander-content"><div class="exp-title"></div><div class="exp-desc"></div></div></div>
 
             <div class="section-header"><i class="fab fa-youtube"></i> Recommended</div>
             <div class="scroller">
-                <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
-                    <div class="card-meta"><div class="card-title">MKBHD Review</div></div>
-                </div>
-                <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');">
-                     <div class="card-meta"><div class="card-title">Lofi Girl Radio</div></div>
-                </div>
+                <div class="card c-thumb focusable" data-title="MKBHD Review" data-desc="The State of Android 2024" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');"></div>
+                <div class="card c-thumb focusable" data-title="Lofi Girl" data-desc="Beats to relax/study to" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');"></div>
             </div>
-
-            <div class="section-header"><i class="fas fa-users"></i> Subscriptions</div>
-            <div class="scroller">
-                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-user"></i></div>
-                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-gamepad"></i></div>
-                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-car"></i></div>
-            </div>
-
-            <div class="section-header"><i class="fas fa-music"></i> Jump Back In</div>
-            <div class="scroller">
-                <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-bolt fa-2x" style="color:white;"></i><br><br>Supermix</div></div>
-                <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-moon fa-2x" style="color:white;"></i><br><br>Chill</div></div>
-            </div>
-
-            <div class="section-header"><i class="fas fa-th-large"></i> Apps</div>
-            <div class="scroller">
-                <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
-                <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
-                <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
-                <div class="card c-app" style="background: #1DB954;"><i class="fab fa-spotify fa-2x"></i></div>
-            </div>
+            <div class="row-expander"><div class="expander-content"><div class="exp-title"></div><div class="exp-desc"></div></div></div>
         </div>
 
 
@@ -380,232 +295,218 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> Ent.</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Movies</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-futbol"></i> Sports</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-newspaper"></i> News</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-child"></i> Kids</div>
+                        <div class="v-item focusable active"><i class="fas fa-layer-group"></i> All</div>
+                        <div class="v-item focusable"><i class="fas fa-tv"></i> Ent.</div>
+                        <div class="v-item focusable"><i class="fas fa-film"></i> Movies</div>
+                        <div class="v-item focusable"><i class="fas fa-futbol"></i> Sports</div>
+                        <div class="v-item focusable"><i class="fas fa-newspaper"></i> News</div>
                     </div>
                 </div>
                 
                 <div class="linear-content-col">
-                    
                     <div class="linear-header">
                         <div class="header-content">
-                            <div class="image-box-left">
-                                <img id="static-hero-img" class="static-img" src="https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg">
-                            </div>
-                            
+                            <div class="image-box-left"><img id="static-hero-img" class="static-img" src="https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg"></div>
                             <div class="header-info-mid">
                                 <h1 id="lh-title" class="lh-title">BBC News at Six</h1>
-                                <div id="lh-meta" class="lh-meta">
-                                    <span id="live-badge" class="lh-badge">LIVE</span>
-                                    <span id="lh-time">18:00 - 19:00</span>
-                                    <span>News</span>
-                                </div>
-                                <p id="lh-desc" class="lh-desc">The latest national and international news stories from the BBC News team, followed by weather.</p>
+                                <div id="lh-meta" class="lh-meta"><span id="live-badge" class="lh-badge">LIVE</span><span id="lh-time">18:00 - 19:00</span><span>News</span></div>
+                                <p id="lh-desc" class="lh-desc">The latest national and international news stories from the BBC News team.</p>
                             </div>
-
-                            <div class="preview-box-right">
-                                <video id="preview-video" class="preview-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
-                            </div>
+                            <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video></div>
                         </div>
                     </div>
 
                     <div class="epg-scroll-area">
                         <div class="epg-row">
                             <div class="epg-ch">BBC 1</div>
-                            <div class="epg-item" onmouseover="updatePreview('BBC News at Six', '18:00 - 19:00', 'The latest national and international news stories.', 'https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg', true)" onclick="openLive('BBC News')" style="flex:2;">
-                                <strong>BBC News at Six</strong><div class="live-text">● LIVE</div>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('The One Show', '19:00 - 19:30', 'Live magazine programme featuring topical stories.', 'https://image.tmdb.org/t/p/original/glKDfE6btIRcVB5zrjspRIs4r52.jpg')" onclick="openFuture('The One Show')" style="flex:3;">
-                                <strong>The One Show</strong>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('Eastenders', '19:30 - 20:00', 'The latest drama from Albert Square.', 'https://image.tmdb.org/t/p/original/k5H5W2q5K839e1r9a3.jpg')" onclick="openFuture('Eastenders')" style="flex:3;">
-                                <strong>Eastenders</strong>
-                            </div>
+                            <div class="epg-item focusable" onmouseover="updateLinear('BBC News', '18:00', 'News', 'https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="flex:2;"><strong>BBC News</strong><div class="live-text">● LIVE</div></div>
+                            <div class="epg-item focusable" onmouseover="updateLinear('The One Show', '19:00', 'Chat Show', 'https://image.tmdb.org/t/p/original/glKDfE6btIRcVB5zrjspRIs4r52.jpg')" style="flex:3;"><strong>The One Show</strong></div>
                         </div>
-
-                        <div class="epg-row">
-                            <div class="epg-ch">ITV 1</div>
-                            <div class="epg-item" onmouseover="updatePreview('The Chase', '17:00 - 18:00', 'Quiz show hosted by Bradley Walsh.', 'https://image.tmdb.org/t/p/original/3.jpg')" onclick="openFuture('The Chase')" style="flex:3;">
-                                <strong>The Chase</strong>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('ITV News', '18:30 - 19:30', 'Roundup of the days news.', 'https://image.tmdb.org/t/p/original/4.jpg')" onclick="openFuture('ITV News')" style="flex:3;">
-                                <strong>ITV News</strong>
-                            </div>
-                        </div>
-
                         <div class="epg-row">
                             <div class="epg-ch">Sky F1</div>
-                            <div class="epg-item" onmouseover="updatePreview('Saudi Arabian GP', '17:00 - 19:00', 'Live coverage of the Saudi Arabian Grand Prix.', 'https://image.tmdb.org/t/p/original/f1.jpg', true)" onclick="openLive('Saudi GP')" style="flex:6;">
-                                <strong>Saudi Arabian GP</strong><div class="live-text">● LIVE</div>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('Chequered Flag', '19:00 - 20:00', 'Post-race analysis and interviews.', 'https://image.tmdb.org/t/p/original/f1b.jpg')" onclick="openFuture('Chequered Flag')" style="flex:2;">
-                                <strong>Chequered Flag</strong>
-                            </div>
+                            <div class="epg-item focusable" onmouseover="updateLinear('Saudi GP', '17:00', 'F1 Live', 'https://image.tmdb.org/t/p/original/f1.jpg')" style="flex:5;"><strong>Saudi GP</strong><div class="live-text">● LIVE</div></div>
                         </div>
-
-                        <div class="epg-row">
-                            <div class="epg-ch">Disc</div>
-                            <div class="epg-item" onmouseover="updatePreview('Gold Rush', '18:00 - 19:00', 'The miners face a new challenge in the Klondike.', 'https://image.tmdb.org/t/p/original/gold.jpg', true)" onclick="openLive('Gold Rush')" style="flex:3;">
-                                <strong>Gold Rush</strong><div class="live-text">● LIVE</div>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('Deadliest Catch', '19:00 - 20:00', 'Crab fishing in the Bering Sea.', 'https://image.tmdb.org/t/p/original/crab.jpg')" onclick="openFuture('Deadliest Catch')" style="flex:3;">
-                                <strong>Deadliest Catch</strong>
-                            </div>
+                         <div class="epg-row">
+                            <div class="epg-ch">ITV 1</div>
+                            <div class="epg-item focusable" onmouseover="updateLinear('The Chase', '17:00', 'Quiz', 'https://image.tmdb.org/t/p/original/3.jpg')" style="flex:3;"><strong>The Chase</strong></div>
+                            <div class="epg-item focusable" onmouseover="updateLinear('ITV News', '18:30', 'News', 'https://image.tmdb.org/t/p/original/4.jpg')" style="flex:3;"><strong>ITV News</strong></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
 
         <div id="tab-plus" class="tab-content" style="padding:0;">
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Movies</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> TV</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-star"></i> 4K</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-calendar-plus"></i> New</div>
+                        <div class="v-item focusable active"><i class="fas fa-layer-group"></i> All</div>
+                        <div class="v-item focusable"><i class="fas fa-film"></i> Movies</div>
+                        <div class="v-item focusable"><i class="fas fa-tv"></i> TV</div>
                     </div>
                 </div>
                 <div class="content-col">
                     <h1 style="margin-top:0;">On Demand</h1>
-                    <div class="section-header" style="margin-top:10px;">Trending</div>
-                    <div class="scroller" style="flex-wrap:wrap;">
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg'); margin-bottom:15px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg'); margin-bottom:15px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg'); margin-bottom:15px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg'); margin-bottom:15px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8xV47NDrjdZDpkVcCFqkdHa3T0C.jpg'); margin-bottom:15px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg'); margin-bottom:15px;"></div>
+                    <div class="section-header">Trending</div>
+                    <div class="scroller">
+                        <div class="card c-poster focusable" data-title="Avatar 2" data-desc="Way of Water" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                        <div class="card c-poster focusable" data-title="Barbie" data-desc="She's everything" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
                     </div>
+                    <div class="row-expander"><div class="expander-content"><div class="exp-title"></div><div class="exp-desc"></div></div></div>
                 </div>
             </div>
         </div>
-
 
         <div id="tab-youtube" class="tab-content" style="padding:0;">
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-home"></i> Home</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-gamepad"></i> Game</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-music"></i> Music</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-newspaper"></i> News</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-users"></i> Subs</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-history"></i> Lib</div>
+                        <div class="v-item focusable active"><i class="fas fa-home"></i> Home</div>
+                        <div class="v-item focusable"><i class="fas fa-gamepad"></i> Game</div>
                     </div>
                 </div>
                 <div class="content-col">
                     <div class="st-grid">
-                        <div class="st-card" onclick="playVideo()">
-                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
-                                <div class="sb-bar"><div class="sb-seg" style="left:10%; width:15%; background:#00d26a;"></div></div>
-                            </div>
-                            <div class="st-meta">
-                                <div class="st-avatar" style="background:#333;"></div>
-                                <div><div class="st-title">State of Android</div><div class="st-details">MKBHD • 1.2M views</div></div>
-                            </div>
-                        </div>
-                        <div class="st-card" onclick="playVideo()">
-                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/U8l-12p49vo/hqdefault.jpg');"></div>
-                            <div class="st-meta">
-                                <div class="st-avatar" style="background:#444;"></div>
-                                <div><div class="st-title">Don't Buy This!</div><div class="st-details">MrWhoseTheBoss</div></div>
-                            </div>
+                        <div class="st-card focusable" data-title="MKBHD" data-desc="Android Review">
+                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');"></div>
+                            <div class="st-meta"><div class="st-avatar" style="background:#333;"></div><div><div class="st-title">State of Android</div><div class="st-details">MKBHD</div></div></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-
-        <div id="tab-music" class="tab-content" style="padding:0;">
-            <div class="split-view">
-                <div class="vertical-filter-col">
-                    <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-home"></i> Home</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-random"></i> Mixes</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-chart-line"></i> Charts</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-list"></i> Lib</div>
-                    </div>
-                </div>
-                <div class="content-col">
-                    <h1 style="margin-top:0;">Music</h1>
-                    <div class="section-header">Your Mixes</div>
-                    <div class="scroller">
-                        <div class="card c-square" style="background:#222;"><i class="fas fa-bolt fa-2x" style="color:yellow; margin:auto;"></i></div>
-                        <div class="card c-square" style="background:#222;"><i class="fas fa-heart fa-2x" style="color:pink; margin:auto;"></i></div>
-                        <div class="card c-square" style="background:#222;"><i class="fas fa-clock fa-2x" style="color:cyan; margin:auto;"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div id="tab-local" class="tab-content" style="padding:0;">
-            <div class="split-view">
-                <div class="vertical-filter-col">
-                    <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-hdd"></i> HDD</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fab fa-usb"></i> USB</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-network-wired"></i> Net</div>
-                    </div>
-                </div>
-                <div class="content-col">
-                    <h1 style="margin-top:0;">Local Files</h1>
-                    <div class="scroller" style="flex-wrap:wrap;">
-                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-folder fa-3x" style="color:#aaa;"></i><span style="font-size:0.8rem;">DCIM</span></div>
-                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-video fa-3x" style="color:#4CAF50;"></i><span style="font-size:0.8rem;">Video.mp4</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div id="tab-search" class="tab-content" style="padding:0;">
-            <div class="split-view">
-                <div class="vertical-filter-col">
-                    <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-search"></i> All</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> TV</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Film</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fab fa-youtube"></i> YT</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-music"></i> Music</div>
-                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-folder"></i> Local</div>
-                    </div>
-                </div>
-                <div class="content-col">
-                    <input type="text" placeholder="Search..." style="width:100%; padding:20px; border-radius:50px; background:#222; border:none; color:white; font-size:1.2rem;">
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-settings" class="tab-content">
-            <h1>Settings</h1>
-            <div style="background:#111; padding:30px; border-radius:30px; max-width:600px;">
-                <h3 style="margin-top:0;">IPTV (Xtream)</h3>
-                <input style="width:100%; padding:15px; margin-bottom:10px; background:#222; border:none; color:white; border-radius:10px;" placeholder="http://url">
-                <input style="width:100%; padding:15px; margin-bottom:10px; background:#222; border:none; color:white; border-radius:10px;" placeholder="Username">
-                <input style="width:100%; padding:15px; background:#222; border:none; color:white; border-radius:10px;" type="password" placeholder="Password">
-                
-                <h3 style="margin-top:30px;">Real-Debrid</h3>
-                <input style="width:100%; padding:15px; background:#222; border:none; color:white; border-radius:10px;" type="password" placeholder="API Token">
-                
-                <h3 style="margin-top:30px;">YouTube</h3>
-                <button style="width:100%; padding:15px; background:#ff0000; color:white; border:none; border-radius:10px; font-weight:bold;">Sign In</button>
-            </div>
-        </div>
+        <div id="tab-music" class="tab-content"><h1>Music</h1></div>
+        <div id="tab-local" class="tab-content"><h1>Local</h1></div>
+        <div id="tab-search" class="tab-content"><h1>Search</h1></div>
+        <div id="tab-settings" class="tab-content"><h1>Settings</h1></div>
 
     </div>
 
     <script>
+        // --- 1. SPATIAL NAVIGATION ENGINE ---
+        document.addEventListener('keydown', (e) => {
+            const active = document.querySelector('.focusable.focused') || document.querySelector('.focusable');
+            
+            if (!active) return; // Should not happen
+
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                navigate(e.key, active);
+            } else if (e.key === 'Enter') {
+                active.click();
+            } else if (e.key === 'Escape' || e.key === 'Backspace') {
+                if (document.body.classList.contains('mode-fullscreen')) {
+                    document.body.classList.remove('mode-fullscreen');
+                } else if (document.getElementById('tab-home').classList.contains('active')) {
+                    watchLiveTV();
+                }
+            }
+        });
+
+        // Mouse hover handler to sync with keyboard
+        document.querySelectorAll('.focusable').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
+                el.classList.add('focused');
+                updateExpander(el);
+                
+                // Specific Linear Update Trigger
+                if (el.classList.contains('epg-item')) el.onmouseover();
+            });
+        });
+
+        function navigate(direction, current) {
+            const allFocusable = Array.from(document.querySelectorAll('.focusable'));
+            // Filter visible only
+            const visible = allFocusable.filter(el => el.offsetParent !== null);
+            
+            const rect = current.getBoundingClientRect();
+            const curX = rect.left + rect.width / 2;
+            const curY = rect.top + rect.height / 2;
+
+            let bestCandidate = null;
+            let minDist = Infinity;
+
+            visible.forEach(el => {
+                if (el === current) return;
+
+                const r = el.getBoundingClientRect();
+                const x = r.left + r.width / 2;
+                const y = r.top + r.height / 2;
+
+                // Direction logic
+                let isValid = false;
+                if (direction === 'ArrowRight') isValid = x > rect.right; // Right of current
+                if (direction === 'ArrowLeft') isValid = x < rect.left;   // Left of current
+                if (direction === 'ArrowDown') isValid = y > rect.bottom; // Below current
+                if (direction === 'ArrowUp') isValid = y < rect.top;      // Above current
+
+                if (isValid) {
+                    // Simple Euclidean distance
+                    const dist = Math.sqrt(Math.pow(x - curX, 2) + Math.pow(y - curY, 2));
+                    // Prioritize alignment for Up/Down to avoid jumping diagonals
+                    if ((direction === 'ArrowUp' || direction === 'ArrowDown') && Math.abs(x - curX) > 100) {
+                        // Penalize distant horizontal items when moving vertically
+                        return; 
+                    }
+
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestCandidate = el;
+                    }
+                }
+            });
+
+            if (bestCandidate) {
+                document.querySelectorAll('.focused').forEach(f => f.classList.remove('focused'));
+                bestCandidate.classList.add('focused');
+                bestCandidate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updateExpander(bestCandidate);
+                
+                // Trigger Linear Hover logic if applicable
+                if (bestCandidate.classList.contains('epg-item')) bestCandidate.onmouseover();
+            }
+        }
+
+        // --- 2. ACCORDION EXPANDER LOGIC ---
+        function updateExpander(el) {
+            // 1. Close all expanders first
+            document.querySelectorAll('.row-expander').forEach(exp => {
+                exp.classList.remove('open');
+            });
+
+            // 2. Check if element has data
+            if (!el.dataset.title) return;
+
+            // 3. Find the scroller this element belongs to
+            const scroller = el.closest('.scroller');
+            if (scroller) {
+                // Find the expander immediately following this scroller
+                const expander = scroller.nextElementSibling;
+                if (expander && expander.classList.contains('row-expander')) {
+                    // Populate
+                    const title = expander.querySelector('.exp-title');
+                    const meta = expander.querySelector('.exp-meta'); // Optional
+                    const desc = expander.querySelector('.exp-desc');
+                    
+                    if (title) title.innerText = el.dataset.title;
+                    if (desc) desc.innerText = el.dataset.desc || "";
+                    
+                    // Add badge if meta exists
+                    if (meta && el.dataset.meta) {
+                        meta.innerHTML = `<span class="exp-badge">${el.dataset.meta}</span>`;
+                    } else if (meta) {
+                        meta.innerHTML = "";
+                    }
+
+                    // Open
+                    expander.classList.add('open');
+                }
+            }
+        }
+
+        // --- 3. TAB SWITCHING ---
         function switchTab(tabId, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
@@ -613,102 +514,36 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             
-            // Handle Live BG visibility
-            if(tabId === 'home') {
-                document.body.classList.add('mode-home');
-            } else {
-                document.body.classList.remove('mode-home');
-            }
+            if(tabId === 'home') document.body.classList.add('mode-home');
+            else document.body.classList.remove('mode-home');
         }
 
-        function activateFilter(el) {
-            el.parentElement.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function showOverlay(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideOverlay(id) { document.getElementById(id).style.display = 'none'; }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-
-        function showDetails(title, desc, img) {
-            document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-desc').innerText = desc || "No description.";
-            if(img) document.getElementById('detail-bg').style.backgroundImage = `url('${img}')`;
-            showOverlay('overlay-details');
-        }
-
-        function playVideo() { closeOverlays(); showOverlay('overlay-player'); }
-        function openLive(t) { document.getElementById('live-title').innerText = t; showOverlay('modal-live'); }
-        function openFuture(t) { document.getElementById('future-title').innerText = t; showOverlay('modal-future'); }
-
-        // --- LINEAR PREVIEW LOGIC ---
-        function updatePreview(title, time, desc, img, isLive) {
+        // --- 4. LINEAR LOGIC ---
+        function updateLinear(title, time, desc, img) {
             document.getElementById('lh-title').innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
-            
-            // Handle Live Badge
-            const badge = document.getElementById('live-badge');
-            badge.style.display = isLive ? 'inline-block' : 'none';
-
-            // Update Static Image (Left)
             if(img) document.getElementById('static-hero-img').src = img;
             
-            // Restart Preview Video (Right)
-            const video = document.getElementById('preview-video');
-            if(video) {
-                video.currentTime = 0;
-                video.play();
-            }
+            const v = document.getElementById('preview-video');
+            if(v) { v.currentTime=0; v.play(); }
         }
 
-        // --- HOME PREVIEW LOGIC ---
-        function updateHomePreview(title, meta, desc) {
-            const panel = document.getElementById('home-cw-panel');
-            const pTitle = document.getElementById('cw-title');
-            const pMeta = document.getElementById('cw-meta');
-            const pDesc = document.getElementById('cw-desc');
-
-            pTitle.innerText = title;
-            pMeta.innerText = meta;
-            pDesc.innerText = desc;
-            
-            panel.classList.add('visible');
-        }
-
-        function watchLiveTV() {
-            document.body.classList.add('mode-fullscreen');
-        }
-
-        // --- CLOCK & KEY HANDLER ---
+        // --- 5. CLOCK ---
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-GB', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit'});
-            document.getElementById('system-clock').innerText = timeString;
+            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
         }
-        setInterval(updateClock, 1000);
-        updateClock();
+        setInterval(updateClock, 1000); updateClock();
 
-        document.addEventListener('keydown', (e) => {
-            if(e.key === 'Escape' || e.key === 'Backspace') {
-                if(document.querySelector('.overlay[style*="flex"]')) {
-                    closeOverlays();
-                    return;
-                }
-                if(document.body.classList.contains('mode-fullscreen')) {
-                    document.body.classList.remove('mode-fullscreen');
-                    return;
-                }
-                if(document.getElementById('tab-home').classList.contains('active')) {
-                    watchLiveTV();
-                }
-            }
-        });
+        function watchLiveTV() { document.body.classList.add('mode-fullscreen'); }
 
+        // Init
         window.onload = () => {
             document.body.classList.add('mode-home');
+            // Focus first item
+            document.querySelector('.c-watch-tv').classList.add('focused');
         };
-
     </script>
 </body>
 </html>
