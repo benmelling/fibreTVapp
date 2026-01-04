@@ -3,38 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V10: Integrated Profile Modal</title>
+    <title>FibreTV V11: Premium Edition</title>
     
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#121212">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#121212","theme_color":"#FF9800","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
+    <meta name="theme-color" content="#0F172A">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#0F172A","theme_color":"#06b6d4","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* M3 Expressive Palette */
-            --md-sys-color-background: #0f0f0f;
-            --md-sys-color-surface: #1e1e1e; 
-            --md-sys-color-surface-variant: #333333; 
-            --md-sys-color-primary: #FF9800; /* Orange */
-            --md-sys-color-on-primary: #000000;
+            /* NEW PALETTE: Premium Streamer (No more Orange/Black) */
+            --bg-color: #0F172A; /* Deep Slate Blue */
+            --sidebar-bg: #1E293B; /* Lighter Slate */
+            --card-bg: #334155;    /* Slate Grey */
             
-            /* Shapes */
-            --shape-corner-medium: 16px;
-            --shape-corner-large: 28px;
-            --shape-corner-full: 100px;
+            /* Gradient Accent */
+            --accent-start: #06b6d4; /* Cyan */
+            --accent-end: #3b82f6;   /* Blue */
+            
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            
+            --radius-xl: 24px;
+            --radius-md: 16px;
         }
 
         body.kids-mode {
-            --md-sys-color-primary: #FFEB3B;
-            --md-sys-color-background: #1a1a05;
+            --bg-color: #2e1065; /* Deep Purple for Kids */
+            --sidebar-bg: #4c1d95;
+            --accent-start: #facc15;
+            --accent-end: #fb923c;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            display: flex; height: 100vh; overflow: hidden;
+            user-select: none;
+            transition: background-color 0.4s ease;
+        }
+
+        /* --- UTILITIES --- */
+        .hidden { display: none !important; }
+        .gradient-text {
+            background: linear-gradient(to right, var(--accent-start), var(--accent-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- OVERLAYS --- */
+        .fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; /* Super high z-index */
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            display: none; /* Hidden by default */
+            flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .fullscreen-overlay.active { opacity: 1; }
+
+        /* ACCOUNT MODAL */
+        .modal-card {
+            background: var(--sidebar-bg); width: 450px; padding: 40px;
+            border-radius: var(--radius-xl); border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .profile-row { display: flex; gap: 30px; justify-content: center; margin: 30px 0; }
+        
+        .profile-option {
+            cursor: pointer; opacity: 0.6; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .profile-option:hover, .profile-option:focus { opacity: 1; transform: scale(1.1); outline: none; }
+        .profile-option.active .avatar { ring: 4px solid var(--accent-start); }
+        
+        .avatar {
+            width: 80px; height: 80px; border-radius: 50%; background: #475569;
+            display: grid; place-items: center; font-size: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            pointer-events: none; /* Icon doesn't block click */
+        }
+
+        .btn-secondary {
+            background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 12px 24px; border-radius: 50px;
+            cursor: pointer; font-weight: 600; margin-top: 10px; width: 100%;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+        /* PLAYER OVERLAY */
+        #player-overlay { background: black; }
+        
+        /* DETAILS OVERLAY */
+        #details-overlay { background-size: cover; background-position: center; }
+        .details-gradient {
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, #0F172A 10%, rgba(15, 23, 42, 0.8) 50%, transparent 100%);
+            display: flex; align-items: center; padding-left: 8vw;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+            border: none; color: white; padding: 15px 40px; border-radius: 50px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-right: 15px;
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.5);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 100px; background-color: var(--sidebar-bg);
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: 2rem; z-index: 500;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .profile-trigger {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #475569; margin-bottom: 3rem; cursor: pointer;
+            display: grid; place-items: center; transition: transform 0.2s;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .profile-trigger:hover, .profile-trigger:focus { transform: scale(1.1); border-color: var(--accent-start); outline: none; }
+
+        .nav-item {
+            width: 60px; height: 60px; margin-bottom: 0.5rem;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer;
+            font-size: 0.75rem; font-weight: 600; transition: all 0.2s;
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 6px; pointer-events: none; }
+        
+        .nav-item.active {
+            background: rgba(6, 182, 212, 0.15); color: var(--accent-start);
+        }
+        .nav-item:hover { color: white; }
+
+        /* --- CONTENT --- */
+        .main-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            position: relative;
+        }
+        
+        .tab-content { display: none; padding: 2rem 0 5rem 3rem; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .row-title {
+            font-size: 1.25rem; font-weight: 700; margin: 3rem 0 1rem 0;
+            display: flex; align-items: center; gap: 10px; color: white;
+        }
+        
+        .scroller {
+            display: flex; gap: 1.5rem; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar { display: none; }
+
+        /* CARDS */
+        .card {
+            flex: 0 0 auto; background: var(--card-bg); border-radius: var(--radius-md);
+            overflow: hidden; position: relative; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .card:focus, .card:hover {
+            transform: scale(1.03); z-index: 10;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255,255,255,0.5); outline: none;
+        }
+
+        .card-info {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+            padding: 15px; pointer-events: none;
+        }
+        .card-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-sub { font-size: 0.8rem; color: #cbd5e1; margin-top: 4px; }
+
+        /* Sizes */
+        .c-hero { width: 65vw; height: 45vh; border-radius: var(--radius-xl); background-size: cover; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
+        .c-poster { width: 170px; height: 255px; background-size: cover; background-color: #1e293b; }
+        .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #1e293b; }
+        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #1e293b; display: grid; place-items: center; }
+        .c-app { width: 90px; height: 90px; border-radius: 20px; display: grid; place-items: center; }
+
+        /* EPG Grid */
+        .epg-row { display: flex; gap: 1px; margin-bottom: 1px; }
+        .epg-ch { width: 100px; height: 70px; background: #1e293b; display: grid; place-items: center; font-weight: bold; border-radius: 4px; margin-right: 10px;}
+        .epg-pr { 
+            height: 70px; background: #334155; padding: 0 20px; border-radius: 4px;
+            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .epg-pr:focus { background: #475569; border-color: var(--accent-start); outline: none;}
+
+    </style>
+</head>
+<body>
+
+    <div id="account-overlay" class="fullscreen-overlay" style="display: flex;"> <div class="modal-card">
+            <h2 style="font-size: 2rem; margin-bottom: 0;">Who is watching?</h2>
+            
+            <div class="profile-row">
+                <div class="profile-option" id="prof-Dad" tabindex="0">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div style="margin-top: 10px; font-weight: 600;">Dad</div>
+                </div>
+                <div class="profile-option" id="prof-Kids" tabindex="0">
+                    <div class="avatar" style="background: linear-gradient(135deg, #facc15, #fb923c); color: #1e1b4b;"><i class="fas fa-child"></i></div>
+                    <div style="margin-top: 10px; font-weight: 600;">Kids</div>
+                </div>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+            
+            <button class="btn-secondary" id="btn-settings">Settings</button>
+            <button class="btn-secondary" id="btn-close-acc" style="display:none;">Close</button>
+        </div>
+    </div>
+
+    <div id="player-overlay" class="fullscreen-overlay">
+        <div style="display:grid; place-items:center; width:100%; height:100%;">
+            <h1 id="player-title">Video Title</h1>
+            <p>Press ESC or Back to exit</p>
+        </div>
+    </div>
+
+    <div id="details-overlay" class="fullscreen-overlay">
+        <div class="details-gradient">
+            <div style="max-width: 600px;">
+                <h1 id="detail-title" style="font-size: 4rem; line-height:1; margin-bottom: 1rem;">Title</h1>
+                <p id="detail-desc" style="font-size: 1.1rem; color: #cbd5e1; margin-bottom: 2rem; line-height: 1.6;">Description...</p>
+                <div style="display:flex; gap:15px;">
+                    <button class="play-btn" id="btn-play">Play Now</button>
+                    <button class="btn-secondary" style="width: auto;" id="btn-back-detail">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="profile-trigger" id="sidebar-profile-btn" tabindex="0">
+            <i class="fas fa-user" id="user-icon"></i>
+        </div>
+
+        <div class="nav-item active" data-tab="home"><i class="fas fa-home"></i>Home</div>
+        <div class="nav-item" id="nav-linear" data-tab="linear"><i class="fas fa-tv"></i>Linear</div>
+        <div class="nav-item" data-tab="plus"><i class="fas fa-play"></i>Plus</div>
+        <div class="nav-item" data-tab="youtube"><i class="fab fa-youtube"></i>YouTube</div>
+        <div class="nav-item" data-tab="music"><i class="fas fa-music"></i>Music</div>
+        <div class="nav-item" data-tab="local"><i class="fas fa-folder"></i>Local</div>
+        <div class="nav-item" data-tab="search"><i class="fas fa-search"></i>Search</div>
+    </div>
+
+    <div class="main-content">
+
+        <div id="tab-home" class="tab-content active">
+            <div class="scroller">
+                <div class="card c-hero" tabindex="0" data-title="Suicide Squad Isekai" data-desc="The DC supervillains go to another world." style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
+                    <div class="card-info"><div class="card-title" style="font-size: 2rem;">Suicide Squad Isekai</div></div>
+                </div>
+                <div class="card c-hero" tabindex="0" data-title="Dune Part Two" data-desc="Paul Atreides unites with Chani and the Fremen." style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-info"><div class="card-title" style="font-size: 2rem;">Dune Part Two</div></div>
+                </div>
+            </div>
+
+            <div class="row-title">Continue Watching</div>
+            <div class="scroller">
+                <div class="card c-thumb" tabindex="0" data-title="The Boys" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
+                    <div class="card-info"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
+                </div>
+                <div class="card c-thumb" tabindex="0" data-title="Fallout" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
+                    <div class="card-info"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
+                </div>
+            </div>
+
+            <div class="row-title">Recent Channels</div>
+            <div class="scroller">
+                <div class="card c-square" tabindex="0" data-action="play:Sky Sports" style="background: #0369a1;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-square" tabindex="0" data-action="play:BBC One" style="background: #b91c1c;"><span style="font-weight:900;">BBC</span></div>
+            </div>
+
+            <div class="row-title">Popular Movies</div>
+            <div class="scroller">
+                <div class="card c-poster" tabindex="0" data-title="Godzilla x Kong" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                <div class="card c-poster" tabindex="0" data-title="Civil War" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+            </div>
+            
+             <div class="row-title">Apps</div>
+            <div class="scroller">
+                <div class="card c-app" tabindex="0" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
+                <div class="card c-app" tabindex="0" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
+            </div>
+        </div>
+
+        <div id="tab-linear" class="tab-content">
+            <h1 class="gradient-text" style="font-size: 2rem; margin-bottom: 2rem;">TV Guide</h1>
+            <div class="epg-row">
+                <div class="epg-ch">BBC One</div>
+                <div class="epg-pr" tabindex="0" data-action="play:BBC News" style="flex:2;">
+                    <div style="font-weight:bold;">BBC News</div><div style="font-size:0.8rem; color:#ef4444;">● LIVE</div>
+                </div>
+                <div class="epg-pr" tabindex="0" style="flex:3;">
+                    <div style="font-weight:bold;">Eastenders</div><div style="font-size:0.8rem; color:#94a3b8;">19:30</div>
+                </div>
+            </div>
+             <div class="epg-row">
+                <div class="epg-ch">Sky F1</div>
+                <div class="epg-pr" tabindex="0" data-action="play:F1 GP" style="flex:5;">
+                    <div style="font-weight:bold;">Saudi Arabian Grand Prix</div><div style="font-size:0.8rem; color:#ef4444;">● LIVE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plus" class="tab-content">
+            <h1 class="gradient-text" style="font-size: 2rem;">On Demand</h1>
+            <div class="row-title">New on Plus</div>
+            <div class="scroller">
+                 <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/8xV47NDrjdZDpkVcCFqkdHa3T0C.jpg');"></div>
+                 <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg');"></div>
+            </div>
+        </div>
+        
+        <div id="tab-youtube" class="tab-content">
+             <h1 style="color: #ef4444;"><i class="fab fa-youtube"></i> YouTube</h1>
+             <div class="row-title">Subscriptions</div>
+             <div class="scroller">
+                 <div class="card c-app" tabindex="0" style="background:#334155; border-radius:50%;"><i class="fas fa-user"></i></div>
+                 <div class="card c-app" tabindex="0" style="background:#334155; border-radius:50%;"><i class="fas fa-gamepad"></i></div>
+             </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <h1>Settings</h1>
+            <div style="display:flex; flex-direction:column; gap:1rem; max-width:400px;">
+                <button class="btn-secondary" style="text-align:left;">Player Configuration</button>
+                <button class="btn-secondary" style="text-align:left;">Parental Controls</button>
+                <button class="btn-secondary" style="text-align:left;">Appearance</button>
+            </div>
+        </div>
+
+        <div id="tab-music" class="tab-content"><h1>Music</h1></div>
+        <div id="tab-local" class="tab-content"><h1>Local Files</h1></div>
+        <div id="tab-search" class="tab-content"><h1>Search</h1><input type="text" placeholder="Type to search..." style="background:#334155; border:none; padding:15px; width:100%; color:white; border-radius:10px; font-size:1.2rem; margin-top:20px;"></div>
+
+    </div>
+
+    <script>
+        // --- DOM ELEMENTS ---
+        const accountOverlay = document.getElementById('account-overlay');
+        const playerOverlay = document.getElementById('player-overlay');
+        const detailsOverlay = document.getElementById('details-overlay');
+        const sidebarProfileBtn = document.getElementById('sidebar-profile-btn');
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // --- 1. TABS SYSTEM ---
+        function activateTab(tabName) {
+            // UI Update
+            navItems.forEach(item => {
+                if(item.dataset.tab === tabName) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+            
+            // Content Update
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if(content.id === `tab-${tabName}`) content.classList.add('active');
+            });
+        }
+
+        // Add Listeners to Nav Items
+        navItems.forEach(item => {
+            item.addEventListener('click', () => activateTab(item.dataset.tab));
+            item.addEventListener('keydown', (e) => { if(e.key === 'Enter') activateTab(item.dataset.tab) });
+        });
+
+
+        // --- 2. PROFILE SYSTEM ---
+        function openAccount() {
+            accountOverlay.style.display = 'flex';
+            setTimeout(() => accountOverlay.classList.add('active'), 10);
+            document        body {
             margin: 0; padding: 0;
             background-color: var(--md-sys-color-background);
             color: #E6E1E5;
