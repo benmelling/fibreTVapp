@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V21: SmartTube Edition</title>
+    <title>FibreTV V21: Complete Edition</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -21,7 +21,6 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --st-brand: #3ea6ff; /* SmartTube Blue Accent */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,78 +35,94 @@
             user-select: none;
         }
 
-        /* --- TOP CAPSULE --- */
+        /* --- FIXED TOP NAV --- */
         .top-bar-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100px;
             z-index: 1000; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(to bottom, black 20%, transparent 100%);
+            background: linear-gradient(to bottom, black 40%, transparent 100%);
             pointer-events: none;
         }
 
         .nav-capsule {
             background: var(--surface-translucent);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-radius: var(--radius-capsule);
-            padding: 5px;
-            display: flex; align-items: center; gap: 4px;
+            padding: 6px;
+            display: flex; align-items: center; gap: 5px;
             pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            max-width: 95%; overflow-x: auto;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            max-width: 98%; overflow-x: auto;
         }
 
         .nav-item {
-            padding: 10px 20px; border-radius: var(--radius-capsule);
-            color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+            padding: 10px 22px; border-radius: var(--radius-capsule);
+            color: var(--text-secondary); font-weight: 700; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
-        .nav-item.active { background: white; color: black; box-shadow: 0 2px 10px rgba(255,255,255,0.2); }
-        .nav-item.icon-only { padding: 0; width: 40px; height: 40px; display: grid; place-items: center; }
+        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
+        .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
-        /* --- LAYOUTS --- */
+        /* --- CONTENT SCROLL AREA --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 110px; padding-bottom: 50px;
+            padding-top: 130px; /* SAFETY BUFFER */
+            padding-bottom: 50px;
         }
+
         .tab-content { display: none; padding: 0 0 0 4%; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .split-view { display: flex; gap: 30px; height: calc(100vh - 120px); }
+        /* --- SPLIT VIEW (Sidebar + Grid) --- */
+        .split-view { display: flex; gap: 30px; height: calc(100vh - 130px); }
+        
         .vertical-filter-col {
-            width: 160px; flex-shrink: 0; padding-top: 20px;
+            width: 150px; flex-shrink: 0; padding-top: 10px;
             display: flex; flex-direction: column; gap: 10px;
         }
+        
         .vert-capsule {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 30px; padding: 10px;
+            background: rgba(25, 25, 25, 0.8);
+            border-radius: 25px; padding: 10px;
             display: flex; flex-direction: column; gap: 5px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
         .v-item {
-            padding: 12px 20px; border-radius: 30px;
+            padding: 12px 15px; border-radius: 20px;
             color: #888; font-weight: 600; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s; text-align: center;
         }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
-        
+
         .content-col {
-            flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 20px; padding-bottom: 100px;
+            flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 100px;
         }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- CARDS & SCROLLERS --- */
-        .section-header { font-size: 1.4rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; letter-spacing: -0.5px; }
-        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
+        /* --- HOME ROW STYLES --- */
+        .section-header {
+            font-size: 1.3rem; font-weight: 800; margin: 35px 0 15px 0;
+            color: #eee; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px;
+        }
+        .scroller {
+            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
+            scroll-behavior: smooth; margin-left: -5px; padding-right: 5%;
+        }
         ::-webkit-scrollbar { display: none; }
 
+        /* --- CARD STYLES --- */
         .card {
-            flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); 
-            position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent;
+            flex: 0 0 auto; background: var(--surface-color);
+            border-radius: var(--radius-card); position: relative;
+            cursor: pointer; overflow: hidden;
+            transition: transform 0.2s; border: 2px solid transparent;
         }
         .card:active { transform: scale(0.96); }
+        .card:hover { transform: scale(1.02); z-index: 5; border-color: rgba(255,255,255,0.3); }
+        
         .card-meta {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: linear-gradient(to top, black, transparent);
@@ -123,68 +138,56 @@
         .c-square { width: 130px; height: 130px; background-size: cover; background-color: #222; display: grid; place-items: center; }
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
 
-        /* --- SMARTTUBE SPECIFIC UI --- */
+        /* --- SMARTTUBE CARD --- */
+        .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card {
-            width: 320px; height: 240px; background: #1a1a1a; border-radius: 16px; margin-bottom: 20px;
-            display: flex; flex-direction: column; overflow: hidden; cursor: pointer; border: 2px solid transparent;
+            width: 300px; background: #181818; border-radius: 16px; 
+            overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s;
         }
-        .st-card:active { transform: scale(0.98); }
-        .st-thumb { height: 180px; background-size: cover; position: relative; }
+        .st-card:hover { transform: scale(1.03); border-color: #333; }
+        .st-thumb { height: 170px; background-size: cover; position: relative; }
         .st-meta { padding: 12px; display: flex; gap: 10px; }
-        .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; }
-        .st-info { flex: 1; }
-        .st-title { font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .st-details { font-size: 0.8rem; color: #aaa; }
-        .st-duration { 
-            position: absolute; bottom: 8px; right: 8px; 
-            background: rgba(0,0,0,0.8); color: white; padding: 2px 6px; 
-            border-radius: 4px; font-size: 0.75rem; font-weight: 700;
+        .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
+        .st-title { font-size: 0.9rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .st-details { font-size: 0.75rem; color: #aaa; }
+        .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
+        .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
+
+        /* --- EPG --- */
+        .epg-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
+        .epg-item { 
+            height: 70px; background: #1a1a1a; padding: 0 15px; border-radius: 12px;
+            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+            border: 1px solid transparent; flex: 1; 
         }
-        /* SponsorBlock Segment Simulation */
-        .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.3); }
-        .sb-seg { position: absolute; height: 100%; opacity: 0.8; }
+        .epg-item:hover { background: #252525; }
+        .live-tag { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 
         /* --- OVERLAYS --- */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 5000;
+            background: rgba(0,0,0,0.96); z-index: 5000;
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
-        .modal-box { background: #1a1a1a; width: 90%; max-width: 400px; padding: 30px; border-radius: 30px; text-align: center; border: 1px solid #333; }
-        .btn-modal { width: 100%; padding: 15px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; cursor: pointer; }
+        .modal-box { background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
+        .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
         .btn-pri { background: white; color: black; }
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
-        
-        .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
-        .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 20%, rgba(0,0,0,0.2) 100%); display: flex; align-items: center; padding-left: 8vw; }
+        .btn-modal:active { transform: scale(0.96); }
 
-        /* EPG */
-        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 70px; font-weight: 800; color: #888; display: grid; place-items: center; font-size: 0.8rem;}
-        .epg-item { height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 1px solid transparent; flex: 1; }
-        .epg-item:active { background: #333; }
-        .live-tag { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+        /* Details */
+        .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
+        .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
     </style>
 </head>
 <body>
 
-    <div id="modal-live" class="overlay">
-        <div class="modal-box">
-            <h2 id="live-title" style="margin-top:0;">Program</h2>
-            <button class="btn-modal btn-pri" onclick="playVideo()">Watch Live</button>
-            <button class="btn-modal btn-sec" onclick="playVideo()">Restart</button>
-            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
-        </div>
-    </div>
-
-    <div id="modal-future" class="overlay">
-        <div class="modal-box">
-            <h2 id="future-title" style="margin-top:0;">Program</h2>
-            <button class="btn-modal btn-pri" onclick="closeOverlays()">Record Series</button>
-            <button class="btn-modal btn-sec" onclick="closeOverlays()">Set Reminder</button>
-            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
-        </div>
+    <div id="overlay-player" class="overlay" style="background:black;">
+        <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
+        <h1>Now Playing</h1>
+        <button class="btn-modal btn-sec" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
 
     <div id="overlay-details" class="overlay" style="padding:0;">
@@ -202,10 +205,22 @@
         </div>
     </div>
 
-    <div id="overlay-player" class="overlay" style="background:black;">
-        <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
-        <h1>Now Playing</h1>
-        <button class="btn-modal btn-sec" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
+    <div id="modal-live" class="overlay">
+        <div class="modal-box">
+            <h2 id="live-title" style="margin-top:0;">Program</h2>
+            <button class="btn-modal btn-pri" onclick="playVideo()">Watch Live</button>
+            <button class="btn-modal btn-sec" onclick="playVideo()">Restart</button>
+            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-future" class="overlay">
+        <div class="modal-box">
+            <h2 id="future-title" style="margin-top:0;">Program</h2>
+            <button class="btn-modal btn-pri" onclick="closeOverlays()">Record Series</button>
+            <button class="btn-modal btn-sec" onclick="closeOverlays()">Set Reminder</button>
+            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
+        </div>
     </div>
 
 
@@ -226,14 +241,20 @@
     <div class="main-content">
 
         <div id="tab-home" class="tab-content active">
-            <div style="height: 10px;"></div>
-            <div class="section-header" style="margin-top:0;">Continue Watching</div>
+            
+            <div class="scroller" style="padding-top:0;">
+                <div class="card c-hero" onclick="showDetails('Suicide Squad Isekai', 'The DC Villains go to another world.', 'https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
+                    <div class="card-meta"><div class="card-title">Suicide Squad Isekai</div></div>
+                </div>
+                <div class="card c-hero" onclick="showDetails('Dune Part Two', 'Paul Atreides unites with the Fremen.', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-meta"><div class="card-title">Dune Part Two</div></div>
+                </div>
+            </div>
+
+            <div class="section-header">Continue Watching</div>
             <div class="scroller">
                 <div class="card c-thumb" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
                     <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
-                </div>
-                <div class="card c-thumb" onclick="showDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
-                    <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
                 </div>
                 <div class="card c-thumb" onclick="playVideo()" style="background: #990000; display:grid; place-items:center;">
                     <span style="font-weight:900; font-size:1.5rem;">BBC ONE</span>
@@ -245,12 +266,54 @@
                 <div class="card c-thumb" onclick="showDetails('House of the Dragon', 'S2 E1', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
                     <div class="card-meta"><div class="card-title">House of the Dragon</div><div class="card-sub">S2 E1</div></div>
                 </div>
+                <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
+                    <div class="card-meta"><div class="card-title">The Last of Us</div><div class="card-sub">S1 E6</div></div>
+                </div>
             </div>
 
             <div class="section-header">Recent Channels</div>
             <div class="scroller">
                 <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
                 <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
+            </div>
+
+            <div class="section-header">Popular Movies</div>
+            <div class="scroller">
+                <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
+            </div>
+
+            <div class="section-header">Popular TV Shows</div>
+            <div class="scroller">
+                <div class="card c-poster" onclick="showDetails('Succession', '', 'https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Ted Lasso', '', 'https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg');"></div>
+            </div>
+
+            <div class="section-header"><i class="fab fa-youtube" style="color:red;"></i> Recommended</div>
+            <div class="scroller">
+                <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
+                    <div class="card-meta"><div class="card-title">MKBHD Review</div></div>
+                </div>
+                <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');">
+                     <div class="card-meta"><div class="card-title">Lofi Girl Radio</div></div>
+                </div>
+            </div>
+
+            <div class="section-header">Subscriptions</div>
+            <div class="scroller">
+                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-user"></i></div>
+                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-gamepad"></i></div>
+                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-car"></i></div>
+            </div>
+
+            <div class="section-header"><i class="fas fa-music"></i> Jump Back In</div>
+            <div class="scroller">
+                <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-bolt fa-2x" style="color:#FFD700;"></i><br><br>Supermix</div></div>
+                <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-moon fa-2x" style="color:#FFD700;"></i><br><br>Chill</div></div>
             </div>
 
             <div class="section-header">Apps</div>
@@ -258,6 +321,7 @@
                 <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
                 <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
                 <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
+                <div class="card c-app" style="background: #1DB954;"><i class="fab fa-spotify fa-2x"></i></div>
             </div>
         </div>
 
@@ -270,14 +334,49 @@
                         <div class="v-item" onclick="activateFilter(this)">Ent.</div>
                         <div class="v-item" onclick="activateFilter(this)">Movies</div>
                         <div class="v-item" onclick="activateFilter(this)">Sports</div>
+                        <div class="v-item" onclick="activateFilter(this)">News</div>
                         <div class="v-item" onclick="activateFilter(this)">Kids</div>
                     </div>
                 </div>
                 <div class="content-col">
                     <h1 style="margin-top:0;">TV Guide</h1>
-                    <div class="epg-row"><div class="epg-ch">BBC 1</div><div class="epg-item" onclick="openLive('BBC News')" style="flex:2;"><strong>BBC News</strong><div class="live-tag">LIVE</div></div><div class="epg-item" onclick="openFuture('Eastenders')" style="flex:3;"><strong>Eastenders</strong></div></div>
-                    <div class="epg-row"><div class="epg-ch">Sky F1</div><div class="epg-item" onclick="openLive('F1 Race')" style="flex:5;"><strong>F1 Grand Prix</strong><div class="live-tag">LIVE</div></div></div>
-                    <div class="epg-row"><div class="epg-ch">ITV</div><div class="epg-item" onclick="openFuture('Chase')" style="flex:3;"><strong>The Chase</strong></div><div class="epg-item" onclick="openFuture('Emmerdale')" style="flex:3;"><strong>Emmerdale</strong></div></div>
+                    
+                    <div class="epg-row">
+                        <div class="epg-ch">BBC 1</div>
+                        <div class="epg-item" onclick="openLive('BBC News')" style="flex:2;">
+                            <div style="font-weight:700;">BBC News</div><div class="live-tag">● LIVE</div>
+                        </div>
+                        <div class="epg-item" onclick="openFuture('Eastenders')" style="flex:3;">
+                            <div style="font-weight:700;">Eastenders</div><div style="color:#666;font-size:0.8rem;">19:30</div>
+                        </div>
+                    </div>
+
+                    <div class="epg-row">
+                        <div class="epg-ch">ITV 1</div>
+                        <div class="epg-item" onclick="openFuture('The Chase')" style="flex:3;">
+                            <div style="font-weight:700;">The Chase</div><div style="color:#666;font-size:0.8rem;">17:00</div>
+                        </div>
+                        <div class="epg-item" onclick="openFuture('Emmerdale')" style="flex:3;">
+                            <div style="font-weight:700;">Emmerdale</div><div style="color:#666;font-size:0.8rem;">19:30</div>
+                        </div>
+                    </div>
+
+                    <div class="epg-row">
+                        <div class="epg-ch">Sky F1</div>
+                        <div class="epg-item" onclick="openLive('Saudi GP')" style="flex:5;">
+                            <div style="font-weight:700;">Saudi Arabian Grand Prix</div><div class="live-tag">● LIVE</div>
+                        </div>
+                    </div>
+
+                    <div class="epg-row">
+                        <div class="epg-ch">Disc</div>
+                        <div class="epg-item" onclick="openLive('Gold Rush')" style="flex:3;">
+                            <div style="font-weight:700;">Gold Rush</div><div class="live-tag">● LIVE</div>
+                        </div>
+                        <div class="epg-item" onclick="openFuture('Deadliest Catch')" style="flex:3;">
+                            <div style="font-weight:700;">Deadliest Catch</div><div style="color:#666;font-size:0.8rem;">21:00</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -291,16 +390,19 @@
                         <div class="v-item" onclick="activateFilter(this)">Movies</div>
                         <div class="v-item" onclick="activateFilter(this)">TV</div>
                         <div class="v-item" onclick="activateFilter(this)">4K</div>
+                        <div class="v-item" onclick="activateFilter(this)">New</div>
                     </div>
                 </div>
                 <div class="content-col">
                     <h1 style="margin-top:0;">On Demand</h1>
-                    <div class="section-header">Trending</div>
+                    <div class="section-header" style="margin-top:10px;">Trending</div>
                     <div class="scroller" style="flex-wrap:wrap;">
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg'); margin-bottom:20px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg'); margin-bottom:20px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg'); margin-bottom:20px;"></div>
-                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg'); margin-bottom:20px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8xV47NDrjdZDpkVcCFqkdHa3T0C.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg'); margin-bottom:15px;"></div>
                     </div>
                 </div>
             </div>
@@ -320,59 +422,39 @@
                     </div>
                 </div>
                 <div class="content-col">
-                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div class="st-grid">
                         
                         <div class="st-card" onclick="playVideo()">
                             <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
-                                <div class="st-duration">14:20</div>
                                 <div class="sb-bar"><div class="sb-seg" style="left:10%; width:15%; background:#00d26a;"></div></div>
                             </div>
                             <div class="st-meta">
-                                <div class="st-avatar" style="background-image:url('https://yt3.ggpht.com/ytc/AIdro_nO3F7D_sH-0W-0_0_0_0_0_0_0_0=s88-c-k-c0x00ffffff-no-rj'); background-size:cover;"></div>
-                                <div class="st-info">
-                                    <div class="st-title">The State of Android 2024</div>
-                                    <div class="st-details">MKBHD • 1.2M views • 4 hours ago</div>
-                                </div>
+                                <div class="st-avatar" style="background:#333;"></div>
+                                <div><div class="st-title">State of Android</div><div class="st-details">MKBHD • 1.2M views</div></div>
                             </div>
                         </div>
 
                         <div class="st-card" onclick="playVideo()">
-                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/U8l-12p49vo/hqdefault.jpg');">
-                                <div class="st-duration">18:05</div>
-                                <div class="sb-bar"><div class="sb-seg" style="left:80%; width:10%; background:#a020f0;"></div></div>
-                            </div>
+                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/U8l-12p49vo/hqdefault.jpg');"></div>
                             <div class="st-meta">
-                                <div class="st-avatar" style="background:purple;"></div>
-                                <div class="st-info">
-                                    <div class="st-title">Stop Buying This Phone!</div>
-                                    <div class="st-details">MrWhoseTheBoss • 3M views</div>
-                                </div>
+                                <div class="st-avatar" style="background:#444;"></div>
+                                <div><div class="st-title">Don't Buy This!</div><div class="st-details">MrWhoseTheBoss</div></div>
                             </div>
                         </div>
 
                         <div class="st-card" onclick="playVideo()">
-                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');">
-                                <div class="st-duration" style="background:red;">LIVE</div>
-                            </div>
+                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');"></div>
                             <div class="st-meta">
-                                <div class="st-avatar" style="background:blue;"></div>
-                                <div class="st-info">
-                                    <div class="st-title">lofi hip hop radio 📚 - beats to relax/study to</div>
-                                    <div class="st-details">Lofi Girl • 30K watching</div>
-                                </div>
+                                <div class="st-avatar" style="background:#555;"></div>
+                                <div><div class="st-title">Lofi Hip Hop</div><div class="st-details">Lofi Girl • LIVE</div></div>
                             </div>
                         </div>
 
                          <div class="st-card" onclick="playVideo()">
-                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/LXb3EKWsInQ/hqdefault.jpg');">
-                                <div class="st-duration">1:30:00</div>
-                            </div>
+                            <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/LXb3EKWsInQ/hqdefault.jpg');"></div>
                             <div class="st-meta">
-                                <div class="st-avatar" style="background:orange;"></div>
-                                <div class="st-info">
-                                    <div class="st-title">4K HDR 60fps Earth</div>
-                                    <div class="st-details">Earth TV • 10M views</div>
-                                </div>
+                                <div class="st-avatar" style="background:#666;"></div>
+                                <div><div class="st-title">4K HDR Earth</div><div class="st-details">Earth TV</div></div>
                             </div>
                         </div>
 
@@ -394,9 +476,11 @@
                 </div>
                 <div class="content-col">
                     <h1 style="margin-top:0;">Music</h1>
+                    <div class="section-header">Your Mixes</div>
                     <div class="scroller">
                         <div class="card c-square" style="background:#222;"><i class="fas fa-bolt fa-2x" style="color:yellow; margin:auto;"></i></div>
                         <div class="card c-square" style="background:#222;"><i class="fas fa-heart fa-2x" style="color:pink; margin:auto;"></i></div>
+                        <div class="card c-square" style="background:#222;"><i class="fas fa-clock fa-2x" style="color:cyan; margin:auto;"></i></div>
                     </div>
                 </div>
             </div>
@@ -415,8 +499,8 @@
                 <div class="content-col">
                     <h1 style="margin-top:0;">Local Files</h1>
                     <div class="scroller" style="flex-wrap:wrap;">
-                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-folder fa-3x" style="color:#aaa;"></i></div>
-                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-video fa-3x" style="color:#4CAF50;"></i></div>
+                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-folder fa-3x" style="color:#aaa;"></i><span style="font-size:0.8rem;">DCIM</span></div>
+                        <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-video fa-3x" style="color:#4CAF50;"></i><span style="font-size:0.8rem;">Video.mp4</span></div>
                     </div>
                 </div>
             </div>
@@ -428,9 +512,11 @@
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
                         <div class="v-item active" onclick="activateFilter(this)">All</div>
-                        <div class="v-item" onclick="activateFilter(this)">TV</div>
-                        <div class="v-item" onclick="activateFilter(this)">Movies</div>
+                        <div class="v-item" onclick="activateFilter(this)">Linear</div>
+                        <div class="v-item" onclick="activateFilter(this)">Plus</div>
                         <div class="v-item" onclick="activateFilter(this)">YT</div>
+                        <div class="v-item" onclick="activateFilter(this)">Music</div>
+                        <div class="v-item" onclick="activateFilter(this)">Local</div>
                     </div>
                 </div>
                 <div class="content-col">
@@ -441,12 +527,17 @@
 
         <div id="tab-settings" class="tab-content">
             <h1>Settings</h1>
-            <div style="background:#111; padding:20px; border-radius:20px;">
-                <h3>IPTV (Xtream)</h3>
+            <div style="background:#111; padding:30px; border-radius:30px; max-width:600px;">
+                <h3 style="margin-top:0;">IPTV (Xtream)</h3>
                 <input style="width:100%; padding:15px; margin-bottom:10px; background:#222; border:none; color:white; border-radius:10px;" placeholder="http://url">
                 <input style="width:100%; padding:15px; margin-bottom:10px; background:#222; border:none; color:white; border-radius:10px;" placeholder="Username">
                 <input style="width:100%; padding:15px; background:#222; border:none; color:white; border-radius:10px;" type="password" placeholder="Password">
-                <button style="width:100%; padding:15px; background:white; color:black; border:none; border-radius:10px; margin-top:20px; font-weight:bold;">Connect</button>
+                
+                <h3 style="margin-top:30px;">Real-Debrid</h3>
+                <input style="width:100%; padding:15px; background:#222; border:none; color:white; border-radius:10px;" type="password" placeholder="API Token">
+                
+                <h3 style="margin-top:30px;">YouTube</h3>
+                <button style="width:100%; padding:15px; background:#ff0000; color:white; border:none; border-radius:10px; font-weight:bold;">Sign In</button>
             </div>
         </div>
 
@@ -459,19 +550,23 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
         }
+
         function activateFilter(el) {
             el.parentElement.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         }
+
         function showOverlay(id) { document.getElementById(id).style.display = 'flex'; }
         function hideOverlay(id) { document.getElementById(id).style.display = 'none'; }
         function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+
         function showDetails(title, desc, img) {
             document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-desc').innerText = desc || "No description.";
             if(img) document.getElementById('detail-bg').style.backgroundImage = `url('${img}')`;
             showOverlay('overlay-details');
         }
+
         function playVideo() { closeOverlays(); showOverlay('overlay-player'); }
         function openLive(t) { document.getElementById('live-title').innerText = t; showOverlay('modal-live'); }
         function openFuture(t) { document.getElementById('future-title').innerText = t; showOverlay('modal-future'); }
