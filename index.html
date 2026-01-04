@@ -3,30 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V13: Fixed</title>
+    <title>FibreTV V14: Clean Capsule</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#000000","theme_color":"#ffffff","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* CSS RESET & VARIABLES */
         :root {
             --bg-color: #000000;
             --surface-color: #1a1a1a;
             --surface-translucent: rgba(20, 20, 20, 0.85);
-            --primary-color: #ffffff;
+            --text-primary: #ffffff;
             --text-secondary: #94a3b8;
-            --accent-brand: #3b82f6;
             --radius-capsule: 50px;
             --radius-card: 24px;
-        }
-
-        body.kids-mode {
-            --bg-color: #1a1025;
-            --accent-brand: #facc15;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,7 +30,7 @@
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
-            color: white;
+            color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column;
@@ -43,80 +39,80 @@
 
         /* --- TOP UI LAYER (Floating Capsule) --- */
         .top-bar-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100px; 
-            z-index: 500; /* Above content, below overlays */
+            position: fixed; top: 0; left: 0; width: 100%; height: 90px;
+            z-index: 1000; /* Stays on top */
             display: flex; align-items: center; justify-content: center;
-            pointer-events: none; /* Allow clicks to pass through empty space */
+            pointer-events: none; /* Allows clicks to pass through the empty areas */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
         }
 
         .nav-capsule {
             background: var(--surface-translucent);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-radius: var(--radius-capsule);
-            padding: 6px;
-            display: flex; align-items: center; gap: 5px;
-            pointer-events: auto; /* Re-enable clicks */
+            padding: 5px;
+            display: flex; align-items: center; gap: 4px;
+            pointer-events: auto; /* Re-enable clicks for the buttons */
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            overflow-x: auto; /* Safety for small screens */
+            max-width: 95vw;
         }
 
-        /* Profile Circle (Left Side) */
-        .profile-btn {
-            width: 48px; height: 48px; border-radius: 50%;
-            background: #333; margin-right: 10px; margin-left: 5px;
-            display: grid; place-items: center; cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .profile-btn:active { transform: scale(0.9); }
-
-        /* Nav Item */
+        /* Nav Items */
         .nav-item {
-            padding: 10px 22px;
+            padding: 10px 20px;
             border-radius: var(--radius-capsule);
             color: var(--text-secondary);
-            font-weight: 600; font-size: 0.95rem;
+            font-weight: 600; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; gap: 8px;
+            white-space: nowrap;
+            display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
         .nav-item:active { transform: scale(0.95); }
         
         .nav-item.active {
-            background: white; color: black; box-shadow: 0 2px 10px rgba(255,255,255,0.2);
+            background: white; color: black; 
+            box-shadow: 0 2px 10px rgba(255,255,255,0.2);
         }
 
-        /* --- CONTENT --- */
+        /* Settings Icon Specifics */
+        .nav-item.icon-only {
+            padding: 10px; width: 42px; height: 42px;
+        }
+
+        /* --- CONTENT AREA --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 120px; padding-bottom: 50px;
-            position: relative; z-index: 1;
+            padding-top: 100px; padding-bottom: 50px; /* clear top bar */
         }
 
-        .tab-content { display: none; padding: 0 5%; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; padding: 0 5%; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SCROLLERS --- */
+        /* Scrollers */
         .row-header {
-            font-size: 1.5rem; font-weight: 800; margin: 40px 0 20px 0;
-            color: #eee; display: flex; align-items: center; gap: 10px;
+            font-size: 1.4rem; font-weight: 800; margin: 30px 0 15px 0;
+            color: #eee;
         }
         .scroller {
             display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
-            scroll-behavior: smooth;
+            scroll-behavior: smooth; margin-left: -5px;
         }
         ::-webkit-scrollbar { display: none; }
 
-        /* --- CARDS --- */
+        /* Cards */
         .card {
             flex: 0 0 auto; background: var(--surface-color);
             border-radius: var(--radius-card); position: relative;
             cursor: pointer; overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s;
             border: 2px solid transparent;
         }
-        /* Click Feedback */
-        .card:active { transform: scale(0.96) !important; transition: transform 0.1s; }
+        .card:active { transform: scale(0.96) !important; }
         .card:hover { transform: scale(1.02); z-index: 10; border-color: rgba(255,255,255,0.3); }
 
         .card-meta {
@@ -124,134 +120,104 @@
             background: linear-gradient(to top, black, transparent);
             padding: 20px; padding-top: 40px; pointer-events: none;
         }
-        .card-title { font-weight: 700; font-size: 1.1rem; }
-        .card-sub { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: 500;}
+        .card-title { font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .card-sub { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: 500; }
 
-        /* Sizes */
-        .c-hero { width: 75vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
-        .c-poster { width: 180px; height: 270px; background-size: cover; background-color: #222; }
-        .c-thumb { width: 300px; height: 170px; background-size: cover; background-color: #222; }
-        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: grid; place-items: center; }
-        .c-app { width: 100px; height: 100px; border-radius: 28px; display: grid; place-items: center; }
+        /* Card Sizes */
+        .c-hero { width: 85vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
+        .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
+        .c-thumb { width: 280px; height: 160px; background-size: cover; background-color: #222; }
+        .c-square { width: 140px; height: 140px; background-size: cover; background-color: #222; display: grid; place-items: center; }
+        .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
 
         /* --- OVERLAYS --- */
-        /* Strict z-index management */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            z-index: 9000; /* Highest */
-            display: none; /* Hidden by default */
-            flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.95); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
         }
-        
-        /* Account Modal */
-        .modal-box {
-            background: #111; padding: 40px; border-radius: 40px;
-            border: 1px solid #333; text-align: center; width: 400px;
-            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
-        }
-        .profile-row { display: flex; gap: 30px; justify-content: center; margin: 30px 0; }
-        .p-option { cursor: pointer; display: flex; flex-direction: column; align-items: center; opacity: 0.6; transition: 0.2s; }
-        .p-option:hover { opacity: 1; transform: scale(1.1); }
-        .p-pic { width: 90px; height: 90px; border-radius: 50%; background: #333; display: grid; place-items: center; font-size: 2.5rem; margin-bottom: 15px; }
-
-        .btn-text {
-            background: white; color: black; border: none;
-            padding: 15px 30px; border-radius: 50px; font-weight: bold; font-family: inherit;
-            cursor: pointer; margin-top: 10px; width: 100%; font-size: 1rem;
-        }
-        .btn-text:active { transform: scale(0.95); }
 
         /* Details Overlay */
-        .detail-bg {
-            width: 100%; height: 100%; background-size: cover; background-position: center;
-        }
+        .detail-bg { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-gradient {
-            width: 100%; height: 100%; background: linear-gradient(90deg, #000 30%, transparent 100%);
-            display: flex; align-items: center; padding-left: 10vw;
+            width: 100%; height: 100%; background: linear-gradient(90deg, #000 20%, rgba(0,0,0,0.6) 100%);
+            display: flex; align-items: center; padding-left: 8vw;
         }
 
-        /* EPG */
+        /* Buttons */
+        .btn-action {
+            padding: 15px 35px; border-radius: 50px; font-weight: bold; font-family: inherit; font-size: 1rem;
+            cursor: pointer; border: none; margin-top: 20px; transition: transform 0.1s;
+        }
+        .btn-primary { background: white; color: black; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; margin-left: 10px; }
+        .btn-action:active { transform: scale(0.95); }
+
+        /* EPG Items */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 100px; font-weight: 800; color: #666; display: grid; place-items: center;}
+        .epg-ch { width: 80px; font-weight: 800; color: #666; display: grid; place-items: center;}
         .epg-item { 
-            height: 80px; background: #1a1a1a; padding: 0 25px; border-radius: 16px;
+            height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
             display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-            border: 2px solid transparent; transition: background 0.2s;
+            border: 2px solid transparent; flex: 1;
         }
         .epg-item:hover { background: #333; }
-        .epg-item:active { transform: scale(0.98); }
+        
+        /* Settings List */
+        .settings-item {
+            padding: 20px; width: 100%; background: #1a1a1a; border-radius: 16px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
+        }
+        .settings-item:active { background: #333; }
 
     </style>
 </head>
 <body>
 
-    <div id="overlay-account" class="overlay" style="display: flex;"> <div class="modal-box">
-            <h2 style="font-size: 2rem; margin: 0;">Who is watching?</h2>
-            <div class="profile-row">
-                <div class="p-option" onclick="selectProfile('Dad')">
-                    <div class="p-pic"><i class="fas fa-user"></i></div>
-                    <span style="font-weight: 600;">Dad</span>
-                </div>
-                <div class="p-option" onclick="selectProfile('Kids')">
-                    <div class="p-pic" style="background: linear-gradient(to right, #facc15, #f97316); color: black;"><i class="fas fa-child"></i></div>
-                    <span style="font-weight: 600;">Kids</span>
-                </div>
-            </div>
-            <button class="btn-text" onclick="showSettings()">Settings</button>
-            <button id="btn-close-acc" class="btn-text" style="background: #333; color: white; display: none;" onclick="closeOverlays()">Close</button>
-        </div>
-    </div>
-
-    <div id="overlay-player" class="overlay" style="background: black;">
+    <div id="overlay-player" class="overlay">
         <i class="fas fa-play-circle fa-5x" style="margin-bottom: 20px;"></i>
         <h1 id="player-title">Video Title</h1>
-        <p style="color: #888;">Tap to close</p>
-        <button class="btn-text" style="width: auto; margin-top: 20px;" onclick="closeOverlays()">Stop Playback</button>
+        <p style="color: #888;">Tap button below to stop</p>
+        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-player')">Close Player</button>
     </div>
 
     <div id="overlay-details" class="overlay" style="padding:0;">
         <div class="detail-bg" id="detail-bg">
             <div class="detail-gradient">
-                <div style="max-width: 600px;">
-                    <h1 id="detail-title" style="font-size: 4rem; line-height: 1.1; margin-bottom: 20px;">Title</h1>
-                    <p id="detail-desc" style="font-size: 1.2rem; color: #ccc; line-height: 1.6; margin-bottom: 40px;">Desc...</p>
-                    <div style="display: flex; gap: 15px;">
-                        <button class="btn-text" style="width:auto; padding: 15px 40px;" onclick="startPlayer()">Play Now</button>
-                        <button class="btn-text" style="width:auto; background: #333; color: white;" onclick="closeOverlays()">Back</button>
+                <div style="max-width: 600px; padding-right: 20px;">
+                    <h1 id="detail-title" style="font-size: 3rem; line-height: 1.1; margin-bottom: 20px;">Title</h1>
+                    <p id="detail-desc" style="font-size: 1.1rem; color: #ddd; line-height: 1.5;">Description...</p>
+                    <div>
+                        <button class="btn-action btn-primary" onclick="startPlayer()">Play</button>
+                        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-details')">Back</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
     <div class="top-bar-container">
         <div class="nav-capsule">
-            <div class="profile-btn" onclick="openAccount()">
-                <i class="fas fa-user" id="user-icon"></i>
-            </div>
-            
             <div class="nav-item active" onclick="switchTab('home', this)">Home</div>
-            <div class="nav-item" id="nav-linear" onclick="switchTab('linear', this)">Linear</div>
+            <div class="nav-item" onclick="switchTab('linear', this)">Linear</div>
             <div class="nav-item" onclick="switchTab('plus', this)">Plus</div>
             <div class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
             <div class="nav-item" onclick="switchTab('music', this)">Music</div>
             <div class="nav-item" onclick="switchTab('local', this)">Local</div>
-            <div class="nav-item" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+            <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+            <div class="nav-item icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
         </div>
     </div>
-
 
     <div class="main-content">
 
         <div id="tab-home" class="tab-content active">
             <div class="scroller">
                 <div class="card c-hero" onclick="openDetails('Suicide Squad Isekai', 'The DC Villains go to another world.', 'https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
-                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Suicide Squad Isekai</div></div>
+                    <div class="card-meta"><div class="card-title">Suicide Squad Isekai</div></div>
                 </div>
                 <div class="card c-hero" onclick="openDetails('Dune Part Two', 'Paul Atreides unites with the Fremen.', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
-                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Dune Part Two</div></div>
+                    <div class="card-meta"><div class="card-title">Dune Part Two</div></div>
                 </div>
             </div>
 
@@ -259,6 +225,9 @@
             <div class="scroller">
                 <div class="card c-thumb" onclick="openDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
                     <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
+                </div>
+                <div class="card c-thumb" onclick="openDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
+                    <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
                 </div>
             </div>
 
@@ -272,11 +241,12 @@
             <div class="scroller">
                 <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
                 <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
+                <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
             </div>
         </div>
 
         <div id="tab-linear" class="tab-content">
-            <h1 style="font-size: 3rem; margin-bottom: 2rem;">TV Guide</h1>
+            <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">TV Guide</h1>
             <div class="epg-row">
                 <div class="epg-ch">BBC One</div>
                 <div class="epg-item" onclick="startPlayer('BBC News')" style="flex: 2;">
@@ -298,7 +268,7 @@
         </div>
 
         <div id="tab-plus" class="tab-content">
-            <h1 style="font-size: 3rem;">On Demand</h1>
+            <h1 style="font-size: 2.5rem;">On Demand</h1>
             <div class="row-header">New Arrivals</div>
             <div class="scroller">
                 <div class="card c-poster" onclick="openDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
@@ -307,7 +277,7 @@
         </div>
 
         <div id="tab-youtube" class="tab-content">
-            <h1 style="color: #ff0000; font-size: 3rem;"><i class="fab fa-youtube"></i> YouTube</h1>
+            <h1 style="color: #ff0000; font-size: 2.5rem;"><i class="fab fa-youtube"></i> YouTube</h1>
             <div class="row-header">Subscriptions</div>
             <div class="scroller">
                 <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-user"></i></div>
@@ -316,19 +286,30 @@
         </div>
 
         <div id="tab-settings" class="tab-content">
-            <h1>Settings</h1>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
-                <div class="epg-item">Player Configuration</div>
-                <div class="epg-item">Parental Controls</div>
-                <div class="epg-item">Theme</div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">Settings</h1>
+            <div style="max-width: 500px;">
+                <div class="settings-item">
+                    <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+                    <div style="flex:1;">
+                        <div style="font-weight: bold;">Profile</div>
+                        <div style="font-size: 0.8rem; color: #888;">Currently: Dad</div>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <i class="fas fa-sliders-h" style="font-size: 1.5rem;"></i>
+                    <div style="font-weight: bold;">Player Config</div>
+                </div>
+                <div class="settings-item">
+                    <i class="fas fa-lock" style="font-size: 1.5rem;"></i>
+                    <div style="font-weight: bold;">Parental Controls</div>
+                </div>
             </div>
         </div>
         
         <div id="tab-music" class="tab-content"><h1>Music</h1></div>
         <div id="tab-local" class="tab-content"><h1>Local</h1></div>
         <div id="tab-search" class="tab-content">
-             <h1>Search</h1>
-             <input type="text" placeholder="Movies, Shows, Channels..." style="width: 100%; padding: 20px; border-radius: 50px; background: #222; border:none; color: white; font-size: 1.2rem; font-family: inherit;">
+             <input type="text" placeholder="Search..." style="width: 100%; padding: 20px; border-radius: 50px; background: #222; border:none; color: white; font-size: 1.2rem; margin-top: 20px;">
         </div>
 
     </div>
@@ -336,453 +317,39 @@
     <script>
         // --- Navigation ---
         function switchTab(tabId, el) {
-            // Update Active UI
+            // UI Update
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
-            else {
-                // Find element if not passed
-                /* (Simplified for demo) */
-            }
-
-            // Show Content
+            
+            // Content Update
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             const target = document.getElementById('tab-' + tabId);
             if(target) target.classList.add('active');
         }
 
         // --- Overlays ---
-        function openAccount() {
-            document.getElementById('overlay-account').style.display = 'flex';
+        function showOverlay(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        function hideOverlay(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
-        function closeOverlays() {
-            document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
-        }
-
-        function selectProfile(name) {
-            closeOverlays();
-            if(name === 'Kids') {
-                document.body.classList.add('kids-mode');
-                document.getElementById('nav-linear').style.display = 'none';
-                document.getElementById('user-icon').className = 'fas fa-child';
-            } else {
-                document.body.classList.remove('kids-mode');
-                document.getElementById('nav-linear').style.display = 'flex';
-                document.getElementById('user-icon').className = 'fas fa-user';
-            }
-            // Show close button on account modal for future
-            document.getElementById('btn-close-acc').style.display = 'block';
-        }
-
-        function showSettings() {
-            closeOverlays();
-            switchTab('settings', null);
-        }
-
-        // --- Content ---
+        // --- Content Logic ---
         function openDetails(title, desc, img) {
             document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-desc').innerText = desc;
+            document.getElementById('detail-desc').innerText = desc || "No description.";
             if(img) document.getElementById('detail-bg').style.backgroundImage = `url('${img}')`;
-            document.getElementById('overlay-details').style.display = 'flex';
+            showOverlay('overlay-details');
         }
 
         function startPlayer(title) {
             if(title) document.getElementById('player-title').innerText = title;
-            // Close details first
-            document.getElementById('overlay-details').style.display = 'none';
-            document.getElementById('overlay-player').style.display = 'flex';
+            hideOverlay('overlay-details');
+            showOverlay('overlay-player');
         }
 
     </script>
 </body>
 </html>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column;
-        }
-
-        /* --- TOP FLOATING BAR --- */
-        .top-bar-container {
-            position: fixed; top: 0; left: 0; width: 100%;
-            height: 100px; z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none; /* Let clicks pass through empty space */
-            padding: 0 40px;
-        }
-
-        /* Navigation Capsule */
-        .nav-capsule {
-            background: var(--surface-translucent);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--radius-capsule);
-            padding: 8px;
-            display: flex; gap: 5px;
-            pointer-events: auto; /* Re-enable clicks */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .nav-item {
-            padding: 12px 24px;
-            border-radius: var(--radius-capsule);
-            color: var(--secondary-color);
-            font-weight: 600; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s ease;
-            display: flex; align-items: center; gap: 8px;
-            border: 2px solid transparent;
-        }
-        
-        .nav-item i { font-size: 1.1rem; }
-
-        /* Active State (The "Pill") */
-        .nav-item.active {
-            background: var(--primary-color);
-            color: var(--on-primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        
-        .nav-item:focus {
-            outline: none;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border-color: white;
-        }
-        .nav-item.active:focus {
-            background: white; border-color: var(--accent-brand);
-        }
-
-        /* Profile Capsule (Top Right) */
-        .profile-capsule {
-            position: absolute; right: 40px;
-            pointer-events: auto;
-            background: var(--surface-translucent);
-            backdrop-filter: blur(20px);
-            padding: 6px;
-            border-radius: var(--radius-capsule);
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: transform 0.2s;
-        }
-        .profile-capsule:hover, .profile-capsule:focus { transform: scale(1.1); outline: none; border-color: white; }
-        
-        .profile-img {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: #333; display: grid; place-items: center;
-        }
-
-        /* --- CONTENT AREA --- */
-        .main-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 120px; /* Space for top bar */
-            padding-bottom: 50px;
-            scroll-behavior: smooth;
-        }
-
-        .tab-content { display: none; padding: 0 4vw; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        /* --- SCROLLERS & CARDS --- */
-        .row-header {
-            font-size: 1.6rem; font-weight: 800; margin: 40px 0 20px 0;
-            color: var(--primary-color); display: flex; align-items: center; gap: 12px;
-        }
-        
-        .scroller {
-            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
-            scroll-behavior: smooth; margin-left: -5px; /* Offset padding */
-        }
-        ::-webkit-scrollbar { display: none; }
-
-        .card {
-            flex: 0 0 auto; background: var(--surface-color);
-            border-radius: var(--radius-card); position: relative;
-            cursor: pointer; overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 3px solid transparent;
-        }
-
-        .card:hover, .card:focus {
-            transform: scale(1.03); z-index: 10;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            border-color: rgba(255,255,255,0.8); outline: none;
-        }
-
-        .card-meta {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(to top, black, transparent);
-            padding: 20px; padding-top: 40px; pointer-events: none;
-        }
-        .card-title { font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .card-sub { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: 500;}
-
-        /* Sizes */
-        .c-hero { width: 70vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
-        .c-poster { width: 180px; height: 270px; background-size: cover; background-color: #222; }
-        .c-thumb { width: 300px; height: 170px; background-size: cover; background-color: #222; }
-        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: grid; place-items: center; }
-        .c-app { width: 100px; height: 100px; border-radius: 28px; display: grid; place-items: center; }
-
-
-        /* --- OVERLAYS (STRICT DISPLAY NONE) --- */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(15px);
-            z-index: 9999; 
-            display: none; /* KEY FIX: display none by default */
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-
-        /* Account Modal Style */
-        .modal-box {
-            background: #111; padding: 40px; border-radius: 40px;
-            border: 1px solid #333; text-align: center; width: 400px;
-        }
-        .profile-row { display: flex; gap: 20px; justify-content: center; margin: 30px 0; }
-        .profile-btn { 
-            cursor: pointer; opacity: 0.7; transition: 0.2s; 
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .profile-btn:hover, .profile-btn:focus { opacity: 1; transform: scale(1.1); outline: none; }
-        .p-pic { width: 80px; height: 80px; border-radius: 50%; background: #333; display: grid; place-items: center; font-size: 2rem; margin-bottom: 10px; pointer-events: none;}
-        
-        .btn-text {
-            background: transparent; color: white; border: 1px solid #444;
-            padding: 15px 30px; border-radius: 50px; font-weight: bold; font-family: inherit;
-            cursor: pointer; margin-top: 10px; width: 100%;
-        }
-        .btn-text:hover { background: white; color: black; }
-
-
-        /* Details Overlay */
-        .detail-layout {
-            display: flex; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-        }
-        .detail-gradient {
-            width: 100%; height: 100%; background: linear-gradient(90deg, #000 30%, transparent 100%);
-            display: flex; align-items: center; padding-left: 10vw;
-        }
-
-        /* EPG */
-        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 100px; font-weight: 800; color: #666; display: grid; place-items: center;}
-        .epg-item { 
-            height: 80px; background: #1a1a1a; padding: 0 25px; border-radius: 16px;
-            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-            border: 2px solid transparent;
-        }
-        .epg-item:focus { background: #333; border-color: white; outline: none; }
-
-    </style>
-</head>
-<body>
-
-    <div id="account-overlay" class="overlay">
-        <div class="modal-box">
-            <h2 style="font-size: 2rem; margin: 0;">Account</h2>
-            <div class="profile-row">
-                <div class="profile-btn" id="prof-Dad" tabindex="0">
-                    <div class="p-pic"><i class="fas fa-user"></i></div>
-                    <span>Dad</span>
-                </div>
-                <div class="profile-btn" id="prof-Kids" tabindex="0">
-                    <div class="p-pic" style="background: linear-gradient(to right, #facc15, #f97316); color: black;"><i class="fas fa-child"></i></div>
-                    <span>Kids</span>
-                </div>
-            </div>
-            <button class="btn-text" id="btn-settings">Settings</button>
-            <button class="btn-text" id="btn-close-acc" style="display:none; border:none; margin-top: 0;">Close</button>
-        </div>
-    </div>
-
-    <div id="player-overlay" class="overlay" style="background: black;">
-        <h1>Video Playing</h1>
-        <p>Press ESC / Back to exit</p>
-    </div>
-
-    <div id="details-overlay" class="overlay" style="padding:0;">
-        <div class="detail-layout" id="detail-bg">
-            <div class="detail-gradient">
-                <div style="max-width: 600px;">
-                    <h1 id="detail-title" style="font-size: 4rem; line-height: 1.1; margin-bottom: 20px;">Title</h1>
-                    <p id="detail-desc" style="font-size: 1.2rem; color: #ccc; line-height: 1.6; margin-bottom: 40px;">Desc...</p>
-                    <button class="btn-text" style="background: white; color: black; border:none; width: auto; padding: 15px 40px;" id="btn-play">Play</button>
-                    <button class="btn-text" style="width: auto; margin-left: 10px;" id="btn-back">Back</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="top-bar-container">
-        <div class="nav-capsule">
-            <div class="nav-item active" tabindex="0" data-tab="home">Home</div>
-            <div class="nav-item" tabindex="0" data-tab="linear" id="nav-linear">Linear</div>
-            <div class="nav-item" tabindex="0" data-tab="plus">Plus</div>
-            <div class="nav-item" tabindex="0" data-tab="youtube">YouTube</div>
-            <div class="nav-item" tabindex="0" data-tab="music">Music</div>
-            <div class="nav-item" tabindex="0" data-tab="local">Local</div>
-            <div class="nav-item" tabindex="0" data-tab="search"><i class="fas fa-search"></i></div>
-        </div>
-
-        <div class="profile-capsule" tabindex="0" id="profile-btn">
-            <div class="profile-img">
-                <i class="fas fa-user" id="user-icon"></i>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="main-content">
-
-        <div id="tab-home" class="tab-content active">
-            <div class="scroller">
-                <div class="card c-hero" tabindex="0" data-title="Suicide Squad Isekai" data-desc="The DC Villains go to another world." style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
-                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Suicide Squad Isekai</div></div>
-                </div>
-                <div class="card c-hero" tabindex="0" data-title="Dune Part Two" data-desc="Paul Atreides unites with the Fremen." style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
-                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Dune Part Two</div></div>
-                </div>
-            </div>
-
-            <div class="row-header">Continue Watching</div>
-            <div class="scroller">
-                <div class="card c-thumb" tabindex="0" data-title="The Boys" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
-                    <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
-                </div>
-                <div class="card c-thumb" tabindex="0" data-title="Fallout" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
-                    <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
-                </div>
-            </div>
-
-            <div class="row-header">Recent Channels</div>
-            <div class="scroller">
-                <div class="card c-square" tabindex="0" data-play="Sky Sports" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
-                <div class="card c-square" tabindex="0" data-play="BBC One" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
-            </div>
-
-            <div class="row-header">Popular Movies</div>
-            <div class="scroller">
-                <div class="card c-poster" tabindex="0" data-title="Godzilla x Kong" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
-                <div class="card c-poster" tabindex="0" data-title="Civil War" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
-            </div>
-
-             <div class="row-header">Apps</div>
-            <div class="scroller">
-                <div class="card c-app" tabindex="0" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
-                <div class="card c-app" tabindex="0" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
-                <div class="card c-app" tabindex="0" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
-            </div>
-        </div>
-
-        <div id="tab-linear" class="tab-content">
-            <h1 style="font-size: 3rem; margin-bottom: 2rem;">TV Guide</h1>
-            <div class="epg-row">
-                <div class="epg-ch">BBC One</div>
-                <div class="epg-item" tabindex="0" data-play="BBC News" style="flex: 2;">
-                    <div style="font-weight: bold;">BBC News at Six</div>
-                    <div style="color: red; font-size: 0.8rem; font-weight: bold;">LIVE</div>
-                </div>
-                <div class="epg-item" tabindex="0" style="flex: 3;">
-                    <div style="font-weight: bold;">Eastenders</div>
-                    <div style="color: #666; font-size: 0.8rem;">19:30 - 20:00</div>
-                </div>
-            </div>
-            <div class="epg-row">
-                <div class="epg-ch">Sky F1</div>
-                <div class="epg-item" tabindex="0" data-play="F1 Race" style="flex: 5;">
-                    <div style="font-weight: bold;">Saudi Arabian Grand Prix</div>
-                    <div style="color: red; font-size: 0.8rem; font-weight: bold;">LIVE</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-plus" class="tab-content">
-            <h1 style="font-size: 3rem;">On Demand</h1>
-            <div class="row-header">New Arrivals</div>
-            <div class="scroller">
-                <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg');"></div>
-                <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/8xV47NDrjdZDpkVcCFqkdHa3T0C.jpg');"></div>
-            </div>
-        </div>
-
-        <div id="tab-youtube" class="tab-content">
-            <h1 style="color: #ff0000; font-size: 3rem;"><i class="fab fa-youtube"></i> YouTube</h1>
-            <div class="row-header">Subscriptions</div>
-            <div class="scroller">
-                <div class="card c-app" tabindex="0" style="background:#333; border-radius:50%;"><i class="fas fa-user"></i></div>
-                <div class="card c-app" tabindex="0" style="background:#333; border-radius:50%;"><i class="fas fa-gamepad"></i></div>
-            </div>
-        </div>
-
-        <div id="tab-settings" class="tab-content">
-            <h1>Settings</h1>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
-                <div class="epg-item" tabindex="0">Player Configuration</div>
-                <div class="epg-item" tabindex="0">Parental Controls</div>
-                <div class="epg-item" tabindex="0">Theme</div>
-            </div>
-        </div>
-        
-        <div id="tab-music" class="tab-content"><h1>Music</h1></div>
-        <div id="tab-local" class="tab-content"><h1>Local</h1></div>
-        <div id="tab-search" class="tab-content">
-             <h1>Search</h1>
-             <input type="text" placeholder="Movies, Shows, Channels..." style="width: 100%; padding: 20px; border-radius: 50px; background: #222; border:none; color: white; font-size: 1.2rem; font-family: inherit;">
-        </div>
-
-    </div>
-
-
-    <script>
-        // --- 1. OVERLAY MANAGEMENT (Strict) ---
-        function showOverlay(id) {
-            const el = document.getElementById(id);
-            el.style.display = 'flex';
-        }
-        function hideOverlay(id) {
-            const el = document.getElementById(id);
-            el.style.display = 'none';
-        }
-
-        // --- 2. NAVIGATION ---
-        function switchTab(tabName) {
-            // Update UI
-            document.querySelectorAll('.nav-item').forEach(i => {
-                if(i.dataset.tab === tabName) i.classList.add('active');
-                else i.classList.remove('active');
-            });
-            
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            // Show new tab
-            const target = document.getElementById(`tab-${tabName}`);
-            if(target) target.classList.add('active');
-        }
-
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => switchTab(item.dataset.tab));
-            item.addEventListener('keydown', (e) => { if(e.key === 'Enter') switchTab(item.dataset.tab) });
-        });
-
-        // --- 3. PROFILE LOGIC ---
-        function selectProfile(name) {
-            if(name === 'Kids') {
-                document.body.classList.add('kids-mode');
-                document.getElementById('nav-linear').style.display = 'none';
-                document.getElementById('user-icon').className = 'fas fa-child';
-            } else {
-                document.body.classList.remove('kids-mode');
-                document.getElementById('nav-linear').style.display = 'flex';
-                document.getElementById('user-icon').className = 'fas fa-user';
-  
