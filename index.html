@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V12: Capsule UI</title>
+    <title>FibreTV V13: Fixed</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -14,26 +14,389 @@
 
     <style>
         :root {
-            /* COLORS */
             --bg-color: #000000;
             --surface-color: #1a1a1a;
-            --surface-translucent: rgba(30, 30, 30, 0.7);
-            
-            --primary-color: #e2e8f0; /* White/Light Grey for active */
-            --on-primary: #000000;    /* Black Text */
-            --secondary-color: #94a3b8; /* Inactive Text */
-            
-            --accent-brand: #3b82f6; /* Subtle blue tint for focus */
-            
+            --surface-translucent: rgba(20, 20, 20, 0.85);
+            --primary-color: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-brand: #3b82f6;
             --radius-capsule: 50px;
             --radius-card: 24px;
         }
 
         body.kids-mode {
-            --bg-color: #100515;
+            --bg-color: #1a1025;
             --accent-brand: #facc15;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none;
+        }
+
+        /* --- TOP UI LAYER (Floating Capsule) --- */
+        .top-bar-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100px; 
+            z-index: 500; /* Above content, below overlays */
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; /* Allow clicks to pass through empty space */
+        }
+
+        .nav-capsule {
+            background: var(--surface-translucent);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: var(--radius-capsule);
+            padding: 6px;
+            display: flex; align-items: center; gap: 5px;
+            pointer-events: auto; /* Re-enable clicks */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Profile Circle (Left Side) */
+        .profile-btn {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: #333; margin-right: 10px; margin-left: 5px;
+            display: grid; place-items: center; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .profile-btn:active { transform: scale(0.9); }
+
+        /* Nav Item */
+        .nav-item {
+            padding: 10px 22px;
+            border-radius: var(--radius-capsule);
+            color: var(--text-secondary);
+            font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .nav-item:active { transform: scale(0.95); }
+        
+        .nav-item.active {
+            background: white; color: black; box-shadow: 0 2px 10px rgba(255,255,255,0.2);
+        }
+
+        /* --- CONTENT --- */
+        .main-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding-top: 120px; padding-bottom: 50px;
+            position: relative; z-index: 1;
+        }
+
+        .tab-content { display: none; padding: 0 5%; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- SCROLLERS --- */
+        .row-header {
+            font-size: 1.5rem; font-weight: 800; margin: 40px 0 20px 0;
+            color: #eee; display: flex; align-items: center; gap: 10px;
+        }
+        .scroller {
+            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
+            scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar { display: none; }
+
+        /* --- CARDS --- */
+        .card {
+            flex: 0 0 auto; background: var(--surface-color);
+            border-radius: var(--radius-card); position: relative;
+            cursor: pointer; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+        /* Click Feedback */
+        .card:active { transform: scale(0.96) !important; transition: transform 0.1s; }
+        .card:hover { transform: scale(1.02); z-index: 10; border-color: rgba(255,255,255,0.3); }
+
+        .card-meta {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, black, transparent);
+            padding: 20px; padding-top: 40px; pointer-events: none;
+        }
+        .card-title { font-weight: 700; font-size: 1.1rem; }
+        .card-sub { font-size: 0.9rem; color: #ccc; margin-top: 5px; font-weight: 500;}
+
+        /* Sizes */
+        .c-hero { width: 75vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
+        .c-poster { width: 180px; height: 270px; background-size: cover; background-color: #222; }
+        .c-thumb { width: 300px; height: 170px; background-size: cover; background-color: #222; }
+        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: grid; place-items: center; }
+        .c-app { width: 100px; height: 100px; border-radius: 28px; display: grid; place-items: center; }
+
+        /* --- OVERLAYS --- */
+        /* Strict z-index management */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 9000; /* Highest */
+            display: none; /* Hidden by default */
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        
+        /* Account Modal */
+        .modal-box {
+            background: #111; padding: 40px; border-radius: 40px;
+            border: 1px solid #333; text-align: center; width: 400px;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
+        }
+        .profile-row { display: flex; gap: 30px; justify-content: center; margin: 30px 0; }
+        .p-option { cursor: pointer; display: flex; flex-direction: column; align-items: center; opacity: 0.6; transition: 0.2s; }
+        .p-option:hover { opacity: 1; transform: scale(1.1); }
+        .p-pic { width: 90px; height: 90px; border-radius: 50%; background: #333; display: grid; place-items: center; font-size: 2.5rem; margin-bottom: 15px; }
+
+        .btn-text {
+            background: white; color: black; border: none;
+            padding: 15px 30px; border-radius: 50px; font-weight: bold; font-family: inherit;
+            cursor: pointer; margin-top: 10px; width: 100%; font-size: 1rem;
+        }
+        .btn-text:active { transform: scale(0.95); }
+
+        /* Details Overlay */
+        .detail-bg {
+            width: 100%; height: 100%; background-size: cover; background-position: center;
+        }
+        .detail-gradient {
+            width: 100%; height: 100%; background: linear-gradient(90deg, #000 30%, transparent 100%);
+            display: flex; align-items: center; padding-left: 10vw;
+        }
+
+        /* EPG */
+        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .epg-ch { width: 100px; font-weight: 800; color: #666; display: grid; place-items: center;}
+        .epg-item { 
+            height: 80px; background: #1a1a1a; padding: 0 25px; border-radius: 16px;
+            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+            border: 2px solid transparent; transition: background 0.2s;
+        }
+        .epg-item:hover { background: #333; }
+        .epg-item:active { transform: scale(0.98); }
+
+    </style>
+</head>
+<body>
+
+    <div id="overlay-account" class="overlay" style="display: flex;"> <div class="modal-box">
+            <h2 style="font-size: 2rem; margin: 0;">Who is watching?</h2>
+            <div class="profile-row">
+                <div class="p-option" onclick="selectProfile('Dad')">
+                    <div class="p-pic"><i class="fas fa-user"></i></div>
+                    <span style="font-weight: 600;">Dad</span>
+                </div>
+                <div class="p-option" onclick="selectProfile('Kids')">
+                    <div class="p-pic" style="background: linear-gradient(to right, #facc15, #f97316); color: black;"><i class="fas fa-child"></i></div>
+                    <span style="font-weight: 600;">Kids</span>
+                </div>
+            </div>
+            <button class="btn-text" onclick="showSettings()">Settings</button>
+            <button id="btn-close-acc" class="btn-text" style="background: #333; color: white; display: none;" onclick="closeOverlays()">Close</button>
+        </div>
+    </div>
+
+    <div id="overlay-player" class="overlay" style="background: black;">
+        <i class="fas fa-play-circle fa-5x" style="margin-bottom: 20px;"></i>
+        <h1 id="player-title">Video Title</h1>
+        <p style="color: #888;">Tap to close</p>
+        <button class="btn-text" style="width: auto; margin-top: 20px;" onclick="closeOverlays()">Stop Playback</button>
+    </div>
+
+    <div id="overlay-details" class="overlay" style="padding:0;">
+        <div class="detail-bg" id="detail-bg">
+            <div class="detail-gradient">
+                <div style="max-width: 600px;">
+                    <h1 id="detail-title" style="font-size: 4rem; line-height: 1.1; margin-bottom: 20px;">Title</h1>
+                    <p id="detail-desc" style="font-size: 1.2rem; color: #ccc; line-height: 1.6; margin-bottom: 40px;">Desc...</p>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn-text" style="width:auto; padding: 15px 40px;" onclick="startPlayer()">Play Now</button>
+                        <button class="btn-text" style="width:auto; background: #333; color: white;" onclick="closeOverlays()">Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="top-bar-container">
+        <div class="nav-capsule">
+            <div class="profile-btn" onclick="openAccount()">
+                <i class="fas fa-user" id="user-icon"></i>
+            </div>
+            
+            <div class="nav-item active" onclick="switchTab('home', this)">Home</div>
+            <div class="nav-item" id="nav-linear" onclick="switchTab('linear', this)">Linear</div>
+            <div class="nav-item" onclick="switchTab('plus', this)">Plus</div>
+            <div class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
+            <div class="nav-item" onclick="switchTab('music', this)">Music</div>
+            <div class="nav-item" onclick="switchTab('local', this)">Local</div>
+            <div class="nav-item" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+        </div>
+    </div>
+
+
+    <div class="main-content">
+
+        <div id="tab-home" class="tab-content active">
+            <div class="scroller">
+                <div class="card c-hero" onclick="openDetails('Suicide Squad Isekai', 'The DC Villains go to another world.', 'https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
+                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Suicide Squad Isekai</div></div>
+                </div>
+                <div class="card c-hero" onclick="openDetails('Dune Part Two', 'Paul Atreides unites with the Fremen.', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-meta"><div class="card-title" style="font-size: 2rem;">Dune Part Two</div></div>
+                </div>
+            </div>
+
+            <div class="row-header">Continue Watching</div>
+            <div class="scroller">
+                <div class="card c-thumb" onclick="openDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
+                    <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
+                </div>
+            </div>
+
+            <div class="row-header">Recent Channels</div>
+            <div class="scroller">
+                <div class="card c-square" onclick="startPlayer('Sky Sports')" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-square" onclick="startPlayer('BBC One')" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+            </div>
+
+            <div class="row-header">Apps</div>
+            <div class="scroller">
+                <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
+                <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
+            </div>
+        </div>
+
+        <div id="tab-linear" class="tab-content">
+            <h1 style="font-size: 3rem; margin-bottom: 2rem;">TV Guide</h1>
+            <div class="epg-row">
+                <div class="epg-ch">BBC One</div>
+                <div class="epg-item" onclick="startPlayer('BBC News')" style="flex: 2;">
+                    <div style="font-weight: bold;">BBC News at Six</div>
+                    <div style="color: red; font-size: 0.8rem; font-weight: bold;">LIVE</div>
+                </div>
+                <div class="epg-item" style="flex: 3;">
+                    <div style="font-weight: bold;">Eastenders</div>
+                    <div style="color: #666; font-size: 0.8rem;">19:30 - 20:00</div>
+                </div>
+            </div>
+            <div class="epg-row">
+                <div class="epg-ch">Sky F1</div>
+                <div class="epg-item" onclick="startPlayer('F1 Race')" style="flex: 5;">
+                    <div style="font-weight: bold;">Saudi Arabian Grand Prix</div>
+                    <div style="color: red; font-size: 0.8rem; font-weight: bold;">LIVE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plus" class="tab-content">
+            <h1 style="font-size: 3rem;">On Demand</h1>
+            <div class="row-header">New Arrivals</div>
+            <div class="scroller">
+                <div class="card c-poster" onclick="openDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                <div class="card c-poster" onclick="openDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+            </div>
+        </div>
+
+        <div id="tab-youtube" class="tab-content">
+            <h1 style="color: #ff0000; font-size: 3rem;"><i class="fab fa-youtube"></i> YouTube</h1>
+            <div class="row-header">Subscriptions</div>
+            <div class="scroller">
+                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-user"></i></div>
+                <div class="card c-app" style="background:#333; border-radius:50%;"><i class="fas fa-gamepad"></i></div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <h1>Settings</h1>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
+                <div class="epg-item">Player Configuration</div>
+                <div class="epg-item">Parental Controls</div>
+                <div class="epg-item">Theme</div>
+            </div>
+        </div>
+        
+        <div id="tab-music" class="tab-content"><h1>Music</h1></div>
+        <div id="tab-local" class="tab-content"><h1>Local</h1></div>
+        <div id="tab-search" class="tab-content">
+             <h1>Search</h1>
+             <input type="text" placeholder="Movies, Shows, Channels..." style="width: 100%; padding: 20px; border-radius: 50px; background: #222; border:none; color: white; font-size: 1.2rem; font-family: inherit;">
+        </div>
+
+    </div>
+
+    <script>
+        // --- Navigation ---
+        function switchTab(tabId, el) {
+            // Update Active UI
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            else {
+                // Find element if not passed
+                /* (Simplified for demo) */
+            }
+
+            // Show Content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const target = document.getElementById('tab-' + tabId);
+            if(target) target.classList.add('active');
+        }
+
+        // --- Overlays ---
+        function openAccount() {
+            document.getElementById('overlay-account').style.display = 'flex';
+        }
+
+        function closeOverlays() {
+            document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+        }
+
+        function selectProfile(name) {
+            closeOverlays();
+            if(name === 'Kids') {
+                document.body.classList.add('kids-mode');
+                document.getElementById('nav-linear').style.display = 'none';
+                document.getElementById('user-icon').className = 'fas fa-child';
+            } else {
+                document.body.classList.remove('kids-mode');
+                document.getElementById('nav-linear').style.display = 'flex';
+                document.getElementById('user-icon').className = 'fas fa-user';
+            }
+            // Show close button on account modal for future
+            document.getElementById('btn-close-acc').style.display = 'block';
+        }
+
+        function showSettings() {
+            closeOverlays();
+            switchTab('settings', null);
+        }
+
+        // --- Content ---
+        function openDetails(title, desc, img) {
+            document.getElementById('detail-title').innerText = title;
+            document.getElementById('detail-desc').innerText = desc;
+            if(img) document.getElementById('detail-bg').style.backgroundImage = `url('${img}')`;
+            document.getElementById('overlay-details').style.display = 'flex';
+        }
+
+        function startPlayer(title) {
+            if(title) document.getElementById('player-title').innerText = title;
+            // Close details first
+            document.getElementById('overlay-details').style.display = 'none';
+            document.getElementById('overlay-player').style.display = 'flex';
+        }
+
+    </script>
+</body>
+</html>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
