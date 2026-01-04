@@ -387,42 +387,71 @@
 
     </div>
 
-    <script>
-        // Init: Focus sidebar
-        document.querySelector('.menu-item').focus();
+        <script>
+        // --- 1. Tab Switching Function ---
+        function switchTab(element) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active-tab'));
+            // Add active class to the clicked/selected item
+            element.classList.add('active-tab');
+            
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            
+            // Show the target tab content
+            const targetId = element.getAttribute('data-target');
+            const targetContent = document.getElementById(targetId);
+            if(targetContent) {
+                targetContent.style.display = 'block';
+                
+                // Optional: Auto-focus the first item in the new tab for keyboard users
+                const firstItem = targetContent.querySelector('.focusable');
+                if(firstItem) firstItem.focus();
+            }
+        }
 
-        // Keyboard Navigation Logic
+        // --- 2. Event Listeners ---
+        
+        // Handle Mouse Clicks
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                switchTab(item);
+            });
+        });
+
+        // Handle Keyboard (Enter Key)
         document.addEventListener('keydown', (e) => {
             const active = document.activeElement;
-
-            if (e.key === 'Enter') {
-                if (active.classList.contains('menu-item')) {
-                    // Switch Tabs
-                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active-tab'));
-                    active.classList.add('active-tab');
-                    
-                    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-                    const targetId = active.getAttribute('data-target');
-                    document.getElementById(targetId).style.display = 'block';
-                    
-                    // Focus first item in new tab
-                    const firstItem = document.getElementById(targetId).querySelector('.focusable');
-                    if(firstItem) firstItem.focus();
-                }
+            
+            // If we are on a menu item and hit Enter
+            if (e.key === 'Enter' && active.classList.contains('menu-item')) {
+                switchTab(active);
             }
-
-            // Arrow keys handle focus naturally via tabindex, 
-            // but we add styling listener below
+            
+            // Back button simulation (Escape key) returns to sidebar
+            if (e.key === 'Escape') {
+                document.querySelector('.active-tab').focus();
+            }
         });
 
-        // Add 'focused' class for styling when tab-navigating
+        // Visual Focus Styling (for keyboard navigation)
         document.addEventListener('focusin', (e) => {
+            // Remove 'focused' from everything first
             document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
+            
+            // Add 'focused' to the new element if it is focusable
             if(e.target.classList.contains('focusable')) {
                 e.target.classList.add('focused');
-                e.target.scrollIntoView({behavior: "smooth", block: "center"});
+                // Smooth scroll to keep it in view
+                e.target.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
             }
         });
+
+        // Initialize: Focus the Home tab on load
+        window.onload = () => {
+            const homeTab = document.querySelector('[data-target="home-tab"]');
+            if(homeTab) homeTab.focus();
+        };
     </script>
 </body>
 </html>
