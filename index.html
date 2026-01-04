@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V9: M3 Expressive</title>
+    <title>FibreTV V10: Integrated Profile Modal</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#121212">
@@ -16,18 +16,12 @@
         :root {
             /* M3 Expressive Palette */
             --md-sys-color-background: #0f0f0f;
-            --md-sys-color-surface: #1e1e1e; /* Sidebar */
-            --md-sys-color-surface-variant: #333333; /* Cards */
+            --md-sys-color-surface: #1e1e1e; 
+            --md-sys-color-surface-variant: #333333; 
             --md-sys-color-primary: #FF9800; /* Orange */
             --md-sys-color-on-primary: #000000;
-            --md-sys-color-secondary-container: #444; 
-            
-            /* Specific Brand Colors */
-            --brand-youtube: #FF0000;
-            --brand-music: #FFFFFF;
             
             /* Shapes */
-            --shape-corner-small: 8px;
             --shape-corner-medium: 16px;
             --shape-corner-large: 28px;
             --shape-corner-full: 100px;
@@ -49,56 +43,77 @@
             user-select: none;
         }
 
-        /* --- UTILITIES --- */
-        .hidden { display: none !important; }
-        
         /* --- OVERLAYS --- */
         .fullscreen-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2000; background: #000; display: none;
-        }
-
-        /* 1. Profile Switcher (Full Screen) */
-        #profile-switcher {
-            background: rgba(0,0,0,0.96); z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-        .profile-grid { display: flex; gap: 3rem; margin-top: 2rem; }
-        .profile-card {
-            display: flex; flex-direction: column; align-items: center; padding: 20px;
-            border-radius: var(--shape-corner-large); border: 3px solid transparent;
-            transition: transform 0.2s; cursor: pointer;
-        }
-        .profile-card:focus { background: var(--md-sys-color-surface-variant); border-color: var(--md-sys-color-primary); transform: scale(1.05); outline: none;}
-        .avatar-big {
-            width: 120px; height: 120px; border-radius: 50%; background: #444; 
-            display: flex; justify-content: center; align-items: center; font-size: 3rem; margin-bottom: 1rem;
-            pointer-events: none;
-        }
-
-        /* 2. Record/Remind Modal (Small Popup) */
-        #record-modal {
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            z-index: 2000; background: rgba(0,0,0,0.85); 
+            display: none; /* Hidden by default */
+            backdrop-filter: blur(8px);
             justify-content: center; align-items: center;
         }
-        .modal-card {
-            background: var(--md-sys-color-surface); width: 400px; padding: 2rem;
-            border-radius: var(--shape-corner-large); text-align: center;
-            border: 2px solid var(--md-sys-color-surface-variant);
+
+        /* 1. NEW ACCOUNT MODAL */
+        .account-modal-card {
+            background: var(--md-sys-color-surface); 
+            width: 500px;
+            padding: 2.5rem;
+            border-radius: var(--shape-corner-large);
+            border: 2px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 2rem;
+            transform: scale(0.95); opacity: 0; transition: all 0.2s ease-out;
         }
-        .modal-btn {
-            display: block; width: 100%; padding: 1rem; margin-top: 1rem;
-            background: var(--md-sys-color-surface-variant); border-radius: var(--shape-corner-full);
-            border: 3px solid transparent; color: white; font-weight: bold; cursor: pointer;
+        /* Animation State */
+        .fullscreen-overlay.active .account-modal-card {
+            transform: scale(1); opacity: 1;
         }
-        
-        /* 3. Player & Details (Standard) */
+
+        .modal-section-title {
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold;
+        }
+
+        .profile-row {
+            display: flex; gap: 2rem; justify-content: center;
+        }
+
+        .profile-option {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            cursor: pointer; opacity: 0.6; transition: all 0.2s;
+            border-radius: 20px; padding: 10px; border: 3px solid transparent;
+        }
+        .profile-option.active-profile { opacity: 1; }
+        .profile-option:hover, .profile-option:focus { opacity: 1; transform: scale(1.1); outline: none; background: #333; }
+        .profile-option.active-profile .p-avatar { border: 3px solid var(--md-sys-color-primary); }
+
+        .p-avatar {
+            width: 80px; height: 80px; border-radius: 50%; background: #444; 
+            display: flex; justify-content: center; align-items: center; font-size: 2rem;
+            transition: border 0.2s; pointer-events: none;
+        }
+
+        .settings-btn-large {
+            display: flex; align-items: center; gap: 15px;
+            padding: 1.2rem; background: var(--md-sys-color-surface-variant);
+            border-radius: var(--shape-corner-medium);
+            font-size: 1.1rem; font-weight: 500; cursor: pointer;
+            border: 3px solid transparent; transition: all 0.2s;
+        }
+        .settings-btn-large:focus { border-color: var(--md-sys-color-primary); background: #444; outline: none; }
+
+
+        /* 2. PLAYER & DETAILS (Standard) */
         #player-overlay { background: black; }
         #details-overlay { background-size: cover; background-position: center; }
         .details-gradient {
             background: linear-gradient(90deg, #000 20%, transparent 100%);
             width: 100%; height: 100%; display: flex; align-items: center; padding-left: 6rem;
         }
+        .action-btn {
+            padding: 0.8rem 2rem; border-radius: 50px; font-weight: bold; margin-right: 1rem;
+            background: white; color: black; border: 4px solid transparent; cursor: pointer; 
+        }
+        .action-btn:focus { transform: scale(1.1); border-color: var(--md-sys-color-primary); outline: none; }
+
 
         /* --- SIDEBAR --- */
         .sidebar {
@@ -107,23 +122,13 @@
             padding-top: 1.5rem; z-index: 100;
         }
         
-        /* Profile Mini Menu (Popover) */
-        .profile-container { position: relative; margin-bottom: 2rem; }
+        /* Profile Icon */
         .profile-icon {
             width: 56px; height: 56px; border-radius: 50%; background: #555;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            border: 3px solid transparent; transition: all 0.2s;
+            border: 3px solid transparent; transition: all 0.2s; margin-bottom: 2rem;
         }
-        .profile-menu-popover {
-            position: absolute; top: 0; left: 70px; width: 200px;
-            background: var(--md-sys-color-surface-variant); border-radius: var(--shape-corner-medium);
-            padding: 10px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 5000;
-        }
-        .pop-item {
-            padding: 15px; border-radius: var(--shape-corner-small); cursor: pointer; display: flex; gap: 10px; align-items: center;
-            border: 2px solid transparent;
-        }
-        .pop-item:hover, .pop-item:focus { background: rgba(255,255,255,0.1); border-color: var(--md-sys-color-primary); outline: none; }
+        .profile-icon:focus { border-color: var(--md-sys-color-primary); transform: scale(1.1); outline: none; }
 
         /* Nav Items */
         .nav-item {
@@ -134,6 +139,7 @@
         }
         .nav-item i { font-size: 1.5rem; margin-bottom: 4px; pointer-events: none; }
         .nav-item.active { color: var(--md-sys-color-primary); background: rgba(255, 152, 0, 0.15); }
+        .nav-item:focus { border-color: var(--md-sys-color-primary); outline: none; background: rgba(255,255,255,0.05); }
 
         /* --- MAIN CONTENT --- */
         .main-content {
@@ -193,32 +199,38 @@
 </head>
 <body>
 
-    <div id="profile-switcher" class="fullscreen-overlay" style="display: flex;">
-        <h1 style="font-size: 3rem;">Who's watching?</h1>
-        <div class="profile-grid">
-            <div class="profile-card" tabindex="0" onclick="setProfile('Dad')">
-                <div class="avatar-big"><i class="fas fa-user"></i></div>
-                <span>Dad</span>
+    <div id="account-modal" class="fullscreen-overlay">
+        <div class="account-modal-card">
+            <h1 style="margin:0; font-size: 2rem;">Account</h1>
+            
+            <div class="modal-section-title">Who is watching?</div>
+            <div class="profile-row">
+                <div class="profile-option active-profile" id="prof-dad" tabindex="0" onclick="switchProfile('Dad')">
+                    <div class="p-avatar"><i class="fas fa-user"></i></div>
+                    <span>Dad</span>
+                </div>
+                <div class="profile-option" id="prof-kids" tabindex="0" onclick="switchProfile('Kids')">
+                    <div class="p-avatar" style="background: linear-gradient(45deg, #FFD700, #FF9800); color: black;"><i class="fas fa-child"></i></div>
+                    <span>Kids</span>
+                </div>
             </div>
-            <div class="profile-card" tabindex="0" onclick="setProfile('Kids')">
-                <div class="avatar-big" style="background: linear-gradient(45deg, #FFD700, #FF9800); color: black;"><i class="fas fa-child"></i></div>
-                <span>Kids Mode</span>
+
+            <hr style="border: 0; border-top: 1px solid #444; width: 100%; margin: 1rem 0;">
+
+            <div class="modal-section-title">Options</div>
+            <div class="settings-btn-large" tabindex="0" onclick="goToSettingsFromModal()">
+                <i class="fas fa-cog"></i>
+                <span>Open Settings</span>
+            </div>
+            <div class="settings-btn-large" tabindex="0" onclick="closeOverlays()">
+                <i class="fas fa-times"></i>
+                <span>Close</span>
             </div>
         </div>
     </div>
 
-    <div id="record-modal" class="fullscreen-overlay">
-        <div class="modal-card">
-            <h2 id="modal-title" style="margin-bottom: 0.5rem;">Program Name</h2>
-            <p style="color: #aaa; margin-bottom: 2rem;">Starts in 45 mins</p>
-            <button class="modal-btn" tabindex="0" onclick="closeOverlays()">Record Series</button>
-            <button class="modal-btn" tabindex="0" onclick="closeOverlays()">Record Episode</button>
-            <button class="modal-btn" tabindex="0" onclick="closeOverlays()">Set Reminder</button>
-            <button class="modal-btn" tabindex="0" style="background: transparent; border: 1px solid #555;" onclick="closeOverlays()">Cancel</button>
-        </div>
-    </div>
 
-    <div id="player-overlay" class="fullscreen-overlay">
+    <div id="player-overlay" class="fullscreen-overlay" style="background:black;">
         <div style="width:100%; height:100%; display:grid; place-items:center;">
             <h1 id="player-title">Video</h1>
             <p>Press Back to exit</p>
@@ -231,8 +243,8 @@
                 <h1 id="detail-title" style="font-size: 4rem; line-height: 1;">Title</h1>
                 <p id="detail-desc" style="font-size: 1.1rem; color: #ccc; margin: 1.5rem 0;">Description goes here...</p>
                 <div style="display: flex; gap: 1rem;">
-                    <button class="modal-btn" style="background: white; color: black; width: auto; padding: 0 2rem;" tabindex="0" onclick="startPlayer()">Play</button>
-                    <button class="modal-btn" style="background: #333; width: auto; padding: 0 2rem;" tabindex="0" onclick="closeOverlays()">Back</button>
+                    <button class="action-btn" tabindex="0" onclick="startPlayer()">Play</button>
+                    <button class="action-btn" style="background: #333; color: white;" tabindex="0" onclick="closeOverlays()">Back</button>
                 </div>
             </div>
         </div>
@@ -240,18 +252,8 @@
 
 
     <div class="sidebar">
-        <div class="profile-container">
-            <div class="profile-icon" tabindex="0" onclick="toggleProfileMenu()">
-                <i class="fas fa-user"></i>
-            </div>
-            <div id="profile-popover" class="profile-menu-popover">
-                <div class="pop-item" tabindex="0" onclick="showProfileSwitcher()">
-                    <i class="fas fa-users"></i> Switch Profile
-                </div>
-                <div class="pop-item" tabindex="0" onclick="switchTab('settings-tab')">
-                    <i class="fas fa-cog"></i> Settings
-                </div>
-            </div>
+        <div class="profile-icon" tabindex="0" onclick="openAccountModal()">
+            <i class="fas fa-user" id="sidebar-user-icon"></i>
         </div>
 
         <div class="nav-item active" tabindex="0" data-target="home-tab" onclick="switchTab('home-tab')"><i class="fas fa-home"></i>Home</div>
@@ -297,14 +299,12 @@
             <div class="row-scroller">
                 <div class="card c-square" tabindex="0" style="background: #004698; display:grid; place-items:center;" onclick="startPlayer('Sky Sports')"><i class="fas fa-futbol fa-3x"></i></div>
                 <div class="card c-square" tabindex="0" style="background: #BB1919; display:grid; place-items:center;" onclick="startPlayer('BBC One')"><span style="font-weight:bold; font-size:1.5rem;">BBC ONE</span></div>
-                <div class="card c-square" tabindex="0" style="background: #ffaa00; display:grid; place-items:center;" onclick="startPlayer('Nickelodeon')"><i class="fas fa-star fa-3x" style="color:white;"></i></div>
             </div>
 
-            <div class="row-header">Popular Movies (Plus)</div>
+            <div class="row-header">Popular Movies</div>
             <div class="row-scroller">
                 <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');" onclick="openDetails('Godzilla x Kong', '')"></div>
                 <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/1E5baAaEse26fej7uHcjOgEE2t2.jpg');" onclick="openDetails('Fast X', '')"></div>
-                <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg');" onclick="openDetails('Fast X', '')"></div>
             </div>
 
             <div class="row-header"><i class="fab fa-youtube" style="color:red;"></i> Recommended</div>
@@ -320,7 +320,6 @@
             <div class="row-header"><i class="fas fa-music"></i> Continue Listening</div>
             <div class="row-scroller">
                 <div class="card c-square" tabindex="0" style="background: #333;"><div style="margin:auto; text-align:center;"><i class="fas fa-bolt fa-2x" style="color:yellow;"></i><br>Workout Mix</div></div>
-                <div class="card c-square" tabindex="0" style="background: #333;"><div style="margin:auto; text-align:center;"><i class="fas fa-moon fa-2x" style="color:cyan;"></i><br>Sleep Mix</div></div>
             </div>
 
             <div class="row-header">Apps</div>
@@ -334,372 +333,37 @@
 
         <div id="linear-tab" class="tab-content">
             <h1 style="margin-bottom: 2rem;">TV Guide</h1>
-            
             <div class="epg-row">
                 <div class="epg-channel">BBC One</div>
                 <div class="epg-prog" tabindex="0" style="flex: 2;" onclick="startPlayer('BBC News')">
                     <div style="font-weight:bold;">BBC News</div>
                     <div class="tag-live">● LIVE NOW</div>
                 </div>
-                <div class="epg-prog" tabindex="0" style="flex: 3;" onclick="openRecordModal('Eastenders')">
+                <div class="epg-prog" tabindex="0" style="flex: 3;">
                     <div style="font-weight:bold;">Eastenders</div>
                     <div style="color:#aaa; font-size:0.8rem;">19:30 - 20:00</div>
-                </div>
-            </div>
-
-            <div class="epg-row">
-                <div class="epg-channel">Sky Sports</div>
-                <div class="epg-pro        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Roboto', sans-serif;
-            display: flex; height: 100vh; overflow: hidden;
-            user-select: none;
-        }
-
-        /* --- OVERLAYS --- */
-        .fullscreen-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2000; display: none; background: #000;
-        }
-
-        /* PROFILE OVERLAY (Forced Visible on Load) */
-        #profile-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98);
-            z-index: 9999;
-            display: flex; /* Flex by default */
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-        
-        .profile-grid { display: flex; gap: 3rem; margin-top: 3rem; flex-wrap: wrap; justify-content: center;}
-        
-        .profile-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            cursor: pointer; transition: transform 0.2s; 
-            padding: 20px; border-radius: 20px;
-            border: 4px solid transparent;
-        }
-        
-        .profile-avatar {
-            width: 140px; height: 140px; border-radius: 50%;
-            background: #333; display: flex; justify-content: center; align-items: center;
-            font-size: 3.5rem; color: #888; margin-bottom: 1.5rem;
-            pointer-events: none; /* Fixes click targets */
-        }
-        
-        .profile-item[data-profile="Kids"] .profile-avatar { background: linear-gradient(135deg, #FFEB3B, #FF9800); color: #222; }
-
-        .profile-item:focus, .profile-item.focused {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary-accent);
-            transform: scale(1.05);
-        }
-
-        /* PLAYER OVERLAY */
-        .player-content { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
-        .player-ui {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 3rem;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-        }
-
-        /* DETAILS OVERLAY */
-        #details-overlay { background-size: cover; background-position: center; }
-        .details-gradient {
-            width: 100%; height: 100%; background: linear-gradient(to right, #000 30%, transparent 100%);
-            display: flex; align-items: center; padding-left: 5rem;
-        }
-        .action-btn {
-            padding: 1rem 2rem; border-radius: 50px; font-weight: bold; margin-right: 1rem;
-            background: white; color: black; border: 4px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 80px; background-color: var(--surface-color);
-            display: flex; flex-direction: column; align-items: center;
-            padding-top: 1.5rem; z-index: 100; border-right: 1px solid #333;
-        }
-        .profile-icon {
-            width: 45px; height: 45px; border-radius: 50%; background: #444; 
-            display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;
-            border: 2px solid transparent; cursor: pointer;
-        }
-        .menu-item {
-            width: 55px; height: 55px; margin-bottom: 0.5rem;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border-radius: var(--menu-radius); color: var(--text-secondary); cursor: pointer;
-            font-size: 0.65rem; font-weight: 500; transition: all 0.2s; border: 2px solid transparent;
-        }
-        .menu-item i { font-size: 1.3rem; margin-bottom: 4px; pointer-events: none; }
-        
-        .menu-item.active-tab { color: var(--primary-accent); background: rgba(255, 255, 255, 0.05); }
-        .menu-item[data-target="youtube-tab"].active-tab { color: var(--yt-accent); }
-        .menu-item[data-target="music-tab"].active-tab { color: var(--music-accent); }
-        .menu-item[data-target="local-tab"].active-tab { color: var(--local-accent); }
-
-        /* --- CONTENT --- */
-        .main-content {
-            flex: 1; padding: 0; overflow-y: auto; position: relative;
-            background: linear-gradient(to bottom, var(--bg-color) 0%, transparent 200px);
-        }
-        .tab-content { display: none; padding: 1.5rem 2rem; min-height: 100%; padding-bottom: 50px;}
-        #home-tab { display: block; }
-
-        .row-title { font-size: 1.3rem; font-weight: 500; margin: 1.5rem 0 1rem 0; color: #ddd; }
-        .horizontal-row { display: flex; gap: 1.2rem; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; }
-        ::-webkit-scrollbar { display: none; }
-        
-        .card {
-            flex: 0 0 auto; background: var(--surface-variant); border-radius: var(--card-radius);
-            position: relative; border: 4px solid transparent; cursor: pointer; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.15s;
-        }
-        .card-label {
-            width: 100%; padding: 10px; background: rgba(0,0,0,0.8);
-            font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none;
-        }
-
-        .card.hero { width: 75vw; height: 40vh; background-size: cover; border-radius: 20px; }
-        .card.poster { width: 150px; height: 225px; background-size: cover; background-color: #333; }
-        .card.thumb { width: 260px; height: 146px; background-size: cover; background-color: #333; }
-        .card.yt-video { width: 280px; height: 200px; background: #000; }
-        .yt-thumb { height: 150px; background-size: cover; position: relative; }
-        .yt-meta { height: 50px; padding: 8px; display: flex; align-items: center; gap: 10px; background: #222; }
-
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-        .file-item {
-            background: var(--surface-variant); border-radius: 12px; padding: 1.5rem;
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            border: 4px solid transparent; cursor: pointer;
-        }
-        .file-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--local-accent); pointer-events: none; }
-
-        /* FOCUS STATES */
-        .focusable:focus, .focused {
-            outline: none; border-color: var(--primary-accent) !important;
-            transform: scale(1.03); z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .menu-item[data-target="youtube-tab"]:focus { border-color: var(--yt-accent) !important; }
-        .menu-item[data-target="music-tab"]:focus { border-color: var(--music-accent) !important; }
-        .menu-item[data-target="local-tab"]:focus { border-color: var(--local-accent) !important; }
-
-    </style>
-</head>
-<body>
-
-    <div id="profile-overlay">
-        <h1 style="font-weight: 300; font-size: 2.5rem; color: #fff;">Who's Watching?</h1>
-        <div class="profile-grid">
-            <div class="profile-item focusable" tabindex="0" data-profile="Dad" onclick="selectProfile('Dad')">
-                <div class="profile-avatar"><i class="fas fa-user"></i></div>
-                <div class="profile-name">Dad</div>
-            </div>
-            <div class="profile-item focusable" tabindex="0" data-profile="Kids" onclick="selectProfile('Kids')">
-                <div class="profile-avatar"><i class="fas fa-child"></i></div>
-                <div class="profile-name">Kids Mode</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="player-overlay" class="fullscreen-overlay">
-        <div class="player-content">
-            <i class="fas fa-play-circle fa-6x" style="opacity: 0.3;"></i>
-            <div class="player-ui">
-                <h1 id="player-title" style="font-size: 2rem; margin-bottom: 0.5rem;">Video Title</h1>
-                <p style="color: #aaa;">00:12 / 45:00 • 4K HDR</p>
-                <div style="width: 100%; height: 6px; background: #444; margin-top: 1rem; border-radius: 3px;">
-                    <div style="width: 25%; height: 100%; background: var(--primary-accent); border-radius: 3px;"></div>
-                </div>
-                <br>
-                <button class="action-btn focusable" tabindex="0" style="background: #333; color: white;" onclick="closeOverlays()">
-                    <i class="fas fa-stop"></i> Stop & Back
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="details-overlay" class="fullscreen-overlay">
-        <div class="details-gradient">
-            <div style="max-width: 600px;">
-                <h1 id="detail-title" style="font-size: 3rem; margin-bottom: 1rem;">Title</h1>
-                <p id="detail-desc" style="font-size: 1rem; color: #ccc; line-height: 1.5; margin-bottom: 2rem;">Description...</p>
-                <div>
-                    <button class="action-btn focusable" tabindex="0" onclick="startPlayer()">
-                        <i class="fas fa-play"></i> Play
-                    </button>
-                    <button class="action-btn focusable" tabindex="0" style="background: #333; color: white;" onclick="closeOverlays()">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="sidebar">
-        <div id="btn-profile" class="profile-icon focusable" tabindex="0" onclick="showProfileOverlay()">
-            <i class="fas fa-user"></i>
-        </div>
-
-        <div class="menu-item focusable active-tab" tabindex="0" data-target="home-tab" onclick="switchTab(this)"><i class="fas fa-home"></i>Home</div>
-        <div id="nav-linear" class="menu-item focusable" tabindex="0" data-target="linear-tab" onclick="switchTab(this)"><i class="fas fa-broadcast-tower"></i>Linear</div>
-        <div class="menu-item focusable" tabindex="0" data-target="plus-tab" onclick="switchTab(this)"><i class="fas fa-play"></i>Plus</div>
-        <div class="menu-item focusable" tabindex="0" data-target="youtube-tab" onclick="switchTab(this)"><i class="fab fa-youtube"></i>YouTube</div>
-        <div class="menu-item focusable" tabindex="0" data-target="music-tab" onclick="switchTab(this)"><i class="fas fa-music"></i>Music</div>
-        <div class="menu-item focusable" tabindex="0" data-target="local-tab" onclick="switchTab(this)"><i class="fas fa-folder-open"></i>Local</div>
-        <div class="menu-item focusable" tabindex="0" data-target="search-tab" onclick="switchTab(this)"><i class="fas fa-search"></i>Search</div>
-        
-        <div style="flex: 1;"></div>
-        <div class="menu-item focusable" tabindex="0" data-target="settings-tab" onclick="switchTab(this)"><i class="fas fa-cog"></i>Config</div>
-    </div>
-
-    <div class="main-content">
-
-        <div id="home-tab" class="tab-content">
-            <div class="horizontal-row">
-                <div class="card hero focusable" tabindex="0" 
-                     data-type="vod" data-title="Suicide Squad Isekai" 
-                     style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');"
-                     onclick="handleContent(this)">
-                    <div class="card-label">Featured</div>
-                </div>
-            </div>
-            <div class="row-title">Continue Watching</div>
-            <div class="horizontal-row">
-                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="The Boys S03E01" 
-                     style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"
-                     onclick="handleContent(this)">
-                     <div class="card-label">The Boys</div>
-                </div>
-                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="Fallout S01E02" 
-                     style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');"
-                     onclick="handleContent(this)">
-                     <div class="card-label">Fallout</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="linear-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;">Live TV</div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div class="card focusable" tabindex="0" data-type="live" data-title="BBC One - News" 
-                     style="height: 60px; flex-direction: row; align-items: center; padding: 0 20px; border-radius: 8px;"
-                     onclick="handleContent(this)">
-                    <div style="width: 100px; font-weight: bold;">BBC One</div>
-                    <div style="flex: 1; padding-left: 20px;">News at Ten <span style="color:red; margin-left:10px;">● LIVE</span></div>
                 </div>
             </div>
         </div>
 
         <div id="plus-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;">Movies</div>
-            <div class="horizontal-row">
-                <div class="card poster focusable" tabindex="0" data-type="vod" data-title="Dune Part Two" 
-                     style="background-image: url('https://image.tmdb.org/t/p/w500/8CdX3871Cq9UqYt636O27tZ4fN.jpg');"
-                     onclick="handleContent(this)"></div>
+            <h1 style="margin-bottom: 1rem;">Plus On Demand</h1>
+            <div class="row-header">Featured (Plus Only)</div>
+            <div class="row-scroller">
+                <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg');"></div>
+                <div class="card c-poster" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/8xV47NDrjdZDpkVcCFqkdHa3T0C.jpg');"></div>
             </div>
         </div>
 
         <div id="youtube-tab" class="tab-content">
-            <div style="display:flex; justify-content: space-between; align-items: flex-end;">
-                <div class="row-title" style="margin-top:0;"><i class="fab fa-youtube" style="color:red;"></i> Recommended</div>
-            </div>
-            <div class="horizontal-row">
-                <div class="card yt-video focusable" tabindex="0" data-type="live" data-title="MKBHD Review" onclick="handleContent(this)">
-                    <div class="yt-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
-                        <div class="yt-duration">14:20</div>
-                    </div>
-                    <div class="yt-meta">
-                        <div style="width:30px; height:30px; background:#555; border-radius:50%;"></div>
-                        <div style="font-size: 0.9rem;">The State of Android</div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top: 2rem; border: 1px dashed #444; padding: 1rem; border-radius: 8px;">
-                <p style="color: #888; font-size: 0.8rem; margin: 0;">In the real app, this launches SmartTube.</p>
+            <h1 style="color:red; margin-bottom: 1rem;"><i class="fab fa-youtube"></i> YouTube</h1>
+            <div class="row-header">Subscriptions</div>
+            <div class="row-scroller">
+                 <div class="card c-square" tabindex="0" style="border-radius:50%; width:100px; height:100px; background:#444;"></div>
+                 <div class="card c-square" tabindex="0" style="border-radius:50%; width:100px; height:100px; background:#555;"></div>
             </div>
         </div>
 
-        <div id="settings-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;">Settings</div>
-            <div class="file-item">
-                <i class="fas fa-download" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <div style="margin-bottom: 0.5rem;">Install Web App</div>
-                <div style="font-size: 0.8rem; color: #888;">Tap browser menu -> Add to Home Screen to use Full Screen</div>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // --- 1. PROFILES ---
-        function selectProfile(name) {
-            console.log("Profile Selected:", name);
-            if(name === 'Kids') {
-                document.body.classList.add('kids-mode');
-                document.getElementById('nav-linear').style.display = 'none';
-            } else {
-                document.body.classList.remove('kids-mode');
-                document.getElementById('nav-linear').style.display = 'flex';
-            }
-            document.getElementById('profile-overlay').style.display = 'none';
-        }
-
-        function showProfileOverlay() {
-            document.getElementById('profile-overlay').style.display = 'flex';
-        }
-
-        // --- 2. TABS ---
-        function switchTab(el) {
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active-tab'));
-            el.classList.add('active-tab');
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            const target = document.getElementById(el.getAttribute('data-target'));
-            if(target) target.style.display = 'block';
-        }
-
-        // --- 3. CONTENT ---
-        function handleContent(el) {
-            const type = el.getAttribute('data-type');
-            const title = el.getAttribute('data-title');
-            if(type === 'live') startPlayer(title);
-            if(type === 'vod') showDetails(title, el.style.backgroundImage);
-        }
-
-        function startPlayer(title) {
-            if(title) document.getElementById('player-title').innerText = title;
-            document.getElementById('details-overlay').style.display = 'none';
-            document.getElementById('player-overlay').style.display = 'block';
-        }
-
-        function showDetails(title, img) {
-            document.getElementById('detail-title').innerText = title;
-            if(img) document.getElementById('details-overlay').style.backgroundImage = img;
-            document.getElementById('details-overlay').style.display = 'block';
-        }
-
-        function closeOverlays() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('details-overlay').style.display = 'none';
-        }
-
-        // --- 4. KEYBOARD SUPPORT ---
-        document.addEventListener('keydown', (e) => {
-            const active = document.activeElement;
-            if(e.key === 'Enter') active.click();
-            if(e.key === 'Escape') closeOverlays();
-        });
-
-        // --- 5. INIT ---
-        window.onload = () => {
-            document.querySelector('[data-profile="Dad"]').focus();
-        };
-    </script>
-</body>
-</html>
-
+        <div id="music-tab" class="tab-content">
+            <h1 style="margin-bottom: 1rem;">Music</h1>
+            <div class=
