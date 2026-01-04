@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V18: Ultimate Fixed</title>
+    <title>FibreTV V19: Vertical Sort</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -13,15 +13,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- RESET & VARIABLES --- */
         :root {
             --bg-color: #000000;
             --surface-color: #141414;
-            --surface-translucent: rgba(20, 20, 20, 0.95);
+            --surface-translucent: rgba(20, 20, 20, 0.9);
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
-            --radius-card: 20px;
+            --radius-card: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,64 +35,88 @@
             user-select: none;
         }
 
-        /* --- FIXED TOP CAPSULE --- */
+        /* --- TOP NAV (Horizontal) --- */
         .top-bar-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100px;
-            z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(to bottom, black 20%, transparent 100%);
-            pointer-events: none; /* Clicks pass through empty areas */
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 10%, transparent 100%);
+            pointer-events: none;
         }
 
         .nav-capsule {
             background: var(--surface-translucent);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-radius: var(--radius-capsule);
             padding: 5px;
             display: flex; align-items: center; gap: 4px;
-            pointer-events: auto; /* Buttons are clickable */
+            pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            max-width: 95%; overflow-x: auto;
+            overflow-x: auto; max-width: 95%;
         }
 
         .nav-item {
-            padding: 10px 20px;
-            border-radius: var(--radius-capsule);
-            color: var(--text-secondary);
-            font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s;
-            white-space: nowrap;
+            padding: 10px 20px; border-radius: var(--radius-capsule);
+            color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
-        
-        .nav-item.active {
-            background: white; color: black; 
-            box-shadow: 0 2px 10px rgba(255,255,255,0.2);
-        }
-        
+        .nav-item.active { background: white; color: black; box-shadow: 0 2px 10px rgba(255,255,255,0.2); }
         .nav-item.icon-only { padding: 0; width: 40px; height: 40px; display: grid; place-items: center; }
 
-        /* --- SCROLLABLE CONTENT AREA --- */
+        /* --- MAIN CONTENT --- */
         .main-content {
-            flex: 1; 
-            overflow-y: auto; 
-            overflow-x: hidden;
-            padding-top: 110px; /* Essential padding to prevent overlap */
-            padding-bottom: 80px;
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding-top: 110px; padding-bottom: 50px;
         }
 
-        .tab-content { display: none; padding: 0 0 0 5%; animation: fadeIn 0.4s ease; }
+        .tab-content { display: none; padding: 0 0 0 4%; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SECTION SCROLLERS --- */
+        /* --- SPLIT LAYOUT (For Linear/Plus) --- */
+        .split-view {
+            display: flex; gap: 30px; height: calc(100vh - 120px);
+        }
+        
+        /* Left Vertical Capsule */
+        .vertical-filter-col {
+            width: 160px; flex-shrink: 0; padding-top: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        
+        .vert-capsule {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px; padding: 10px;
+            display: flex; flex-direction: column; gap: 5px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .v-item {
+            padding: 12px 20px; border-radius: 30px;
+            color: #888; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .v-item.active { background: white; color: black; }
+
+        /* Right Content Area */
+        .content-col {
+            flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 20px;
+            padding-bottom: 100px;
+        }
+        .content-col::-webkit-scrollbar { display: none; }
+
+        /* --- SCROLLERS --- */
         .section-header {
-            font-size: 1.4rem; font-weight: 800; margin: 35px 0 15px 0;
+            font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0;
             color: #eee; letter-spacing: -0.5px;
         }
+        .section-header:first-child { margin-top: 0; } /* Fix top gap */
+
         .scroller {
-            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
-            scroll-behavior: smooth; margin-left: -5px; padding-right: 5%;
+            display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px;
+            scroll-behavior: smooth; margin-left: -5px; padding-right: 20px;
         }
         ::-webkit-scrollbar { display: none; }
 
@@ -104,50 +127,34 @@
             cursor: pointer; overflow: hidden;
             transition: transform 0.2s; border: 2px solid transparent;
         }
-        .card:active { transform: scale(0.96) !important; }
+        .card:active { transform: scale(0.96); }
         
         .card-meta {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: linear-gradient(to top, black, transparent);
-            padding: 20px; padding-top: 50px; pointer-events: none;
+            padding: 15px; padding-top: 40px; pointer-events: none;
         }
-        .card-title { font-weight: 700; font-size: 1rem; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
+        .card-title { font-weight: 700; font-size: 0.95rem; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
 
-        /* Dimensions */
-        .c-hero { width: 85vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
-        .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
-        .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
-        .c-square { width: 130px; height: 130px; background-size: cover; background-color: #222; display: grid; place-items: center; }
-        .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
+        /* Sizes */
+        .c-poster { width: 140px; height: 210px; background-size: cover; background-color: #222; }
+        .c-thumb { width: 240px; height: 135px; background-size: cover; background-color: #222; }
+        .c-square { width: 120px; height: 120px; background-size: cover; background-color: #222; display: grid; place-items: center; }
+        .c-app { width: 80px; height: 80px; border-radius: 20px; display: grid; place-items: center; }
 
-        /* --- LINEAR LAYOUT (Split View) --- */
-        .linear-container { display: flex; height: calc(100vh - 120px); }
-        .epg-list { flex: 1; overflow-y: auto; padding-right: 20px; }
-        
-        .category-sidebar { 
-            width: 140px; padding-left: 10px; border-left: 1px solid #333;
-            display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
-        }
-        
-        .cat-btn {
-            padding: 15px; border-radius: 12px; background: #111; color: #888;
-            text-align: center; font-weight: 600; cursor: pointer; border: 1px solid transparent;
-        }
-        .cat-btn.active { background: white; color: black; }
-
-        /* EPG Items */
-        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 70px; font-weight: 800; color: #888; display: grid; place-items: center; font-size: 0.8rem;}
+        /* --- LINEAR EPG --- */
+        .epg-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .epg-ch { width: 70px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.8rem; text-align: center;}
         .epg-item { 
-            height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
+            height: 65px; background: #1a1a1a; padding: 0 15px; border-radius: 12px;
             display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-            border: 1px solid transparent; flex: 1;
+            border: 1px solid transparent; flex: 1; transition: background 0.2s;
         }
         .epg-item:active { background: #333; }
-        .live-tag { color: #ff3b30; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+        .live-tag { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 
-        /* --- MODALS & OVERLAYS --- */
+        /* --- MODALS --- */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 5000;
@@ -155,24 +162,22 @@
         }
         
         .modal-box {
-            background: #1a1a1a; width: 90%; max-width: 400px; padding: 30px; 
-            border-radius: 30px; text-align: center; border: 1px solid #333;
+            background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; 
+            border-radius: 25px; text-align: center; border: 1px solid #333;
         }
-        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
-        .modal-sub { color: #888; margin-bottom: 25px; font-size: 0.9rem; }
-
+        
         .btn-modal {
-            width: 100%; padding: 15px; border-radius: 50px; margin-top: 10px;
-            font-weight: 700; border: none; font-size: 1rem; cursor: pointer;
+            width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px;
+            font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer;
         }
         .btn-pri { background: white; color: black; }
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
-        .btn-modal:active { transform: scale(0.95); }
+        .btn-modal:active { transform: scale(0.96); }
 
-        /* Details Overlay */
+        /* Details & Player */
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
-        .detail-gradient {
-            width: 100%; height: 100%; background: linear-gradient(90deg, #000 20%, rgba(0,0,0,0.2) 100%);
+        .detail-grad {
+            width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%);
             display: flex; align-items: center; padding-left: 8vw;
         }
 
@@ -182,34 +187,32 @@
 
     <div id="modal-live" class="overlay">
         <div class="modal-box">
-            <div class="modal-title" id="live-title">Program</div>
-            <div class="modal-sub">This program is currently live.</div>
+            <h2 id="live-title" style="margin-top:0;">Program</h2>
             <button class="btn-modal btn-pri" onclick="playVideo()">Watch Live</button>
             <button class="btn-modal btn-sec" onclick="playVideo()">Watch from Start</button>
-            <button class="btn-modal btn-sec" style="background:transparent; border:1px solid #333;" onclick="closeOverlays()">Cancel</button>
+            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
         </div>
     </div>
 
     <div id="modal-future" class="overlay">
         <div class="modal-box">
-            <div class="modal-title" id="future-title">Program</div>
-            <div class="modal-sub">This program starts later.</div>
+            <h2 id="future-title" style="margin-top:0;">Program</h2>
             <button class="btn-modal btn-pri" onclick="closeOverlays()">Record Series</button>
             <button class="btn-modal btn-sec" onclick="closeOverlays()">Record Episode</button>
             <button class="btn-modal btn-sec" onclick="closeOverlays()">Set Reminder</button>
-            <button class="btn-modal btn-sec" style="background:transparent; border:1px solid #333;" onclick="closeOverlays()">Cancel</button>
+            <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
         </div>
     </div>
 
     <div id="overlay-details" class="overlay" style="padding:0;">
         <div class="detail-layout" id="detail-bg">
-            <div class="detail-gradient">
-                <div style="max-width: 600px; padding-right: 20px;">
-                    <h1 id="detail-title" style="font-size: 3rem; line-height: 1.1; margin-bottom: 15px;">Title</h1>
-                    <p id="detail-desc" style="font-size: 1.1rem; color: #ddd; line-height: 1.5;">Description...</p>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-modal btn-pri" style="width:auto; padding: 15px 40px;" onclick="playVideo()">Play</button>
-                        <button class="btn-modal btn-sec" style="width:auto; padding: 15px 40px;" onclick="closeOverlays()">Back</button>
+            <div class="detail-grad">
+                <div style="max-width: 500px;">
+                    <h1 id="detail-title" style="font-size: 3rem; line-height: 1; margin-bottom: 15px;">Title</h1>
+                    <p id="detail-desc" style="font-size: 1rem; color: #ddd; line-height: 1.4;">Desc...</p>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn-modal btn-pri" style="width:auto; padding: 12px 30px;" onclick="playVideo()">Play</button>
+                        <button class="btn-modal btn-sec" style="width:auto; padding: 12px 30px;" onclick="closeOverlays()">Back</button>
                     </div>
                 </div>
             </div>
@@ -218,8 +221,8 @@
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
-        <h1>Playing Content</h1>
-        <button class="btn-modal btn-sec" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Close Player</button>
+        <h1>Now Playing</h1>
+        <button class="btn-modal btn-sec" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
 
 
@@ -241,16 +244,9 @@
 
         <div id="tab-home" class="tab-content active">
             
-            <div class="scroller">
-                <div class="card c-hero" onclick="showDetails('Suicide Squad Isekai', 'The DC Villains go to another world.', 'https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
-                    <div class="card-meta"><div class="card-title">Suicide Squad Isekai</div></div>
-                </div>
-                <div class="card c-hero" onclick="showDetails('Dune Part Two', 'Paul Atreides unites with the Fremen.', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
-                    <div class="card-meta"><div class="card-title">Dune Part Two</div></div>
-                </div>
-            </div>
+            <div style="height: 20px;"></div>
 
-            <div class="section-header">Continue Watching</div>
+            <div class="section-header" style="margin-top:0;">Continue Watching</div>
             <div class="scroller">
                 <div class="card c-thumb" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
                     <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
@@ -258,12 +254,21 @@
                 <div class="card c-thumb" onclick="showDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
                     <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
                 </div>
+                <div class="card c-thumb" onclick="playVideo()" style="background: #990000; display:grid; place-items:center;">
+                    <span style="font-weight:900; font-size:1.5rem;">BBC ONE</span>
+                </div>
+                 <div class="card c-thumb" onclick="showDetails('Dune 2', 'Resume', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-meta"><div class="card-title">Dune Part Two</div><div class="card-sub">1h 24m left</div></div>
+                </div>
             </div>
 
             <div class="section-header">Watch Next</div>
             <div class="scroller">
-                <div class="card c-thumb" onclick="showDetails('House of the Dragon', 'Next Episode', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
-                    <div class="card-meta"><div class="card-title">House of the Dragon</div><div class="card-sub">Up Next</div></div>
+                <div class="card c-thumb" onclick="showDetails('House of the Dragon', 'S2 E1', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
+                    <div class="card-meta"><div class="card-title">House of the Dragon</div><div class="card-sub">S2 E1</div></div>
+                </div>
+                <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
+                    <div class="card-meta"><div class="card-title">The Last of Us</div><div class="card-sub">S1 E6</div></div>
                 </div>
             </div>
 
@@ -271,6 +276,7 @@
             <div class="scroller">
                 <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
                 <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
                 <div class="card c-square" onclick="playVideo()" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
             </div>
 
@@ -279,21 +285,24 @@
                 <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
                 <div class="card c-poster" onclick="showDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
                 <div class="card c-poster" onclick="showDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('The Batman', '', 'https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg');"></div>
             </div>
 
-            <div class="section-header">Popular TV Shows</div>
+            <div class="section-header">Popular Series</div>
             <div class="scroller">
-                <div class="card c-poster" onclick="showDetails('The Last of Us', '', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');"></div>
                 <div class="card c-poster" onclick="showDetails('Succession', '', 'https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/7l3jIlA54M7fXkL5CJ3Gg1.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Ted Lasso', '', 'https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/ntAzQ38917d2X2XJgq8V5z7QeK.jpg');"></div>
+                <div class="card c-poster" onclick="showDetails('Severance', '', 'https://image.tmdb.org/t/p/w500/l45X6rXf7R3X7Z7X7X7X7X7X7.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/p7o8dG7z7X7X7X7X7X7X7X7.jpg');"></div>
             </div>
 
             <div class="section-header"><i class="fab fa-youtube" style="color:red;"></i> Recommended</div>
             <div class="scroller">
                 <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
-                    <div class="card-meta"><div class="card-title">MKBHD Review</div></div>
+                    <div class="card-meta"><div class="card-title">MKBHD: The State of Android</div></div>
                 </div>
                 <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');">
-                     <div class="card-meta"><div class="card-title">Lofi Girl Radio</div></div>
+                     <div class="card-meta"><div class="card-title">Lofi Girl - Study Beats</div></div>
                 </div>
             </div>
 
@@ -307,6 +316,7 @@
             <div class="section-header"><i class="fas fa-music"></i> Jump Back In</div>
             <div class="scroller">
                 <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-bolt fa-2x" style="color:#FFD700;"></i><br><br>Supermix</div></div>
+                <div class="card c-square" style="background: #222;"><div style="text-align:center;"><i class="fas fa-moon fa-2x" style="color:#FFD700;"></i><br><br>Chill</div></div>
             </div>
 
             <div class="section-header">Apps</div>
@@ -319,85 +329,122 @@
         </div>
 
 
-        <div id="tab-linear" class="tab-content" style="padding-right:0;">
-            <div class="linear-container">
-                <div class="epg-list">
-                    <h1 style="font-size: 2rem; margin-bottom: 20px;">TV Guide</h1>
+        <div id="tab-linear" class="tab-content" style="padding-left:0; padding-right:0;">
+            <div class="split-view">
+                <div class="vertical-filter-col">
+                    <div class="vert-capsule">
+                        <div class="v-item active" onclick="filterLin('All', this)">All</div>
+                        <div class="v-item" onclick="filterLin('Ent', this)">Ent.</div>
+                        <div class="v-item" onclick="filterLin('Movies', this)">Movies</div>
+                        <div class="v-item" onclick="filterLin('Sports', this)">Sports</div>
+                        <div class="v-item" onclick="filterLin('News', this)">News</div>
+                        <div class="v-item" onclick="filterLin('Kids', this)">Kids</div>
+                    </div>
+                </div>
+
+                <div class="content-col">
+                    <h1 style="margin-top:0;">TV Guide</h1>
                     
                     <div class="epg-row">
-                        <div class="epg-ch">BBC One</div>
-                        <div class="epg-item" onclick="openLiveOptions('BBC News')" style="flex: 2;">
-                            <div style="font-weight: bold;">BBC News</div>
-                            <div class="live-tag">● LIVE</div>
+                        <div class="epg-ch">BBC 1</div>
+                        <div class="epg-item" onclick="openLive('BBC News')" style="flex:2;">
+                            <div style="font-weight:700;">BBC News</div><div class="live-tag">● LIVE</div>
                         </div>
-                        <div class="epg-item" onclick="openFutureOptions('Eastenders')" style="flex: 3;">
-                            <div style="font-weight: bold;">Eastenders</div>
-                            <div style="color: #666; font-size: 0.8rem;">19:30</div>
+                        <div class="epg-item" onclick="openFuture('Eastenders')" style="flex:3;">
+                            <div style="font-weight:700;">Eastenders</div><div style="color:#666;font-size:0.8rem;">19:30</div>
+                        </div>
+                    </div>
+
+                    <div class="epg-row">
+                        <div class="epg-ch">ITV 1</div>
+                        <div class="epg-item" onclick="openFuture('The Chase')" style="flex:3;">
+                            <div style="font-weight:700;">The Chase</div><div style="color:#666;font-size:0.8rem;">17:00</div>
+                        </div>
+                        <div class="epg-item" onclick="openFuture('Emmerdale')" style="flex:3;">
+                            <div style="font-weight:700;">Emmerdale</div><div style="color:#666;font-size:0.8rem;">19:30</div>
                         </div>
                     </div>
 
                     <div class="epg-row">
                         <div class="epg-ch">Sky F1</div>
-                        <div class="epg-item" onclick="openLiveOptions('Saudi Arabian GP')" style="flex: 6;">
-                            <div style="font-weight: bold;">Saudi Arabian GP</div>
-                            <div class="live-tag">● LIVE</div>
+                        <div class="epg-item" onclick="openLive('Saudi GP')" style="flex:5;">
+                            <div style="font-weight:700;">Saudi Arabian Grand Prix</div><div class="live-tag">● LIVE</div>
                         </div>
-                        <div class="epg-item" onclick="openFutureOptions('Chequered Flag')" style="flex: 2;">
-                            <div style="font-weight: bold;">Chequered Flag</div>
-                            <div style="color: #666; font-size: 0.8rem;">18:00</div>
+                    </div>
+
+                    <div class="epg-row">
+                        <div class="epg-ch">Disc</div>
+                        <div class="epg-item" onclick="openLive('Gold Rush')" style="flex:3;">
+                            <div style="font-weight:700;">Gold Rush</div><div class="live-tag">● LIVE</div>
+                        </div>
+                        <div class="epg-item" onclick="openFuture('Deadliest Catch')" style="flex:3;">
+                            <div style="font-weight:700;">Deadliest Catch</div><div style="color:#666;font-size:0.8rem;">21:00</div>
                         </div>
                     </div>
                     
                     <div class="epg-row">
-                        <div class="epg-ch">ITV</div>
-                        <div class="epg-item" style="flex: 3;">The Chase</div>
-                        <div class="epg-item" style="flex: 3;">Emmerdale</div>
+                        <div class="epg-ch">CN</div>
+                        <div class="epg-item" style="flex:2;">Gumball</div>
+                        <div class="epg-item" style="flex:2;">Teen Titans</div>
+                        <div class="epg-item" style="flex:3;">Adventure Time</div>
                     </div>
-                    <div class="epg-row">
-                        <div class="epg-ch">Ch 4</div>
-                        <div class="epg-item" style="flex: 4;">The Simpsons</div>
-                        <div class="epg-item" style="flex: 4;">Hollyoaks</div>
-                    </div>
-                </div>
-
-                <div class="category-sidebar">
-                    <div class="cat-btn active">All</div>
-                    <div class="cat-btn">Entertainment</div>
-                    <div class="cat-btn">Movies</div>
-                    <div class="cat-btn">Sports</div>
-                    <div class="cat-btn">Kids</div>
-                    <div class="cat-btn">News</div>
-                    <div class="cat-btn">Music</div>
-                    <div class="cat-btn">Documentary</div>
                 </div>
             </div>
         </div>
 
 
-        <div id="tab-plus" class="tab-content">
-            <h1 style="font-size: 2.5rem;">On Demand</h1>
-            
-            <div class="section-header">Trending Movies</div>
+        <div id="tab-plus" class="tab-content" style="padding-left:0; padding-right:0;">
+            <div class="split-view">
+                <div class="vertical-filter-col">
+                    <div class="vert-capsule">
+                        <div class="v-item active" onclick="filterPlus('All', this)">All</div>
+                        <div class="v-item" onclick="filterPlus('Movies', this)">Movies</div>
+                        <div class="v-item" onclick="filterPlus('Shows', this)">Shows</div>
+                        <div class="v-item" onclick="filterPlus('New', this)">New</div>
+                        <div class="v-item" onclick="filterPlus('4K', this)">4K HDR</div>
+                    </div>
+                </div>
+
+                <div class="content-col">
+                    <h1 style="margin-top:0;">On Demand</h1>
+                    
+                    <div class="section-header" style="margin-top:20px;">Trending Movies</div>
+                    <div class="scroller" style="flex-wrap:wrap; overflow:visible;">
+                        <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" onclick="showDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" onclick="showDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" onclick="showDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" onclick="showDetails('Dune 2', '', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg'); margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background:#222; margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background:#222; margin-bottom:15px;"></div>
+                        <div class="card c-poster" style="background:#222; margin-bottom:15px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-youtube" class="tab-content">
+            <h1 style="color:red;">YouTube</h1>
             <div class="scroller">
-                <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
-                <div class="card c-poster" onclick="showDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
+                <div class="card c-thumb" style="background:#333;"></div>
+                <div class="card c-thumb" style="background:#333;"></div>
             </div>
         </div>
-
-        <div id="tab-youtube" class="tab-content"><h1>YouTube</h1></div>
+        
         <div id="tab-music" class="tab-content"><h1>Music</h1></div>
         <div id="tab-local" class="tab-content"><h1>Local</h1></div>
-        <div id="tab-search" class="tab-content"><input type="text" placeholder="Search..." style="width:100%; padding:20px; border-radius:50px; border:none; background:#222; color:white; font-size:1.2rem;"></div>
         
+        <div id="tab-search" class="tab-content">
+            <input type="text" placeholder="Search..." style="width:100%; padding:20px; border-radius:50px; background:#222; border:none; color:white; font-size:1.2rem;">
+        </div>
+
         <div id="tab-settings" class="tab-content">
             <h1>Settings</h1>
-            <div style="background:#111; padding:20px; border-radius:20px; margin-bottom:20px;">
-                <h3>IPTV Config</h3>
-                <input type="text" placeholder="URL" style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:none; color:white;">
-                <input type="text" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:none; color:white;">
-                <input type="password" placeholder="Password" style="width:100%; padding:10px; background:#222; border:none; color:white;">
+            <div style="background:#111; padding:20px; border-radius:20px;">
+                <h3>IPTV (Xtream)</h3>
+                <input style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:none; color:white;" placeholder="http://url">
+                <input style="width:100%; padding:10px; margin-bottom:10px; background:#222; border:none; color:white;" placeholder="Username">
+                <input style="width:100%; padding:10px; background:#222; border:none; color:white;" type="password" placeholder="Password">
             </div>
         </div>
 
@@ -414,34 +461,37 @@
             if(target) target.classList.add('active');
         }
 
-        // --- Modals ---
-        function showOverlay(id) { document.getElementById(id).style.display = 'flex'; }
-        function hideOverlay(id) { document.getElementById(id).style.display = 'none'; }
-        function closeOverlays() {
-            document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+        // --- Filters (Visual Only) ---
+        function filterLin(cat, el) {
+            el.parentElement.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function filterPlus(cat, el) {
+            el.parentElement.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
         }
 
-        // --- Logic ---
+        // --- Modals ---
+        function openLive(title) {
+            document.getElementById('live-title').innerText = title;
+            document.getElementById('modal-live').style.display = 'flex';
+        }
+        function openFuture(title) {
+            document.getElementById('future-title').innerText = title;
+            document.getElementById('modal-future').style.display = 'flex';
+        }
         function showDetails(title, desc, img) {
             document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-desc').innerText = desc || "No description.";
             if(img) document.getElementById('detail-bg').style.backgroundImage = `url('${img}')`;
-            showOverlay('overlay-details');
+            document.getElementById('overlay-details').style.display = 'flex';
         }
-
         function playVideo() {
             closeOverlays();
-            showOverlay('overlay-player');
+            document.getElementById('overlay-player').style.display = 'flex';
         }
-
-        function openLiveOptions(title) {
-            document.getElementById('live-title').innerText = title;
-            showOverlay('modal-live');
-        }
-
-        function openFutureOptions(title) {
-            document.getElementById('future-title').innerText = title;
-            showOverlay('modal-future');
+        function closeOverlays() {
+            document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
         }
     </script>
 </body>
