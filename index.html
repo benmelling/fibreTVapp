@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V28: Icons & Centering</title>
+    <title>FibreTV V29: Live Integration</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -36,6 +36,32 @@
             user-select: none;
         }
 
+        /* --- GLOBAL LIVE BACKGROUND --- */
+        #global-bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1;
+            opacity: 0; transition: opacity 0.5s ease, filter 0.5s ease;
+        }
+
+        /* State: Home Tab Active (Blurred & Dark) */
+        body.mode-home #global-bg-video {
+            opacity: 1;
+            filter: blur(15px) brightness(0.3);
+        }
+
+        /* State: Watching TV (Clear & Full) */
+        body.mode-fullscreen #global-bg-video {
+            opacity: 1;
+            filter: blur(0) brightness(1);
+            z-index: 2000; /* On top of everything */
+        }
+        
+        /* Hide UI when watching TV */
+        body.mode-fullscreen .top-bar-container,
+        body.mode-fullscreen .main-content {
+            display: none !important;
+        }
+
         /* --- TOP NAV --- */
         .top-bar-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100px;
@@ -64,44 +90,25 @@
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
-        /* --- MAIN LAYOUT ENGINE --- */
+        /* --- MAIN LAYOUT --- */
         .main-content {
-            flex: 1; 
-            overflow: hidden; /* Prevent body scroll */
-            padding-top: 120px; /* Space for nav */
-            position: relative;
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding-top: 120px; padding-bottom: 50px;
         }
 
-        /* Standard Tab (Hidden by default) */
-        .tab-content { 
-            display: none; 
-            height: 100%; /* Take full height of main-content */
-            padding-left: 4%; 
-        }
+        .tab-content { display: none; padding: 0 0 0 4%; height: 100%; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         
-        /* Home Tab Logic (Scrolls entire page) */
-        #tab-home {
-            overflow-y: auto; /* Internal scroll */
-            padding-bottom: 100px;
-        }
-
+        #tab-home { overflow-y: auto; padding-bottom: 100px; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW (Sidebars) --- */
-        /* Fixed height ensures vertical centering works */
-        .split-view { 
-            display: flex; gap: 30px; 
-            height: 100%; 
-            overflow: hidden;
-        }
+        /* --- SPLIT VIEW --- */
+        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; }
         
         .vertical-filter-col {
-            width: 150px; flex-shrink: 0; 
-            display: flex; flex-direction: column; 
-            justify-content: center; /* This centers the capsule vertically */
-            height: 80%; /* confine to visual center area */
-            margin: auto 0;
+            width: 150px; flex-shrink: 0; display: flex; flex-direction: column; 
+            justify-content: center; height: 80%; margin: auto 0;
         }
         
         .vert-capsule {
@@ -122,76 +129,56 @@
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
 
-        /* Right Content Column (Scrolls independently) */
-        .content-col { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding-right: 4%; 
-            padding-top: 10px; 
-            padding-bottom: 150px; 
-        }
+        .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
-        
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- NEW LINEAR HEADER (Video Preview) --- */
+        /* --- LINEAR HEADER (Refined) --- */
         .linear-header {
-            flex: 0 0 45%; /* Takes top 45% of screen */
+            flex: 0 0 35%; /* Reduced height as requested */
             width: 100%; border-radius: 24px;
             position: relative; margin-bottom: 20px;
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
+            background: #000;
         }
 
+        /* Progressive Blur/Fade Effect */
         .header-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; right: 0; width: 70%; height: 100%;
             background-size: cover; background-position: center;
-            filter: blur(50px) brightness(0.3);
-            transform: scale(1.1); 
-            z-index: 0; transition: background-image 0.4s ease;
+            z-index: 0; 
+            /* Mask to fade image out to the left and bottom */
+            mask-image: linear-gradient(to right, transparent 0%, black 40%), linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 40%);
+            opacity: 0.6;
+            transition: background-image 0.4s ease;
         }
 
         .header-content {
             position: relative; z-index: 1; height: 100%; width: 100%;
-            display: flex; align-items: center; padding: 30px; gap: 40px;
+            display: flex; align-items: center; padding: 25px; gap: 30px;
         }
 
-        /* The Preview Box (Video) */
         .preview-box {
-            width: 45%; aspect-ratio: 16/9;
+            width: 40%; aspect-ratio: 16/9;
             border-radius: 16px; overflow: hidden;
             background: #000;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,255,255,0.1);
-            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.2);
         }
-        
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Info Area */
         .header-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; }
-        .lh-meta { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; font-weight: 600; color: #ddd; }
+        .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
+        .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
         .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
-        .lh-desc { font-size: 1.1rem; color: #bbb; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* Scrollable EPG */
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
-        .epg-item { 
-            height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
-            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-            border: 2px solid transparent; flex: 1; transition: all 0.2s;
-        }
-        .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
-        .epg-item:active { transform: scale(0.98); }
-        .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
-
-
-        /* --- HOME ROW STYLES --- */
+        /* --- HOME CARDS --- */
         .section-header { 
             font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee;
             display: flex; align-items: center; gap: 12px; 
@@ -204,9 +191,21 @@
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
         .card:active { transform: scale(0.96); }
         .card:hover { transform: scale(1.03); z-index: 5; border-color: rgba(255,255,255,0.3); }
+        
         .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
         .card-title { font-weight: 700; font-size: 1rem; }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
+
+        /* Special Watch TV Card */
+        .c-watch-tv {
+            width: 260px; height: 146px; border-radius: var(--radius-card);
+            background: linear-gradient(135deg, #E50914, #990000);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; border: 2px solid transparent; transition: 0.2s;
+        }
+        .c-watch-tv:hover { transform: scale(1.03); border-color: white; }
+        .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
+        .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
 
         /* Sizes */
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
@@ -214,7 +213,18 @@
         .c-square { width: 130px; height: 130px; background-size: cover; background-color: #222; display: grid; place-items: center; }
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
 
-        /* --- SMARTTUBE --- */
+        /* EPG Items */
+        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
+        .epg-item { 
+            height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
+            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+            border: 2px solid transparent; flex: 1; transition: all 0.2s;
+        }
+        .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
+        .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+
+        /* SmartTube */
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: #181818; border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -225,19 +235,20 @@
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
 
-        /* --- OVERLAYS --- */
+        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
         .btn-pri { background: white; color: black; }
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
-        .btn-modal:active { transform: scale(0.96); }
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
     </style>
 </head>
-<body>
+<body class="mode-home">
+
+    <video id="global-bg-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -300,14 +311,16 @@
             
             <div class="section-header"><i class="fas fa-play-circle"></i> Continue Watching</div>
             <div class="scroller">
+                <div class="c-watch-tv" onclick="watchLiveTV()">
+                    <i class="fas fa-tv"></i>
+                    <span>Watch Live TV</span>
+                </div>
+
                 <div class="card c-thumb" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
                     <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4</div></div>
                 </div>
                 <div class="card c-thumb" onclick="showDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
                     <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2</div></div>
-                </div>
-                <div class="card c-thumb" onclick="playVideo()" style="background: #990000; display:grid; place-items:center;">
-                    <span style="font-weight:900; font-size:1.5rem;">BBC ONE</span>
                 </div>
             </div>
 
@@ -607,8 +620,16 @@
         function switchTab(tabId, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
+            
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // Handle Live BG visibility
+            if(tabId === 'home') {
+                document.body.classList.add('mode-home');
+            } else {
+                document.body.classList.remove('mode-home');
+            }
         }
 
         function activateFilter(el) {
@@ -631,30 +652,55 @@
         function openLive(t) { document.getElementById('live-title').innerText = t; showOverlay('modal-live'); }
         function openFuture(t) { document.getElementById('future-title').innerText = t; showOverlay('modal-future'); }
 
-        // --- LINEAR PREVIEW LOGIC ---
+        // --- LINEAR PREVIEW ---
         function updatePreview(title, time, desc, img, isLive) {
             document.getElementById('lh-title').innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
             
-            // Handle Live Badge
             const badge = document.getElementById('live-badge');
             badge.style.display = isLive ? 'inline-block' : 'none';
 
-            // Update Background Blur (use image)
-            if(img) {
-                document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
-            }
-
-            // Update Preview Box (Play Video if Live)
-            // Note: In a real app, this would switch to a live HLS/M3U8 stream
-            // Here we just restart the sample video to simulate a channel change
+            // Background
+            if(img) document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
+            
+            // Restart Preview Video (Simulating channel change)
             const video = document.getElementById('preview-video');
-            if(video) {
-                video.currentTime = 0;
-                video.play();
-            }
+            if(video) { video.currentTime = 0; video.play(); }
         }
+
+        // --- GLOBAL TV MODE ---
+        function watchLiveTV() {
+            document.body.classList.add('mode-fullscreen');
+        }
+
+        // --- KEY HANDLER (Back Button) ---
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape' || e.key === 'Backspace') {
+                // Priority 1: Close Overlays
+                if(document.querySelector('.overlay[style*="flex"]')) {
+                    closeOverlays();
+                    return;
+                }
+                
+                // Priority 2: Exit Fullscreen TV
+                if(document.body.classList.contains('mode-fullscreen')) {
+                    document.body.classList.remove('mode-fullscreen');
+                    return;
+                }
+
+                // Priority 3: Enter Fullscreen TV (Only on Home)
+                if(document.getElementById('tab-home').classList.contains('active')) {
+                    watchLiveTV();
+                }
+            }
+        });
+
+        // Init: Start on Home
+        window.onload = () => {
+            document.body.classList.add('mode-home');
+        };
+
     </script>
 </body>
 </html>
