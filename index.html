@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V22: No Hero</title>
+    <title>FibreTV V23: Icons Update</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -92,10 +92,12 @@
         .v-item {
             padding: 12px 15px; border-radius: 20px;
             color: #888; font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s; text-align: center;
+            cursor: pointer; transition: all 0.2s; text-align: left; /* Changed to left for icons */
+            display: flex; align-items: center; gap: 12px;
         }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
+        .v-item i { width: 20px; text-align: center; } /* Fixed width for icons */
 
         .content-col {
             flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 100px;
@@ -241,7 +243,6 @@
     <div class="main-content">
 
         <div id="tab-home" class="tab-content active">
-            
             <div class="section-header" style="margin-top:0;">Continue Watching</div>
             <div class="scroller">
                 <div class="card c-thumb" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
@@ -325,53 +326,21 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)">All</div>
-                        <div class="v-item" onclick="activateFilter(this)">Ent.</div>
-                        <div class="v-item" onclick="activateFilter(this)">Movies</div>
-                        <div class="v-item" onclick="activateFilter(this)">Sports</div>
-                        <div class="v-item" onclick="activateFilter(this)">News</div>
-                        <div class="v-item" onclick="activateFilter(this)">Kids</div>
+                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> Ent.</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Movies</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-futbol"></i> Sports</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-newspaper"></i> News</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-child"></i> Kids</div>
                     </div>
                 </div>
                 <div class="content-col">
                     <h1 style="margin-top:0;">TV Guide</h1>
                     
-                    <div class="epg-row">
-                        <div class="epg-ch">BBC 1</div>
-                        <div class="epg-item" onclick="openLive('BBC News')" style="flex:2;">
-                            <div style="font-weight:700;">BBC News</div><div class="live-tag">● LIVE</div>
-                        </div>
-                        <div class="epg-item" onclick="openFuture('Eastenders')" style="flex:3;">
-                            <div style="font-weight:700;">Eastenders</div><div style="color:#666;font-size:0.8rem;">19:30</div>
-                        </div>
-                    </div>
-
-                    <div class="epg-row">
-                        <div class="epg-ch">ITV 1</div>
-                        <div class="epg-item" onclick="openFuture('The Chase')" style="flex:3;">
-                            <div style="font-weight:700;">The Chase</div><div style="color:#666;font-size:0.8rem;">17:00</div>
-                        </div>
-                        <div class="epg-item" onclick="openFuture('Emmerdale')" style="flex:3;">
-                            <div style="font-weight:700;">Emmerdale</div><div style="color:#666;font-size:0.8rem;">19:30</div>
-                        </div>
-                    </div>
-
-                    <div class="epg-row">
-                        <div class="epg-ch">Sky F1</div>
-                        <div class="epg-item" onclick="openLive('Saudi GP')" style="flex:5;">
-                            <div style="font-weight:700;">Saudi Arabian Grand Prix</div><div class="live-tag">● LIVE</div>
-                        </div>
-                    </div>
-
-                    <div class="epg-row">
-                        <div class="epg-ch">Disc</div>
-                        <div class="epg-item" onclick="openLive('Gold Rush')" style="flex:3;">
-                            <div style="font-weight:700;">Gold Rush</div><div class="live-tag">● LIVE</div>
-                        </div>
-                        <div class="epg-item" onclick="openFuture('Deadliest Catch')" style="flex:3;">
-                            <div style="font-weight:700;">Deadliest Catch</div><div style="color:#666;font-size:0.8rem;">21:00</div>
-                        </div>
-                    </div>
+                    <div class="epg-row"><div class="epg-ch">BBC 1</div><div class="epg-item" onclick="openLive('BBC News')" style="flex:2;"><strong>BBC News</strong><div class="live-tag">LIVE</div></div><div class="epg-item" onclick="openFuture('Eastenders')" style="flex:3;"><strong>Eastenders</strong></div></div>
+                    <div class="epg-row"><div class="epg-ch">Sky F1</div><div class="epg-item" onclick="openLive('F1 Race')" style="flex:5;"><strong>F1 Grand Prix</strong><div class="live-tag">LIVE</div></div></div>
+                    <div class="epg-row"><div class="epg-ch">ITV</div><div class="epg-item" onclick="openFuture('Chase')" style="flex:3;"><strong>The Chase</strong></div><div class="epg-item" onclick="openFuture('Emmerdale')" style="flex:3;"><strong>Emmerdale</strong></div></div>
+                    <div class="epg-row"><div class="epg-ch">Disc</div><div class="epg-item" onclick="openLive('Gold Rush')" style="flex:3;"><strong>Gold Rush</strong><div class="live-tag">LIVE</div></div><div class="epg-item" onclick="openFuture('Deadliest Catch')" style="flex:3;"><strong>Deadliest Catch</strong></div></div>
                 </div>
             </div>
         </div>
@@ -381,11 +350,11 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)">All</div>
-                        <div class="v-item" onclick="activateFilter(this)">Movies</div>
-                        <div class="v-item" onclick="activateFilter(this)">TV</div>
-                        <div class="v-item" onclick="activateFilter(this)">4K</div>
-                        <div class="v-item" onclick="activateFilter(this)">New</div>
+                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Movies</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> TV</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-star"></i> 4K</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-calendar-plus"></i> New</div>
                     </div>
                 </div>
                 <div class="content-col">
@@ -418,7 +387,6 @@
                 </div>
                 <div class="content-col">
                     <div class="st-grid">
-                        
                         <div class="st-card" onclick="playVideo()">
                             <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
                                 <div class="sb-bar"><div class="sb-seg" style="left:10%; width:15%; background:#00d26a;"></div></div>
@@ -428,7 +396,6 @@
                                 <div><div class="st-title">State of Android</div><div class="st-details">MKBHD • 1.2M views</div></div>
                             </div>
                         </div>
-
                         <div class="st-card" onclick="playVideo()">
                             <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/U8l-12p49vo/hqdefault.jpg');"></div>
                             <div class="st-meta">
@@ -436,7 +403,6 @@
                                 <div><div class="st-title">Don't Buy This!</div><div class="st-details">MrWhoseTheBoss</div></div>
                             </div>
                         </div>
-
                         <div class="st-card" onclick="playVideo()">
                             <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg');"></div>
                             <div class="st-meta">
@@ -444,7 +410,6 @@
                                 <div><div class="st-title">Lofi Hip Hop</div><div class="st-details">Lofi Girl • LIVE</div></div>
                             </div>
                         </div>
-
                          <div class="st-card" onclick="playVideo()">
                             <div class="st-thumb" style="background-image: url('https://img.youtube.com/vi/LXb3EKWsInQ/hqdefault.jpg');"></div>
                             <div class="st-meta">
@@ -452,7 +417,6 @@
                                 <div><div class="st-title">4K HDR Earth</div><div class="st-details">Earth TV</div></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -463,10 +427,10 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)">Home</div>
-                        <div class="v-item" onclick="activateFilter(this)">Mixes</div>
-                        <div class="v-item" onclick="activateFilter(this)">Charts</div>
-                        <div class="v-item" onclick="activateFilter(this)">Lib</div>
+                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-home"></i> Home</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-random"></i> Mixes</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-chart-line"></i> Charts</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-list"></i> Lib</div>
                     </div>
                 </div>
                 <div class="content-col">
@@ -486,9 +450,10 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)">All</div>
-                        <div class="v-item" onclick="activateFilter(this)">USB</div>
-                        <div class="v-item" onclick="activateFilter(this)">Net</div>
+                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-layer-group"></i> All</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-hdd"></i> HDD</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fab fa-usb"></i> USB</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-network-wired"></i> Net</div>
                     </div>
                 </div>
                 <div class="content-col">
@@ -506,12 +471,12 @@
             <div class="split-view">
                 <div class="vertical-filter-col">
                     <div class="vert-capsule">
-                        <div class="v-item active" onclick="activateFilter(this)">All</div>
-                        <div class="v-item" onclick="activateFilter(this)">Linear</div>
-                        <div class="v-item" onclick="activateFilter(this)">Plus</div>
-                        <div class="v-item" onclick="activateFilter(this)">YT</div>
-                        <div class="v-item" onclick="activateFilter(this)">Music</div>
-                        <div class="v-item" onclick="activateFilter(this)">Local</div>
+                        <div class="v-item active" onclick="activateFilter(this)"><i class="fas fa-search"></i> All</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-tv"></i> TV</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-film"></i> Film</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fab fa-youtube"></i> YT</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-music"></i> Music</div>
+                        <div class="v-item" onclick="activateFilter(this)"><i class="fas fa-folder"></i> Local</div>
                     </div>
                 </div>
                 <div class="content-col">
