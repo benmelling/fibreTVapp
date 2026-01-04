@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V23: Linear Preview</title>
+    <title>FibreTV V24: Centered Sidebars</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -73,12 +73,14 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW --- */
+        /* --- SPLIT VIEW (Sidebar + Content) --- */
         .split-view { display: flex; gap: 30px; height: calc(100vh - 130px); }
         
+        /* SIDEBAR (Now Centered) */
         .vertical-filter-col {
-            width: 150px; flex-shrink: 0; padding-top: 10px;
+            width: 150px; flex-shrink: 0;
             display: flex; flex-direction: column; gap: 10px;
+            justify-content: center; /* CENTERS VERTICALLY */
         }
         
         .vert-capsule {
@@ -135,7 +137,7 @@
 
         /* EPG Items */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 80px; font-weight: 800; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
+        .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
         .epg-item { 
             height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
             display: flex; flex-direction: column; justify-content: center; cursor: pointer;
@@ -281,6 +283,7 @@
                 <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
                 <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
                 <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
+                <div class="card c-app" style="background: #1DB954;"><i class="fab fa-spotify fa-2x"></i></div>
             </div>
         </div>
 
