@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V31: Clock & Polish</title>
+    <title>FibreTV V32: Three-Col Header</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -16,8 +16,8 @@
         /* --- RESET & VARIABLES --- */
         :root {
             --bg-color: #000000;
-            --surface-color: #141414;
-            --surface-translucent: rgba(20, 20, 20, 0.95);
+            --surface-color: #1a1a1a; /* Slightly lighter than pure black for cards */
+            --surface-translucent: rgba(26, 26, 26, 0.95);
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
@@ -40,10 +40,8 @@
         .system-clock {
             position: fixed; top: 38px; right: 50px;
             font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,0.8);
-            z-index: 1100; /* Above nav capsule */
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            font-variant-numeric: tabular-nums;
-            pointer-events: none;
+            z-index: 1100; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-variant-numeric: tabular-nums; pointer-events: none;
         }
 
         /* --- GLOBAL LIVE BACKGROUND --- */
@@ -53,14 +51,10 @@
             opacity: 0; transition: opacity 0.5s ease, filter 0.5s ease;
         }
         body.mode-home #global-bg-video { opacity: 1; filter: blur(15px) brightness(0.3); }
-        
-        /* Fullscreen Mode (Hide UI + Clock) */
         body.mode-fullscreen #global-bg-video { opacity: 1; filter: blur(0) brightness(1); z-index: 2000; }
         body.mode-fullscreen .top-bar-container, 
         body.mode-fullscreen .main-content,
-        body.mode-fullscreen .system-clock { /* Hide clock in fullscreen */
-            display: none !important; 
-        }
+        body.mode-fullscreen .system-clock { display: none !important; }
 
         /* --- TOP NAV --- */
         .top-bar-container {
@@ -123,35 +117,48 @@
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- LINEAR HEADER (Refined) --- */
+        /* --- NEW LINEAR HEADER (3-Column Layout) --- */
         .linear-header {
-            flex: 0 0 35%; /* Fixed height for header */
+            flex: 0 0 auto; /* Let content dictate height, but constrain media */
             width: 100%; border-radius: 24px;
-            position: relative; margin-bottom: 20px; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1); background: #000;
+            margin-bottom: 20px; overflow: hidden;
+            /* Solid background, no blur image */
+            background: var(--surface-color);
+            border: 2px solid transparent;
+            padding: 25px;
         }
-        .header-bg {
-            position: absolute; top: 0; right: 0; width: 70%; height: 100%;
-            background-size: cover; background-position: center; z-index: 0;
-            mask-image: linear-gradient(to right, transparent 0%, black 40%); opacity: 0.6;
-            transition: background-image 0.4s ease;
-        }
+
         .header-content {
-            position: relative; z-index: 1; height: 100%; width: 100%;
-            display: flex; align-items: center; padding: 25px; gap: 40px; /* Increased gap */
+            height: 100%; width: 100%;
+            display: flex; align-items: center; 
+            justify-content: space-between; /* Spread items out */
+            gap: 30px;
         }
-        .preview-box {
-            width: 35%; /* SMALLER: Was 40-45% */
-            max-width: 450px;
-            aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
-            background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 2px solid rgba(255,255,255,0.2);
+
+        /* 1. Left Video Preview */
+        .preview-box-left {
+            width: 32%; aspect-ratio: 16/9; 
+            border-radius: 16px; overflow: hidden;
+            background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
-        .header-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        /* 2. Middle Text Info */
+        .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
         .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
-        .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* 3. Right Static Image */
+        .image-box-right {
+            width: 32%; aspect-ratio: 16/9;
+            border-radius: 16px; overflow: hidden;
+            background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .right-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s; }
+
+
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
@@ -187,13 +194,13 @@
         /* EPG Items */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
-        .epg-item { height: 70px; background: #1a1a1a; padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
+        .epg-item { height: 70px; background: var(--surface-color); padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
         .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
         .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 
         /* SmartTube */
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .st-card { width: 300px; background: #181818; border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
         .st-meta { padding: 12px; display: flex; gap: 10px; }
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
@@ -202,7 +209,7 @@
 
         /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .modal-box { background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
+        .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
         .btn-pri { background: white; color: black; }
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
@@ -311,14 +318,6 @@
                 </div>
             </div>
 
-            <div class="section-header"><i class="fas fa-history"></i> Recent Channels</div>
-            <div class="scroller">
-                <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
-                <div class="card c-square" onclick="playVideo()" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
-            </div>
-
             <div class="section-header"><i class="fas fa-film"></i> Popular Movies</div>
             <div class="scroller">
                 <div class="card c-poster" onclick="showDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
@@ -382,12 +381,12 @@
                 <div class="linear-content-col">
                     
                     <div class="linear-header">
-                        <div id="header-bg" class="header-bg" style="background-image: url('https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"></div>
                         <div class="header-content">
-                            <div class="preview-box">
+                            <div class="preview-box-left">
                                 <video id="preview-video" class="preview-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
                             </div>
-                            <div class="header-info">
+                            
+                            <div class="header-info-mid">
                                 <h1 id="lh-title" class="lh-title">BBC News at Six</h1>
                                 <div id="lh-meta" class="lh-meta">
                                     <span id="live-badge" class="lh-badge">LIVE</span>
@@ -395,6 +394,10 @@
                                     <span>News</span>
                                 </div>
                                 <p id="lh-desc" class="lh-desc">The latest national and international news stories from the BBC News team, followed by weather.</p>
+                            </div>
+
+                            <div class="image-box-right">
+                                <img id="right-img" class="right-img" src="https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg">
                             </div>
                         </div>
                     </div>
@@ -637,14 +640,10 @@
             const badge = document.getElementById('live-badge');
             badge.style.display = isLive ? 'inline-block' : 'none';
 
-            // Update Background Blur (use image)
-            if(img) {
-                document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
-            }
-
-            // Update Preview Box (Play Video if Live)
-            // Note: In a real app, this would switch to a live HLS/M3U8 stream
-            // Here we just restart the sample video to simulate a channel change
+            // Update Right Image
+            if(img) document.getElementById('right-img').src = img;
+            
+            // Restart Preview Video (Simulating channel change)
             const video = document.getElementById('preview-video');
             if(video) {
                 video.currentTime = 0;
@@ -659,8 +658,6 @@
                 'Sky Sports': 'Saudi Arabian GP'
             };
             const currentProg = programs[channel] || channel;
-            
-            // Only update if not already updated
             const sub = card.querySelector('.card-sub-text');
             if(sub) sub.innerText = "Now: " + currentProg;
         }
