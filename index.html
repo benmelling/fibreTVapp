@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V30: Live Tiles</title>
+    <title>FibreTV V31: Clock & Polish</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -36,6 +36,16 @@
             user-select: none;
         }
 
+        /* --- SYSTEM CLOCK --- */
+        .system-clock {
+            position: fixed; top: 38px; right: 50px;
+            font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,0.8);
+            z-index: 1100; /* Above nav capsule */
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-variant-numeric: tabular-nums;
+            pointer-events: none;
+        }
+
         /* --- GLOBAL LIVE BACKGROUND --- */
         #global-bg-video {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -43,8 +53,14 @@
             opacity: 0; transition: opacity 0.5s ease, filter 0.5s ease;
         }
         body.mode-home #global-bg-video { opacity: 1; filter: blur(15px) brightness(0.3); }
+        
+        /* Fullscreen Mode (Hide UI + Clock) */
         body.mode-fullscreen #global-bg-video { opacity: 1; filter: blur(0) brightness(1); z-index: 2000; }
-        body.mode-fullscreen .top-bar-container, body.mode-fullscreen .main-content { display: none !important; }
+        body.mode-fullscreen .top-bar-container, 
+        body.mode-fullscreen .main-content,
+        body.mode-fullscreen .system-clock { /* Hide clock in fullscreen */
+            display: none !important; 
+        }
 
         /* --- TOP NAV --- */
         .top-bar-container {
@@ -107,9 +123,10 @@
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- LINEAR HEADER (Video Preview) --- */
+        /* --- LINEAR HEADER (Refined) --- */
         .linear-header {
-            flex: 0 0 35%; width: 100%; border-radius: 24px;
+            flex: 0 0 35%; /* Fixed height for header */
+            width: 100%; border-radius: 24px;
             position: relative; margin-bottom: 20px; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1); background: #000;
         }
@@ -121,10 +138,12 @@
         }
         .header-content {
             position: relative; z-index: 1; height: 100%; width: 100%;
-            display: flex; align-items: center; padding: 25px; gap: 30px;
+            display: flex; align-items: center; padding: 25px; gap: 40px; /* Increased gap */
         }
         .preview-box {
-            width: 40%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
+            width: 35%; /* SMALLER: Was 40-45% */
+            max-width: 450px;
+            aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
             background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 2px solid rgba(255,255,255,0.2);
         }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
@@ -162,7 +181,7 @@
         /* Sizes */
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
-        .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; } /* Matched height */
+        .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
 
         /* EPG Items */
@@ -193,6 +212,8 @@
     </style>
 </head>
 <body class="mode-home">
+
+    <div id="system-clock" class="system-clock">12:00</div>
 
     <video id="global-bg-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
 
@@ -288,6 +309,14 @@
                 <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
                     <div class="card-meta"><div class="card-title">The Last of Us</div><div class="card-sub">S1 E6</div></div>
                 </div>
+            </div>
+
+            <div class="section-header"><i class="fas fa-history"></i> Recent Channels</div>
+            <div class="scroller">
+                <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
+                <div class="card c-square" onclick="playVideo()" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
             </div>
 
             <div class="section-header"><i class="fas fa-film"></i> Popular Movies</div>
@@ -604,13 +633,23 @@
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
             
+            // Handle Live Badge
             const badge = document.getElementById('live-badge');
             badge.style.display = isLive ? 'inline-block' : 'none';
 
-            if(img) document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
-            
+            // Update Background Blur (use image)
+            if(img) {
+                document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
+            }
+
+            // Update Preview Box (Play Video if Live)
+            // Note: In a real app, this would switch to a live HLS/M3U8 stream
+            // Here we just restart the sample video to simulate a channel change
             const video = document.getElementById('preview-video');
-            if(video) { video.currentTime = 0; video.play(); }
+            if(video) {
+                video.currentTime = 0;
+                video.play();
+            }
         }
 
         // --- LIVE TILE LOGIC ---
@@ -630,7 +669,15 @@
             document.body.classList.add('mode-fullscreen');
         }
 
-        // --- KEY HANDLER ---
+        // --- CLOCK & KEY HANDLER ---
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-GB', {timeZone: 'Europe/London', hour: '2-digit', minute:'2-digit'});
+            document.getElementById('system-clock').innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
         document.addEventListener('keydown', (e) => {
             if(e.key === 'Escape' || e.key === 'Backspace') {
                 if(document.querySelector('.overlay[style*="flex"]')) {
