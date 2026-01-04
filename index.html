@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FibreTV Launcher Mockup V2</title>
+    <title>FibreTV M3 Mockup V3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
+        /* --- Material 3 Expressive Theme Variables (Dark/Orange) --- */
         :root {
-            --bg-color: #0f0f0f;
-            --sidebar-bg: #161616;
-            --focus-color: #00a8ff; 
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --card-bg: #252525;
-            --epg-line-color: #333;
+            /* Core Colors */
+            --md-bg-color: #121212; /* Deep dark background */
+            --md-surface-color: #1E1E1E; /* Slightly lighter sidebar */
+            --md-surface-variant: #2C2C2C; /* Card background */
+            --md-primary-orange: #FF9800; /* M3 Expressive Orange Accent */
+            
+            /* Text Colors */
+            --md-text-primary: #E6E1E5;
+            --md-text-secondary: #Cac4d0;
+            
+            /* Interaction */
+            --focus-ring-color: var(--md-primary-orange);
+            
+            /* Shapes */
+            --card-radius: 16px;
+            --menu-radius: 12px;
         }
 
         * { box-sizing: border-box; }
@@ -21,20 +33,405 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--md-bg-color);
+            color: var(--md-text-primary);
+            font-family: 'Roboto', sans-serif;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 90px;
-            background-color: var(--sidebar-bg);
+        /* --- PROFILE OVERLAY --- */
+        #profile-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--md-bg-color);
+            z-index: 9999;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+        .profile-grid { display: flex; gap: 2rem; margin-top: 3rem; }
+        .profile-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .profile-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: var(--md-surface-variant);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 3rem; color: var(--md-text-secondary);
+            border: 4px solid transparent;
+            transition: all 0.2s;
+        }
+        .profile-name { margin-top: 1rem; font-size: 1.2rem; }
+        /* Kids Mode Styling */
+        .profile-item.kids .profile-avatar { background: linear-gradient(45deg, #FF9800, #FFEB3B); color: #121212; }
+
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 96px; /* M3 specs suggest slightly wider rails */
+            background-color: var(--md-surface-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 1.5rem;
+            z-index: 100;
+            border-right: 1px solid #333;
+        }
+
+        /* Current Profile Icon in Sidebar */
+        .current-profile-icon {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background-color: #555;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 2rem;
+            border: 2px solid transparent;
+            font-size: 1.2rem;
+        }
+
+        .menu-item {
+            width: 64px; height: 64px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            margin-bottom: 1rem;
+            border-radius: var(--menu-radius);
+            color: var(--md-text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem; font-weight: 500;
+            text-align: center;
+        }
+        
+        .menu-item i { font-size: 1.5rem; margin-bottom: 6px; }
+        /* M3 Active State: Orange icon/text, slight background tint */
+        .menu-item.active-tab { 
+            color: var(--md-primary-orange); 
+            background-color: rgba(255, 152, 0, 0.1); 
+        }
+        .settings-spacer { flex-grow: 1; } /* Pushes settings to bottom */
+
+        /* --- FOCUS STYLES (The Orange Ring) --- */
+        .focusable:focus, .focused {
+            outline: none;
+            border: 4px solid var(--focus-ring-color) !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+            z-index: 10;
+            /* Ensure text remains white on focus */
+            color: white;
+        }
+        /* Adjust focus for rounded items */
+        .menu-item.focused, .current-profile-icon.focused, .profile-avatar.focused, .card.app.focused {
+            border-radius: 16px !important; /* Force consistent radius on focus */
+        }
+        .profile-avatar.focused { border-radius: 50% !important; }
+
+
+        /* --- MAIN CONTENT LAYOUT --- */
+        .main-content {
+            flex: 1;
+            padding: 0;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            position: relative;
+            /* Smooth gradient fade at top */
+            background: linear-gradient(to bottom, var(--md-bg-color) 0%, var(--md-bg-color) 20px, transparent 100px);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 2rem 3rem;
+            min-height: 100%;
+        }
+        #home-tab { display: block; } 
+
+        /* --- ROWS & CARDS (M3 Styled) --- */
+        .row-title {
+            font-size: 1.4rem; font-weight: 500;
+            margin: 2rem 0 1rem 0;
+            color: var(--md-text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .horizontal-row {
+            display: flex; gap: 1.5rem;
+            padding: 1rem 0.5rem;
+            overflow-x: auto; scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar { display: none; }
+
+        .card {
+            flex: 0 0 auto;
+            background-color: var(--md-surface-variant);
+            border-radius: var(--card-radius);
+            overflow: hidden; position: relative;
+            border: 4px solid transparent; /* Placeholder for focus ring */
+            transition: transform 0.2s, border 0.1s;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .card-label {
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.5), transparent);
+            padding: 12px; width: 100%;
+            font-size: 1rem; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* Card Sizes */
+        .card.hero { width: 75vw; height: 45vh; background: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg') center/cover; border-radius: 24px; }
+        .card.movie { width: 150px; height: 225px; background-color: #333; background-size: cover; background-position: center; }
+        .card.episode { width: 260px; height: 146px; background-color: #333; background-size: cover; background-position: center; }
+        .card.channel { width: 180px; height: 100px; background-color: var(--md-surface-variant); display: flex; align-items: center; justify-content: center; }
+        .card.app { width: 100px; height: 100px; border-radius: 22px; }
+
+        .app-grid { display: flex; gap: 1.5rem; padding: 1rem 0; flex-wrap: wrap; }
+
+        /* --- LINEAR TAB (EPG M3) --- */
+        .epg-container { display: grid; grid-template-columns: 150px 1fr; margin-top: 1rem; }
+        .epg-header { grid-column: 2; display: flex; margin-bottom: 0.5rem; color: var(--md-text-secondary); font-weight: 500; }
+        .time-slot { flex: 1; padding-left: 10px; border-left: 2px solid #333; }
+        .epg-row { display: flex; height: 70px; gap: 8px; margin-bottom: 8px;}
+        .channel-cell { 
+            height: 70px; background: var(--md-surface-color); 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 700; border-radius: 12px; border: 4px solid transparent;
+        }
+        .program-cell {
+            background: var(--md-surface-variant); height: 100%;
+            border-radius: 12px; padding: 5px 15px; font-size: 0.9rem; font-weight: 500;
+            display: flex; align-items: center; border: 4px solid transparent;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* --- PLUS TAB (M3 Chips) --- */
+        .filter-row { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .chip {
+            padding: 0.6rem 1.8rem;
+            background-color: var(--md-surface-variant);
+            border-radius: 50px;
+            border: 4px solid transparent;
+            font-size: 0.95rem; font-weight: 500; color: var(--md-text-secondary);
+            transition: all 0.2s;
+        }
+        /* M3 Selected State: Orange background, black text */
+        .chip.selected { background-color: var(--md-primary-orange); color: black; font-weight: 700;}
+
+        /* --- SEARCH TAB --- */
+        .search-container { max-width: 800px; margin: 2rem auto; text-align: center; }
+        .search-input {
+            width: 100%; padding: 1.2rem; font-size: 1.3rem;
+            background: var(--md-surface-variant); border: 4px solid transparent;
+            color: white; border-radius: 50px; /* Round M3 search bar */
+            margin-bottom: 3rem; text-align: left; padding-left: 2rem;
+        }
+        .search-input::placeholder { color: var(--md-text-secondary); }
+        
+        /* --- SETTINGS TAB (New) --- */
+        .settings-list { display: flex; flex-direction: column; gap: 1rem; max-width: 600px; }
+        .settings-item {
+            display: flex; align-items: center;
+            background: var(--md-surface-variant);
+            padding: 1rem 1.5rem; border-radius: var(--card-radius);
+            border: 4px solid transparent; font-size: 1.1rem;
+        }
+        .settings-item i { margin-right: 1.5rem; color: var(--md-text-secondary); font-size: 1.3rem;}
+        .settings-item .label { flex: 1; font-weight: 500; }
+        .settings-item .value { color: var(--md-text-secondary); font-size: 0.9rem; }
+
+    </style>
+</head>
+<body>
+
+    <div id="profile-overlay">
+        <h1 style="font-weight: 400; font-size: 2.5rem;">Who's watching FibreTV?</h1>
+        <div class="profile-grid">
+            <div class="profile-item focusable" tabindex="0" onclick="selectProfile('Dad')">
+                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <div class="profile-name">Dad</div>
+            </div>
+             <div class="profile-item kids focusable" tabindex="0" onclick="selectProfile('Kids')">
+                <div class="profile-avatar"><i class="fas fa-child"></i></div>
+                <div class="profile-name">Kids Mode</div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="current-profile-icon focusable" tabindex="0" onclick="showProfileOverlay()" title="Switch Profile">
+            <i class="fas fa-user" id="sidebar-profile-icon"></i>
+        </div>
+
+        <div class="menu-item focusable active-tab" tabindex="0" data-target="home-tab"><i class="fas fa-home"></i>Home</div>
+        <div class="menu-item focusable" tabindex="0" data-target="linear-tab"><i class="fas fa-broadcast-tower"></i>Linear</div>
+        <div class="menu-item focusable" tabindex="0" data-target="plus-tab"><i class="fas fa-play"></i>Plus</div>
+        <div class="menu-item focusable" tabindex="0" data-target="search-tab"><i class="fas fa-search"></i>Search</div>
+        
+        <div class="settings-spacer"></div> <div class="menu-item focusable" tabindex="0" data-target="settings-tab"><i class="fas fa-cog"></i>Settings</div>
+    </div>
+
+    <div class="main-content">
+
+        <div id="home-tab" class="tab-content">
+            <div class="horizontal-row">
+                <div class="card hero focusable" tabindex="0">
+                    <div class="card-label" style="font-size: 1.8rem;">Suicide Squad Isekai <span style="font-size: 1rem; opacity:0.8; font-weight:normal;">(New Episode)</span></div>
+                </div>
+            </div>
+
+            <div class="row-title">Continue Watching</div>
+            <div class="horizontal-row">
+                <div class="card episode focusable" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
+                    <div class="card-label">The Boys S03E04 <div style="height:4px; background:var(--md-primary-orange); width:40%; margin-top:6px; border-radius:2px;"></div></div>
+                </div>
+                <div class="card movie focusable" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-label">Dune Part Two</div>
+                </div>
+            </div>
+
+            <div class="row-title" style="margin-top: 3rem;">Apps</div>
+            <div class="app-grid">
+                <div class="card app focusable" tabindex="0" style="background: #E50914; display:grid; place-items:center;"><i class="fab fa-netflix fa-2x"></i></div>
+                <div class="card app focusable" tabindex="0" style="background: #FF0000; display:grid; place-items:center;"><i class="fab fa-youtube fa-2x"></i></div>
+                <div class="card app focusable" tabindex="0" style="background: #00A8E8; display:grid; place-items:center;"><i class="fab fa-amazon fa-2x"></i></div>
+            </div>
+            <div style="height: 50px;"></div>
+        </div>
+
+        <div id="linear-tab" class="tab-content">
+            <div class="row-title" style="margin-top:0;">TV Guide</div>
+            <div class="epg-container">
+                <div class="epg-header">
+                    <div class="time-slot">19:00</div><div class="time-slot">19:30</div><div class="time-slot">20:00</div>
+                </div>
+                <div class="channel-cell focusable" tabindex="0">BBC One</div>
+                <div class="epg-row">
+                    <div class="program-cell focusable" tabindex="0" style="flex: 2;">The One Show <span style="color:var(--md-primary-orange); margin-left:5px;">● LIVE</span></div>
+                    <div class="program-cell focusable" tabindex="0" style="flex: 3;">Eastenders</div>
+                </div>
+                <div class="channel-cell focusable" tabindex="0">Sky Sports</div>
+                <div class="epg-row">
+                    <div class="program-cell focusable" tabindex="0" style="flex: 5;">Premier League: LIV vs MCI</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="plus-tab" class="tab-content">
+            <div class="filter-row">
+                <div class="chip focusable selected" tabindex="0">All</div>
+                <div class="chip focusable" tabindex="0">Movies</div>
+                <div class="chip focusable" tabindex="0">TV Shows</div>
+                <div class="chip focusable" tabindex="0">Kids</div>
+            </div>
+            <div class="row-title">Trending Now</div>
+            <div class="horizontal-row">
+                 <div class="card movie focusable" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                 <div class="card movie focusable" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                 <div class="card movie focusable" tabindex="0" style="background-image: url('https://image.tmdb.org/t/p/w500/phmzILlenzqPNUKAbWXQF39P2X.jpg');"></div>
+            </div>
+        </div>
+
+        <div id="search-tab" class="tab-content">
+            <div class="search-container">
+                <input type="text" class="search-input focusable" tabindex="0" placeholder="Search movies, shows, channels...">
+                <i class="fas fa-search fa-3x" style="color: var(--md-surface-variant);"></i>
+                <p style="color: var(--md-text-secondary); margin-top: 1rem;">Start typing to search across Linear and Plus.</p>
+            </div>
+        </div>
+        
+        <div id="settings-tab" class="tab-content">
+            <div class="row-title" style="margin-top:0; margin-bottom: 2rem;">Settings</div>
+            <div class="settings-list">
+                <div class="settings-item focusable" tabindex="0">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="label">Account & Profiles</div>
+                    <div class="value">Dad (Active)</div>
+                </div>
+                <div class="settings-item focusable" tabindex="0">
+                     <i class="fas fa-sliders-h"></i>
+                    <div class="label">Player Settings</div>
+                    <div class="value">Auto Quality</div>
+                </div>
+                <div class="settings-item focusable" tabindex="0">
+                    <i class="fas fa-lock"></i>
+                    <div class="label">Parental Controls</div>
+                    <div class="value">On</div>
+                </div>
+                <div class="settings-item focusable" tabindex="0">
+                    <i class="fas fa-database"></i>
+                    <div class="label">Clear Cache</div>
+                </div>
+                 <div class="settings-item focusable" tabindex="0">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="label">About FibreTV</div>
+                    <div class="value">v1.0.3</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Profile Handling ---
+        function selectProfile(name) {
+            console.log("Profile selected:", name);
+            const overlay = document.getElementById('profile-overlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Set focus to the sidebar profile icon after selection
+                document.querySelector('.current-profile-icon').focus();
+            }, 300);
+
+            // Update sidebar icon based on selection (simple demo logic)
+            const sidebarIcon = document.getElementById('sidebar-profile-icon');
+            if(name === 'Kids') {
+                 sidebarIcon.className = 'fas fa-child';
+            } else {
+                 sidebarIcon.className = 'fas fa-user';
+            }
+        }
+
+        function showProfileOverlay() {
+             const overlay = document.getElementById('profile-overlay');
+             overlay.style.display = 'flex';
+             setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+             // Focus the first profile
+             overlay.querySelector('.profile-item').focus();
+        }
+
+
+        // --- Navigation Handling (Mouse + Keyboard) ---
+        function switchTab(element) {
+            // Handle Profile Icon separately
+            if (element.classList.contains('current-profile-icon')) {
+                showProfileOverlay();
+                return;
+            }
+
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active-tab'));
+            element.classList.add('active-tab');
+            
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            
+            const targetId = element.getAttribute('data-target');
+            const targetContent = document.getElementById(targetId);
+            if(targetContent) {
+                targetContent.style.display = 'block';
+                // Optional: Auto-focus first item in new tab
+                // const firstItem = targetContent.querySelector('.focusable');
+                // if(firstItem) firstItem.focus();
+            }
+        }
+
+                    flex-direction: column;
             align-items: center;
             padding-top: 3rem;
             z-index: 100;
