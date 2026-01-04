@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FibreTV V7: Stable Release</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FibreTV Player</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    
+    <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","short_name":"FibreTV","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#FF9800","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -13,24 +21,22 @@
             --bg-color: #0F0F0F;
             --surface-color: #1F1F1F;
             --surface-variant: #2D2D2D;
-            --primary-accent: #FF9800; /* Orange signature */
-            --yt-accent: #FF0000;      /* YouTube Red */
-            --music-accent: #FFFFFF;   /* Music White */
-            --local-accent: #4CAF50;   /* Local Green */
-            
+            --primary-accent: #FF9800;
+            --yt-accent: #FF0000;
+            --music-accent: #FFFFFF;
+            --local-accent: #4CAF50;
             --text-primary: #E6E1E5;
             --text-secondary: #AAAAAA;
-            
             --card-radius: 12px;
         }
 
-        /* Kids Mode overrides */
+        /* Kids Mode Override */
         body.kids-mode {
             --primary-accent: #FFEB3B;
             --bg-color: #141400;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; padding: 0;
@@ -41,16 +47,22 @@
             user-select: none;
         }
 
-        /* --- 1. PROFILE OVERLAY (Fixed) --- */
+        /* --- OVERLAYS --- */
+        .fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2000; display: none; background: #000;
+        }
+
+        /* PROFILE OVERLAY (Forced Visible on Load) */
         #profile-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); /* Opaque background */
-            z-index: 10000; /* Highest priority */
-            display: flex; /* Force visible by default */
+            background: rgba(0,0,0,0.98);
+            z-index: 9999;
+            display: flex; /* Flex by default */
             flex-direction: column; justify-content: center; align-items: center;
         }
         
-        .profile-grid { display: flex; gap: 4rem; margin-top: 3rem; }
+        .profile-grid { display: flex; gap: 3rem; margin-top: 3rem; flex-wrap: wrap; justify-content: center;}
         
         .profile-item { 
             display: flex; flex-direction: column; align-items: center; 
@@ -60,84 +72,72 @@
         }
         
         .profile-avatar {
-            width: 150px; height: 150px; border-radius: 50%;
+            width: 140px; height: 140px; border-radius: 50%;
             background: #333; display: flex; justify-content: center; align-items: center;
             font-size: 3.5rem; color: #888; margin-bottom: 1.5rem;
-            /* Critical Fix: prevent child elements from stealing the click */
-            pointer-events: none; 
+            pointer-events: none; /* Fixes click targets */
         }
         
         .profile-item[data-profile="Kids"] .profile-avatar { background: linear-gradient(135deg, #FFEB3B, #FF9800); color: #222; }
 
-        /* Focus state for profile */
         .profile-item:focus, .profile-item.focused {
-            outline: none;
             background-color: rgba(255, 255, 255, 0.1);
             border-color: var(--primary-accent);
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-
-        /* --- 2. OTHER OVERLAYS --- */
-        .fullscreen-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2000; display: none; background: #000;
-        }
-
-        /* Player Overlay */
+        /* PLAYER OVERLAY */
         .player-content { width: 100%; height: 100%; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
         .player-ui {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 4rem;
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 3rem;
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
         }
 
-        /* Details Overlay */
+        /* DETAILS OVERLAY */
         #details-overlay { background-size: cover; background-position: center; }
         .details-gradient {
             width: 100%; height: 100%; background: linear-gradient(to right, #000 30%, transparent 100%);
-            display: flex; align-items: center; padding-left: 6rem;
+            display: flex; align-items: center; padding-left: 5rem;
         }
         .action-btn {
-            padding: 0.8rem 2rem; border-radius: 50px; font-weight: bold; margin-right: 1rem;
+            padding: 1rem 2rem; border-radius: 50px; font-weight: bold; margin-right: 1rem;
             background: white; color: black; border: 4px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
         }
 
         /* --- SIDEBAR --- */
         .sidebar {
-            width: 90px; background-color: var(--surface-color);
+            width: 80px; background-color: var(--surface-color);
             display: flex; flex-direction: column; align-items: center;
-            padding-top: 2rem; z-index: 100; border-right: 1px solid #333;
+            padding-top: 1.5rem; z-index: 100; border-right: 1px solid #333;
         }
         .profile-icon {
-            width: 48px; height: 48px; border-radius: 50%; background: #444; 
-            display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;
+            width: 45px; height: 45px; border-radius: 50%; background: #444; 
+            display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem;
             border: 2px solid transparent; cursor: pointer;
         }
         .menu-item {
-            width: 60px; height: 60px; margin-bottom: 0.8rem;
+            width: 55px; height: 55px; margin-bottom: 0.5rem;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             border-radius: var(--menu-radius); color: var(--text-secondary); cursor: pointer;
-            font-size: 0.7rem; font-weight: 500; transition: all 0.2s; border: 2px solid transparent;
+            font-size: 0.65rem; font-weight: 500; transition: all 0.2s; border: 2px solid transparent;
         }
-        .menu-item i { font-size: 1.4rem; margin-bottom: 4px; pointer-events: none; }
+        .menu-item i { font-size: 1.3rem; margin-bottom: 4px; pointer-events: none; }
         
-        /* Active States */
         .menu-item.active-tab { color: var(--primary-accent); background: rgba(255, 255, 255, 0.05); }
         .menu-item[data-target="youtube-tab"].active-tab { color: var(--yt-accent); }
         .menu-item[data-target="music-tab"].active-tab { color: var(--music-accent); }
         .menu-item[data-target="local-tab"].active-tab { color: var(--local-accent); }
 
-        /* --- MAIN CONTENT --- */
+        /* --- CONTENT --- */
         .main-content {
             flex: 1; padding: 0; overflow-y: auto; position: relative;
             background: linear-gradient(to bottom, var(--bg-color) 0%, transparent 200px);
         }
-        .tab-content { display: none; padding: 2rem 3rem; min-height: 100%; }
+        .tab-content { display: none; padding: 1.5rem 2rem; min-height: 100%; padding-bottom: 50px;}
         #home-tab { display: block; }
 
-        /* Components */
-        .row-title { font-size: 1.4rem; font-weight: 500; margin: 1.5rem 0 1rem 0; color: #ddd; }
-        .horizontal-row { display: flex; gap: 1.5rem; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; }
+        .row-title { font-size: 1.3rem; font-weight: 500; margin: 1.5rem 0 1rem 0; color: #ddd; }
+        .horizontal-row { display: flex; gap: 1.2rem; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; }
         ::-webkit-scrollbar { display: none; }
         
         .card {
@@ -150,17 +150,14 @@
             font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none;
         }
 
-        /* Sizes */
-        .card.hero { width: 70vw; height: 45vh; background-size: cover; border-radius: 20px; }
-        .card.poster { width: 160px; height: 240px; background-size: cover; background-color: #333; }
-        .card.thumb { width: 280px; height: 160px; background-size: cover; background-color: #333; }
-        .card.yt-video { width: 300px; height: 220px; background: #000; }
-        .yt-thumb { height: 170px; background-size: cover; position: relative; }
+        .card.hero { width: 75vw; height: 40vh; background-size: cover; border-radius: 20px; }
+        .card.poster { width: 150px; height: 225px; background-size: cover; background-color: #333; }
+        .card.thumb { width: 260px; height: 146px; background-size: cover; background-color: #333; }
+        .card.yt-video { width: 280px; height: 200px; background: #000; }
+        .yt-thumb { height: 150px; background-size: cover; position: relative; }
         .yt-meta { height: 50px; padding: 8px; display: flex; align-items: center; gap: 10px; background: #222; }
-        .yt-duration { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); padding: 2px 4px; font-size: 0.8rem; border-radius: 4px; }
 
-        /* Local File Grid */
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; }
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
         .file-item {
             background: var(--surface-variant); border-radius: 12px; padding: 1.5rem;
             display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -168,12 +165,11 @@
         }
         .file-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--local-accent); pointer-events: none; }
 
-        /* --- FOCUS HANDLING --- */
+        /* FOCUS STATES */
         .focusable:focus, .focused {
             outline: none; border-color: var(--primary-accent) !important;
-            transform: scale(1.05); z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(1.03); z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        /* Focus Color overrides */
         .menu-item[data-target="youtube-tab"]:focus { border-color: var(--yt-accent) !important; }
         .menu-item[data-target="music-tab"]:focus { border-color: var(--music-accent) !important; }
         .menu-item[data-target="local-tab"]:focus { border-color: var(--local-accent) !important; }
@@ -185,11 +181,11 @@
     <div id="profile-overlay">
         <h1 style="font-weight: 300; font-size: 2.5rem; color: #fff;">Who's Watching?</h1>
         <div class="profile-grid">
-            <div class="profile-item focusable" tabindex="0" data-profile="Dad">
+            <div class="profile-item focusable" tabindex="0" data-profile="Dad" onclick="selectProfile('Dad')">
                 <div class="profile-avatar"><i class="fas fa-user"></i></div>
                 <div class="profile-name">Dad</div>
             </div>
-            <div class="profile-item focusable" tabindex="0" data-profile="Kids">
+            <div class="profile-item focusable" tabindex="0" data-profile="Kids" onclick="selectProfile('Kids')">
                 <div class="profile-avatar"><i class="fas fa-child"></i></div>
                 <div class="profile-name">Kids Mode</div>
             </div>
@@ -200,14 +196,14 @@
         <div class="player-content">
             <i class="fas fa-play-circle fa-6x" style="opacity: 0.3;"></i>
             <div class="player-ui">
-                <h1 id="player-title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Video Title</h1>
+                <h1 id="player-title" style="font-size: 2rem; margin-bottom: 0.5rem;">Video Title</h1>
                 <p style="color: #aaa;">00:12 / 45:00 • 4K HDR</p>
                 <div style="width: 100%; height: 6px; background: #444; margin-top: 1rem; border-radius: 3px;">
                     <div style="width: 25%; height: 100%; background: var(--primary-accent); border-radius: 3px;"></div>
                 </div>
                 <br>
                 <button class="action-btn focusable" tabindex="0" style="background: #333; color: white;" onclick="closeOverlays()">
-                    <i class="fas fa-arrow-left"></i> Stop & Back
+                    <i class="fas fa-stop"></i> Stop & Back
                 </button>
             </div>
         </div>
@@ -216,8 +212,8 @@
     <div id="details-overlay" class="fullscreen-overlay">
         <div class="details-gradient">
             <div style="max-width: 600px;">
-                <h1 id="detail-title" style="font-size: 3.5rem; margin-bottom: 1rem;">Title</h1>
-                <p id="detail-desc" style="font-size: 1.1rem; color: #ccc; line-height: 1.5; margin-bottom: 2rem;">Description...</p>
+                <h1 id="detail-title" style="font-size: 3rem; margin-bottom: 1rem;">Title</h1>
+                <p id="detail-desc" style="font-size: 1rem; color: #ccc; line-height: 1.5; margin-bottom: 2rem;">Description...</p>
                 <div>
                     <button class="action-btn focusable" tabindex="0" onclick="startPlayer()">
                         <i class="fas fa-play"></i> Play
@@ -231,20 +227,20 @@
     </div>
 
     <div class="sidebar">
-        <div id="btn-profile" class="profile-icon focusable" tabindex="0">
+        <div id="btn-profile" class="profile-icon focusable" tabindex="0" onclick="showProfileOverlay()">
             <i class="fas fa-user"></i>
         </div>
 
-        <div class="menu-item focusable active-tab" tabindex="0" data-target="home-tab"><i class="fas fa-home"></i>Home</div>
-        <div id="nav-linear" class="menu-item focusable" tabindex="0" data-target="linear-tab"><i class="fas fa-broadcast-tower"></i>Linear</div>
-        <div class="menu-item focusable" tabindex="0" data-target="plus-tab"><i class="fas fa-play"></i>Plus</div>
-        <div class="menu-item focusable" tabindex="0" data-target="youtube-tab"><i class="fab fa-youtube"></i>YouTube</div>
-        <div class="menu-item focusable" tabindex="0" data-target="music-tab"><i class="fas fa-music"></i>Music</div>
-        <div class="menu-item focusable" tabindex="0" data-target="local-tab"><i class="fas fa-folder-open"></i>Local</div>
-        <div class="menu-item focusable" tabindex="0" data-target="search-tab"><i class="fas fa-search"></i>Search</div>
+        <div class="menu-item focusable active-tab" tabindex="0" data-target="home-tab" onclick="switchTab(this)"><i class="fas fa-home"></i>Home</div>
+        <div id="nav-linear" class="menu-item focusable" tabindex="0" data-target="linear-tab" onclick="switchTab(this)"><i class="fas fa-broadcast-tower"></i>Linear</div>
+        <div class="menu-item focusable" tabindex="0" data-target="plus-tab" onclick="switchTab(this)"><i class="fas fa-play"></i>Plus</div>
+        <div class="menu-item focusable" tabindex="0" data-target="youtube-tab" onclick="switchTab(this)"><i class="fab fa-youtube"></i>YouTube</div>
+        <div class="menu-item focusable" tabindex="0" data-target="music-tab" onclick="switchTab(this)"><i class="fas fa-music"></i>Music</div>
+        <div class="menu-item focusable" tabindex="0" data-target="local-tab" onclick="switchTab(this)"><i class="fas fa-folder-open"></i>Local</div>
+        <div class="menu-item focusable" tabindex="0" data-target="search-tab" onclick="switchTab(this)"><i class="fas fa-search"></i>Search</div>
         
         <div style="flex: 1;"></div>
-        <div class="menu-item focusable" tabindex="0" data-target="settings-tab"><i class="fas fa-cog"></i>Config</div>
+        <div class="menu-item focusable" tabindex="0" data-target="settings-tab" onclick="switchTab(this)"><i class="fas fa-cog"></i>Config</div>
     </div>
 
     <div class="main-content">
@@ -253,16 +249,21 @@
             <div class="horizontal-row">
                 <div class="card hero focusable" tabindex="0" 
                      data-type="vod" data-title="Suicide Squad Isekai" 
-                     style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
+                     style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');"
+                     onclick="handleContent(this)">
                     <div class="card-label">Featured</div>
                 </div>
             </div>
             <div class="row-title">Continue Watching</div>
             <div class="horizontal-row">
-                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="The Boys S03E01" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
+                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="The Boys S03E01" 
+                     style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"
+                     onclick="handleContent(this)">
                      <div class="card-label">The Boys</div>
                 </div>
-                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="Fallout S01E02" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
+                <div class="card thumb focusable" tabindex="0" data-type="vod" data-title="Fallout S01E02" 
+                     style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');"
+                     onclick="handleContent(this)">
                      <div class="card-label">Fallout</div>
                 </div>
             </div>
@@ -271,13 +272,11 @@
         <div id="linear-tab" class="tab-content">
             <div class="row-title" style="margin-top:0;">Live TV</div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div class="card focusable" tabindex="0" data-type="live" data-title="BBC One - News" style="height: 60px; flex-direction: row; align-items: center; padding: 0 20px; border-radius: 8px;">
+                <div class="card focusable" tabindex="0" data-type="live" data-title="BBC One - News" 
+                     style="height: 60px; flex-direction: row; align-items: center; padding: 0 20px; border-radius: 8px;"
+                     onclick="handleContent(this)">
                     <div style="width: 100px; font-weight: bold;">BBC One</div>
                     <div style="flex: 1; padding-left: 20px;">News at Ten <span style="color:red; margin-left:10px;">● LIVE</span></div>
-                </div>
-                <div class="card focusable" tabindex="0" data-type="live" data-title="Sky Sports - F1" style="height: 60px; flex-direction: row; align-items: center; padding: 0 20px; border-radius: 8px;">
-                    <div style="width: 100px; font-weight: bold;">Sky F1</div>
-                    <div style="flex: 1; padding-left: 20px;">Live: Saudi Arabian GP</div>
                 </div>
             </div>
         </div>
@@ -285,26 +284,18 @@
         <div id="plus-tab" class="tab-content">
             <div class="row-title" style="margin-top:0;">Movies</div>
             <div class="horizontal-row">
-                <div class="card poster focusable" tabindex="0" data-type="vod" data-title="Dune Part Two" style="background-image: url('https://image.tmdb.org/t/p/w500/8CdX3871Cq9UqYt636O27tZ4fN.jpg');"></div>
-                <div class="card poster focusable" tabindex="0" data-type="vod" data-title="Civil War" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                <div class="card poster focusable" tabindex="0" data-type="vod" data-title="Dune Part Two" 
+                     style="background-image: url('https://image.tmdb.org/t/p/w500/8CdX3871Cq9UqYt636O27tZ4fN.jpg');"
+                     onclick="handleContent(this)"></div>
             </div>
         </div>
 
         <div id="youtube-tab" class="tab-content">
             <div style="display:flex; justify-content: space-between; align-items: flex-end;">
                 <div class="row-title" style="margin-top:0;"><i class="fab fa-youtube" style="color:red;"></i> Recommended</div>
-                <div style="font-size:0.8rem; color:#888;">SmartTube Integration</div>
             </div>
-            
-            <div class="file-item" style="margin-bottom: 20px; cursor: default;">
-                <p>Clicking items here would launch the external SmartTube App.</p>
-                <button class="action-btn focusable" tabindex="0" onclick="switchTab(document.querySelector('[data-target=\'home-tab\']'))" style="background:#333; color:white; font-size: 0.8rem;">
-                     <i class="fas fa-arrow-left"></i> Go Home
-                </button>
-            </div>
-
             <div class="horizontal-row">
-                <div class="card yt-video focusable" tabindex="0" data-type="live" data-title="MKBHD Review">
+                <div class="card yt-video focusable" tabindex="0" data-type="live" data-title="MKBHD Review" onclick="handleContent(this)">
                     <div class="yt-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');">
                         <div class="yt-duration">14:20</div>
                     </div>
@@ -314,68 +305,86 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div id="music-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;"><i class="fas fa-music"></i> Your Mix</div>
-            <p style="color:#888; margin-bottom:20px;">Launching SmartTube Music Mode...</p>
-             <button class="action-btn focusable" tabindex="0" onclick="switchTab(document.querySelector('[data-target=\'home-tab\']'))" style="background:#333; color:white; font-size: 0.8rem;">
-                 <i class="fas fa-arrow-left"></i> Go Home
-            </button>
-            <div class="horizontal-row">
-                <div class="card focusable" tabindex="0" style="width: 180px; height: 180px; border-radius: 8px; background: #333; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <i class="fas fa-bolt fa-3x" style="color: yellow; margin-bottom: 10px;"></i>
-                    <div>Energy Mix</div>
-                </div>
+            <div style="margin-top: 2rem; border: 1px dashed #444; padding: 1rem; border-radius: 8px;">
+                <p style="color: #888; font-size: 0.8rem; margin: 0;">In the real app, this launches SmartTube.</p>
             </div>
         </div>
 
-        <div id="local-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;">Local Storage</div>
-            <div class="file-grid">
-                <div class="file-item focusable" tabindex="0">
-                    <i class="fas fa-hdd file-icon"></i>
-                    <div>Internal (32GB)</div>
-                </div>
-                <div class="file-item focusable" tabindex="0">
-                    <i class="fab fa-usb file-icon" style="color: #FF9800;"></i>
-                    <div>SanDisk USB</div>
-                </div>
+        <div id="settings-tab" class="tab-content">
+            <div class="row-title" style="margin-top:0;">Settings</div>
+            <div class="file-item">
+                <i class="fas fa-download" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <div style="margin-bottom: 0.5rem;">Install Web App</div>
+                <div style="font-size: 0.8rem; color: #888;">Tap browser menu -> Add to Home Screen to use Full Screen</div>
             </div>
-            
-            <div class="row-title">Recent Files</div>
-            <div class="file-grid">
-                <div class="file-item focusable" tabindex="0" data-type="live" data-title="Wedding_2024.mp4">
-                    <i class="fas fa-film file-icon" style="color: #ccc; font-size: 2rem;"></i>
-                    <div style="font-size:0.9rem;">Wedding_2024.mp4</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="search-tab" class="tab-content">
-            <div class="row-title" style="margin-top:0;">Search</div>
-            <input type="text" placeholder="Search..." style="width:100%; padding: 1rem; border-radius: 50px; border:none; background:#333; color:white;">
         </div>
 
     </div>
 
     <script>
-        // --- Variables ---
-        // We define these inside functions or use document.getElementById directly 
-        // to avoid null reference errors if script runs too early.
-
-        // --- 1. Navigation & Tabs ---
-        function switchTab(element) {
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-tab'));
-            element.classList.add('active-tab');
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            const target = document.getElementById(element.getAttribute('data-target'));
-            if(target) target.style.display = 'block';
-        }
-
-        // --- 2. Profiles (FIXED) ---
+        // --- 1. PROFILES ---
         function selectProfile(name) {
             console.log("Profile Selected:", name);
             if(name === 'Kids') {
                 document.body.classList.add('kids-mode');
-                document.getElementById('nav-linear').styl
+                document.getElementById('nav-linear').style.display = 'none';
+            } else {
+                document.body.classList.remove('kids-mode');
+                document.getElementById('nav-linear').style.display = 'flex';
+            }
+            document.getElementById('profile-overlay').style.display = 'none';
+        }
+
+        function showProfileOverlay() {
+            document.getElementById('profile-overlay').style.display = 'flex';
+        }
+
+        // --- 2. TABS ---
+        function switchTab(el) {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active-tab'));
+            el.classList.add('active-tab');
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            const target = document.getElementById(el.getAttribute('data-target'));
+            if(target) target.style.display = 'block';
+        }
+
+        // --- 3. CONTENT ---
+        function handleContent(el) {
+            const type = el.getAttribute('data-type');
+            const title = el.getAttribute('data-title');
+            if(type === 'live') startPlayer(title);
+            if(type === 'vod') showDetails(title, el.style.backgroundImage);
+        }
+
+        function startPlayer(title) {
+            if(title) document.getElementById('player-title').innerText = title;
+            document.getElementById('details-overlay').style.display = 'none';
+            document.getElementById('player-overlay').style.display = 'block';
+        }
+
+        function showDetails(title, img) {
+            document.getElementById('detail-title').innerText = title;
+            if(img) document.getElementById('details-overlay').style.backgroundImage = img;
+            document.getElementById('details-overlay').style.display = 'block';
+        }
+
+        function closeOverlays() {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('details-overlay').style.display = 'none';
+        }
+
+        // --- 4. KEYBOARD SUPPORT ---
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            if(e.key === 'Enter') active.click();
+            if(e.key === 'Escape') closeOverlays();
+        });
+
+        // --- 5. INIT ---
+        window.onload = () => {
+            document.querySelector('[data-profile="Dad"]').focus();
+        };
+    </script>
+</body>
+</html>
+
