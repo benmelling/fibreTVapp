@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V25: Linear Fix</title>
+    <title>FibreTV V26: Fixed Linear & Home</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* --- RESET & VARIABLES --- */
         :root {
             --bg-color: #000000;
             --surface-color: #141414;
@@ -63,17 +64,22 @@
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
-        /* --- CONTENT AREA --- */
+        /* --- MAIN LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 120px; padding-bottom: 50px;
+            padding-top: 120px; /* Space for nav */
+            padding-bottom: 50px;
         }
 
-        .tab-content { display: none; padding: 0 0 0 4%; height: 100%; }
+        /* Tab Visiblity */
+        .tab-content { display: none; padding: 0 0 0 4%; padding-bottom: 100px; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW --- */
+        /* Special Layout for Linear Tab (Fixed Height) */
+        #tab-linear { height: calc(100vh - 120px); overflow: hidden; padding-bottom: 0; }
+
+        /* --- SPLIT VIEW (Sidebars) --- */
         .split-view { display: flex; gap: 30px; height: 100%; }
         
         .vertical-filter-col {
@@ -94,65 +100,64 @@
             cursor: pointer; transition: all 0.2s; text-align: center;
             display: flex; align-items: center; gap: 10px;
         }
-        .v-item i { width: 20px; }
+        .v-item i { width: 20px; text-align: center; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
 
+        /* Right Column Content */
         .content-col {
-            flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px;
+            flex: 1; padding-right: 4%; padding-top: 10px;
         }
-        .content-col::-webkit-scrollbar { display: none; }
+        /* Linear Content Column needs specific flex rules */
+        .linear-content-col {
+            flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px;
+        }
 
-        /* --- LINEAR PREVIEW LAYOUT (Fixed) --- */
-        /* This flex column ensures the hero stays at top and list scrolls below */
-        .linear-container {
-            display: flex; flex-direction: column; height: 85vh; /* Fixed viewport height */
-        }
-        
-        .linear-hero {
-            flex: 0 0 40%; /* Takes 40% height */
+        /* --- NEW LINEAR HEADER (Sky Style) --- */
+        .linear-header {
+            flex: 0 0 45%; /* Takes top 45% of screen */
             width: 100%; border-radius: 24px;
-            background-size: cover; background-position: center;
             position: relative; margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            filter: blur(40px) brightness(0.4); /* Strong blur for background */
+            transform: scale(1.1); /* Prevent blur edges */
+            z-index: 0; transition: background-image 0.4s ease;
+        }
+
+        .header-content {
+            position: relative; z-index: 1; height: 100%; width: 100%;
+            display: flex; align-items: center; padding: 30px; gap: 40px;
+        }
+
+        /* The "Preview Box" on Left */
+        .preview-box {
+            width: 45%; aspect-ratio: 16/9;
+            border-radius: 16px; 
+            background-size: cover; background-position: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.1);
             transition: background-image 0.3s ease;
         }
-        
-        .hero-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, #000 10%, rgba(0,0,0,0.6) 50%, transparent 100%);
-            border-radius: 24px; padding: 30px;
-            display: flex; flex-direction: column; justify-content: flex-end;
-        }
-        
-        .lh-title { font-size: 2.5rem; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.8); margin-bottom: 5px; }
-        .lh-meta { font-size: 1rem; color: #ccc; font-weight: 600; margin-bottom: 10px; display: flex; gap: 15px; align-items: center; }
-        .lh-desc { font-size: 1rem; color: #bbb; max-width: 80%; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .lh-badge { background: #E50914; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; }
 
+        /* The Info on Right */
+        .header-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; }
+        .lh-meta { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; font-weight: 600; color: #ddd; }
+        .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+        .lh-desc { font-size: 1rem; color: #bbb; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Scrollable EPG List */
         .epg-scroll-area {
-            flex: 1; overflow-y: auto; padding-right: 10px;
-            padding-bottom: 100px; /* Spacer for bottom */
+            flex: 1; overflow-y: auto; padding-bottom: 100px;
         }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        /* --- HOME ROWS --- */
-        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; }
-        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
-        ::-webkit-scrollbar { display: none; }
-
-        .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
-        .card:active { transform: scale(0.96); }
-        .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
-        .card-title { font-weight: 700; font-size: 1rem; }
-        .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
-
-        .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
-        .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
-        .c-square { width: 130px; height: 130px; background-size: cover; background-color: #222; display: grid; place-items: center; }
-        .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
-
-        /* --- EPG ITEMS --- */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
         .epg-item { 
@@ -160,29 +165,49 @@
             display: flex; flex-direction: column; justify-content: center; cursor: pointer;
             border: 2px solid transparent; flex: 1; transition: all 0.2s;
         }
-        .epg-item:hover, .epg-item:focus { background: #333; border-color: rgba(255,255,255,0.2); }
+        .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
+        .epg-item:active { transform: scale(0.98); }
         .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
 
-        /* --- MODALS --- */
+
+        /* --- HOME ROW STYLES --- */
+        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; }
+        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
+        ::-webkit-scrollbar { display: none; }
+
+        .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
+        .card:active { transform: scale(0.96); }
+        .card:hover { transform: scale(1.03); z-index: 5; border-color: rgba(255,255,255,0.3); }
+        .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
+        .card-title { font-weight: 700; font-size: 1rem; }
+        .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
+
+        /* Sizes */
+        .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
+        .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
+        .c-square { width: 130px; height: 130px; background-size: cover; background-color: #222; display: grid; place-items: center; }
+        .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
+
+        /* --- SMARTTUBE --- */
+        .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .st-card { width: 300px; background: #181818; border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .st-thumb { height: 170px; background-size: cover; position: relative; }
+        .st-meta { padding: 12px; display: flex; gap: 10px; }
+        .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
+        .st-title { font-size: 0.9rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .st-details { font-size: 0.75rem; color: #aaa; }
+        .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
+        .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
+
+        /* --- MODALS & OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
         .btn-pri { background: white; color: black; }
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
         .btn-modal:active { transform: scale(0.96); }
-        
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
-
-        /* --- SMARTTUBE --- */
-        .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .st-card { width: 300px; background: #181818; border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
-        .st-card:hover { transform: scale(1.03); border-color: #333; }
-        .st-thumb { height: 170px; background-size: cover; position: relative; }
-        .st-meta { padding: 12px; display: flex; gap: 10px; }
-        .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
-        .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
-        .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
 
     </style>
 </head>
@@ -245,7 +270,6 @@
     <div class="main-content">
 
         <div id="tab-home" class="tab-content active">
-            
             <div class="section-header" style="margin-top:0;">Continue Watching</div>
             <div class="scroller">
                 <div class="card c-thumb" onclick="showDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
@@ -337,17 +361,23 @@
                     </div>
                 </div>
                 
-                <div class="content-col linear-container">
+                <div class="linear-content-col">
                     
-                    <div id="linear-hero" class="linear-hero" style="background-image: url('https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
-                        <div class="hero-overlay">
-                            <h1 id="lh-title" class="lh-title">BBC News at Six</h1>
-                            <div id="lh-meta" class="lh-meta">
-                                <span class="lh-badge">LIVE</span>
-                                <span>18:00 - 19:00</span>
-                                <span>News</span>
+                    <div class="linear-header">
+                        <div id="header-bg" class="header-bg" style="background-image: url('https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"></div>
+                        
+                        <div class="header-content">
+                            <div id="preview-box" class="preview-box" style="background-image: url('https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');"></div>
+                            
+                            <div class="header-info">
+                                <h1 id="lh-title" class="lh-title">BBC News at Six</h1>
+                                <div id="lh-meta" class="lh-meta">
+                                    <span id="live-badge" class="lh-badge">LIVE</span>
+                                    <span id="lh-time">18:00 - 19:00</span>
+                                    <span>News</span>
+                                </div>
+                                <p id="lh-desc" class="lh-desc">The latest national and international news stories from the BBC News team, followed by weather.</p>
                             </div>
-                            <p id="lh-desc" class="lh-desc">The latest national and international news stories from the BBC News team, followed by weather.</p>
                         </div>
                     </div>
 
@@ -357,21 +387,11 @@
                             <div class="epg-item" onmouseover="updatePreview('BBC News at Six', '18:00 - 19:00', 'The latest national and international news stories.', 'https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg', true)" onclick="openLive('BBC News')" style="flex:2;">
                                 <strong>BBC News at Six</strong><div class="live-text">● LIVE</div>
                             </div>
-                            <div class="epg-item" onmouseover="updatePreview('The One Show', '19:00 - 19:30', 'Live magazine programme.', 'https://image.tmdb.org/t/p/original/glKDfE6btIRcVB5zrjspRIs4r52.jpg')" onclick="openFuture('The One Show')" style="flex:3;">
+                            <div class="epg-item" onmouseover="updatePreview('The One Show', '19:00 - 19:30', 'Live magazine programme featuring topical stories and big name guests.', 'https://image.tmdb.org/t/p/original/glKDfE6btIRcVB5zrjspRIs4r52.jpg')" onclick="openFuture('The One Show')" style="flex:3;">
                                 <strong>The One Show</strong>
                             </div>
-                            <div class="epg-item" onmouseover="updatePreview('Eastenders', '19:30 - 20:00', 'Drama from Albert Square.', 'https://image.tmdb.org/t/p/original/k5H5W2q5K839e1r9a3.jpg')" onclick="openFuture('Eastenders')" style="flex:3;">
+                            <div class="epg-item" onmouseover="updatePreview('Eastenders', '19:30 - 20:00', 'The latest drama from Albert Square.', 'https://image.tmdb.org/t/p/original/k5H5W2q5K839e1r9a3.jpg')" onclick="openFuture('Eastenders')" style="flex:3;">
                                 <strong>Eastenders</strong>
-                            </div>
-                        </div>
-
-                        <div class="epg-row">
-                            <div class="epg-ch">Sky F1</div>
-                            <div class="epg-item" onmouseover="updatePreview('Saudi Arabian GP', '17:00 - 19:00', 'Live coverage of the Grand Prix.', 'https://image.tmdb.org/t/p/original/f1.jpg', true)" onclick="openLive('Saudi GP')" style="flex:6;">
-                                <strong>Saudi Arabian GP</strong><div class="live-text">● LIVE</div>
-                            </div>
-                            <div class="epg-item" onmouseover="updatePreview('Chequered Flag', '19:00 - 20:00', 'Post-race analysis.', 'https://image.tmdb.org/t/p/original/f1b.jpg')" onclick="openFuture('Chequered Flag')" style="flex:2;">
-                                <strong>Chequered Flag</strong>
                             </div>
                         </div>
 
@@ -382,6 +402,26 @@
                             </div>
                             <div class="epg-item" onmouseover="updatePreview('ITV News', '18:30 - 19:30', 'Roundup of the days news.', 'https://image.tmdb.org/t/p/original/4.jpg')" onclick="openFuture('ITV News')" style="flex:3;">
                                 <strong>ITV News</strong>
+                            </div>
+                        </div>
+
+                        <div class="epg-row">
+                            <div class="epg-ch">Sky F1</div>
+                            <div class="epg-item" onmouseover="updatePreview('Saudi Arabian GP', '17:00 - 19:00', 'Live coverage of the Saudi Arabian Grand Prix.', 'https://image.tmdb.org/t/p/original/f1.jpg', true)" onclick="openLive('Saudi GP')" style="flex:6;">
+                                <strong>Saudi Arabian GP</strong><div class="live-text">● LIVE</div>
+                            </div>
+                            <div class="epg-item" onmouseover="updatePreview('Chequered Flag', '19:00 - 20:00', 'Post-race analysis and interviews.', 'https://image.tmdb.org/t/p/original/f1b.jpg')" onclick="openFuture('Chequered Flag')" style="flex:2;">
+                                <strong>Chequered Flag</strong>
+                            </div>
+                        </div>
+
+                        <div class="epg-row">
+                            <div class="epg-ch">Disc</div>
+                            <div class="epg-item" onmouseover="updatePreview('Gold Rush', '18:00 - 19:00', 'The miners face a new challenge in the Klondike.', 'https://image.tmdb.org/t/p/original/gold.jpg', true)" onclick="openLive('Gold Rush')" style="flex:3;">
+                                <strong>Gold Rush</strong><div class="live-text">● LIVE</div>
+                            </div>
+                            <div class="epg-item" onmouseover="updatePreview('Deadliest Catch', '19:00 - 20:00', 'Crab fishing in the Bering Sea.', 'https://image.tmdb.org/t/p/original/crab.jpg')" onclick="openFuture('Deadliest Catch')" style="flex:3;">
+                                <strong>Deadliest Catch</strong>
                             </div>
                         </div>
                     </div>
@@ -561,21 +601,24 @@
         function openLive(t) { document.getElementById('live-title').innerText = t; showOverlay('modal-live'); }
         function openFuture(t) { document.getElementById('future-title').innerText = t; showOverlay('modal-future'); }
 
-        // --- LINEAR PREVIEW LOGIC ---
-        function updatePreview(title, meta, desc, img, isLive) {
+        // --- LINEAR PREVIEW UPDATE ---
+        function updatePreview(title, time, desc, img, isLive) {
             document.getElementById('lh-title').innerText = title;
+            document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
             
-            if(img) {
-                document.getElementById('linear-hero').style.backgroundImage = `url('${img}')`;
-            } else {
-                document.getElementById('linear-hero').style.backgroundImage = `linear-gradient(45deg, #111, #333)`;
-            }
+            // Handle Live Badge
+            const badge = document.getElementById('live-badge');
+            badge.style.display = isLive ? 'inline-block' : 'none';
 
-            let metaHTML = "";
-            if(isLive) metaHTML += '<span class="lh-badge" style="margin-right:10px;">LIVE</span>';
-            metaHTML += `<span>${meta}</span>`;
-            document.getElementById('lh-meta').innerHTML = metaHTML;
+            // Update BOTH the background and the preview box
+            if(img) {
+                document.getElementById('header-bg').style.backgroundImage = `url('${img}')`;
+                document.getElementById('preview-box').style.backgroundImage = `url('${img}')`;
+            } else {
+                document.getElementById('header-bg').style.backgroundImage = `linear-gradient(45deg, #111, #333)`;
+                document.getElementById('preview-box').style.backgroundImage = `none`;
+            }
         }
     </script>
 </body>
