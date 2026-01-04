@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V14: Clean Capsule</title>
+    <title>FibreTV V15: Content Update</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -11,18 +11,20 @@
     <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#000000","theme_color":"#ffffff","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* CSS RESET & VARIABLES */
         :root {
             --bg-color: #000000;
-            --surface-color: #1a1a1a;
-            --surface-translucent: rgba(20, 20, 20, 0.85);
+            --surface-color: #141414; /* Slightly darker for contrast */
+            --surface-translucent: rgba(15, 15, 15, 0.9);
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
+            --accent: #ffffff;
             --radius-capsule: 50px;
-            --radius-card: 24px;
+            --radius-card: 20px;
+            --input-bg: #222;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -35,6 +37,326 @@
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column;
             user-select: none;
+        }
+
+        /* --- TOP UI LAYER (Floating Capsule) --- */
+        .top-bar-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 110px;
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 10%, transparent 100%);
+        }
+
+        .nav-capsule {
+            background: var(--surface-translucent);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border-radius: var(--radius-capsule);
+            padding: 5px;
+            display: flex; align-items: center; gap: 4px;
+            pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.12);
+            overflow-x: auto;
+            max-width: 95vw;
+        }
+
+        .nav-item {
+            padding: 12px 22px;
+            border-radius: var(--radius-capsule);
+            color: var(--text-secondary);
+            font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s;
+            white-space: nowrap;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.08); }
+        .nav-item:active { transform: scale(0.95); }
+        
+        .nav-item.active {
+            background: white; color: black; 
+            box-shadow: 0 2px 15px rgba(255,255,255,0.25);
+        }
+
+        .nav-item.icon-only { padding: 10px; width: 44px; height: 44px; }
+
+        /* --- CONTENT AREA --- */
+        .main-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding-top: 150px; /* INCREASED PADDING FIX */
+            padding-bottom: 80px;
+        }
+
+        .tab-content { display: none; padding: 0 5%; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Headers & Scrollers */
+        .section-header {
+            font-size: 1.5rem; font-weight: 800; margin: 40px 0 20px 0;
+            color: #eee; letter-spacing: -0.5px;
+        }
+        .scroller {
+            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px;
+            scroll-behavior: smooth; margin-left: -5px;
+        }
+        ::-webkit-scrollbar { display: none; }
+
+        /* Cards */
+        .card {
+            flex: 0 0 auto; background: var(--surface-color);
+            border-radius: var(--radius-card); position: relative;
+            cursor: pointer; overflow: hidden;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .card:active { transform: scale(0.96) !important; }
+        .card:hover { transform: scale(1.03); z-index: 10; border-color: rgba(255,255,255,0.4); }
+
+        .card-meta {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, black, transparent);
+            padding: 20px; padding-top: 50px; pointer-events: none;
+        }
+        .card-title { font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
+        .card-sub { font-size: 0.85rem; color: #ddd; margin-top: 4px; font-weight: 500; opacity: 0.9; }
+
+        /* Sizes */
+        .c-hero { width: 85vw; height: 55vh; border-radius: 32px; background-size: cover; background-position: center; }
+        .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
+        .c-thumb { width: 280px; height: 160px; background-size: cover; background-color: #222; }
+        .c-square { width: 140px; height: 140px; background-size: cover; background-color: #222; display: grid; place-items: center; }
+        .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
+
+        /* --- SETTINGS STYLES --- */
+        .settings-container { max-width: 600px; margin-bottom: 50px; }
+        .settings-group {
+            background: #151515; border: 1px solid #333;
+            border-radius: 24px; padding: 25px; margin-bottom: 25px;
+        }
+        .settings-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .input-row { margin-bottom: 15px; }
+        .input-label { font-size: 0.8rem; color: #888; margin-bottom: 8px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .setting-input {
+            width: 100%; padding: 16px; background: #000; border: 1px solid #444;
+            border-radius: 12px; color: white; font-family: inherit; font-size: 1rem;
+            transition: border 0.2s;
+        }
+        .setting-input:focus { outline: none; border-color: white; }
+        
+        .btn-save {
+            width: 100%; padding: 16px; background: white; color: black;
+            border: none; border-radius: 12px; font-weight: 800; cursor: pointer;
+            font-size: 1rem; margin-top: 10px;
+        }
+        .btn-save:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* --- OVERLAYS --- */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.96); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        /* Details Overlay */
+        .detail-bg { width: 100%; height: 100%; background-size: cover; background-position: center; }
+        .detail-gradient {
+            width: 100%; height: 100%; background: linear-gradient(90deg, #000 20%, rgba(0,0,0,0.4) 100%);
+            display: flex; align-items: center; padding-left: 8vw;
+        }
+        .btn-action {
+            padding: 15px 35px; border-radius: 50px; font-weight: bold; font-family: inherit; font-size: 1rem;
+            cursor: pointer; border: none; margin-top: 20px; transition: transform 0.1s;
+        }
+        .btn-primary { background: white; color: black; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; margin-left: 10px; }
+        .btn-action:active { transform: scale(0.95); }
+
+        /* EPG Items */
+        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .epg-ch { width: 80px; font-weight: 800; color: #888; display: grid; place-items: center; font-size: 0.9rem;}
+        .epg-item { 
+            height: 75px; background: #1a1a1a; padding: 0 20px; border-radius: 16px;
+            display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+            border: 2px solid transparent; flex: 1; transition: background 0.2s;
+        }
+        .epg-item:hover { background: #333; }
+        .live-badge { color: #ff3b30; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="overlay-player" class="overlay">
+        <i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom: 30px; opacity: 0.5;"></i>
+        <h1 id="player-title">Video Title</h1>
+        <p style="color: #888;">Simulated Playback</p>
+        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-player')">Stop</button>
+    </div>
+
+    <div id="overlay-details" class="overlay" style="padding:0;">
+        <div class="detail-bg" id="detail-bg">
+            <div class="detail-gradient">
+                <div style="max-width: 600px; padding-right: 20px;">
+                    <h1 id="detail-title" style="font-size: 3rem; line-height: 1.1; margin-bottom: 15px;">Title</h1>
+                    <p id="detail-desc" style="font-size: 1.1rem; color: #ddd; line-height: 1.5;">Description...</p>
+                    <div>
+                        <button class="btn-action btn-primary" onclick="startPlayer()">Play</button>
+                        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-details')">Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-bar-container">
+        <div class="nav-capsule">
+            <div class="nav-item active" onclick="switchTab('home', this)">Home</div>
+            <div class="nav-item" onclick="switchTab('linear', this)">Linear</div>
+            <div class="nav-item" onclick="switchTab('plus', this)">Plus</div>
+            <div class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
+            <div class="nav-item" onclick="switchTab('music', this)">Music</div>
+            <div class="nav-item" onclick="switchTab('local', this)">Local</div>
+            <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+            <div class="nav-item icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div id="tab-home" class="tab-content active">
+            <div class="scroller">
+                <div class="card c-hero" onclick="openDetails('Suicide Squad Isekai', 'The DC Villains go to another world.', 'https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg');">
+                    <div class="card-meta"><div class="card-title">Suicide Squad Isekai</div></div>
+                </div>
+                <div class="card c-hero" onclick="openDetails('Dune Part Two', 'Paul Atreides unites with the Fremen.', 'https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/8CdX3871Cq9UqYt636O27tZ4fN.jpg');">
+                    <div class="card-meta"><div class="card-title">Dune Part Two</div></div>
+                </div>
+            </div>
+
+            <div class="section-header">Continue Watching</div>
+            <div class="scroller">
+                <div class="card c-thumb" onclick="openDetails('The Boys', 'S3 E4', 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyhoKgwsoJw.jpg');">
+                    <div class="card-meta"><div class="card-title">The Boys</div><div class="card-sub">S3 E4 • 14m remaining</div></div>
+                </div>
+                <div class="card c-thumb" onclick="openDetails('Fallout', 'S1 E2', 'https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg')" style="background-image: url('https://image.tmdb.org/t/p/original/p1e812d8339m13c5V1c2rT7K9w.jpg');">
+                    <div class="card-meta"><div class="card-title">Fallout</div><div class="card-sub">S1 E2 • 42m remaining</div></div>
+                </div>
+                <div class="card c-thumb" onclick="startPlayer('BBC News')" style="background: #990000; display:flex; align-items:center; justify-content:center;">
+                    <span style="font-weight:900; font-size:1.5rem;">BBC ONE</span>
+                </div>
+            </div>
+
+            <div class="section-header">Recent Channels</div>
+            <div class="scroller">
+                <div class="card c-square" onclick="startPlayer('Sky Sports')" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-square" onclick="startPlayer('BBC One')" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+                <div class="card c-square" onclick="startPlayer('CNN')" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
+                <div class="card c-square" onclick="startPlayer('Nat Geo')" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
+            </div>
+
+            <div class="section-header">Apps</div>
+            <div class="scroller">
+                <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
+                <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
+                <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
+                <div class="card c-app" style="background: #1DB954;"><i class="fab fa-spotify fa-2x"></i></div>
+                <div class="card c-app" style="background: #333;"><i class="fas fa-server fa-2x"></i></div>
+            </div>
+        </div>
+
+        <div id="tab-linear" class="tab-content">
+            <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">TV Guide</h1>
+            
+            <div class="epg-row">
+                <div class="epg-ch">BBC One</div>
+                <div class="epg-item" onclick="startPlayer('BBC News')" style="flex: 2;">
+                    <div style="font-weight: bold;">BBC News at Six</div>
+                    <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="epg-item" style="flex: 3;">
+                    <div style="font-weight: bold;">The One Show</div>
+                    <div style="color: #666; font-size: 0.8rem;">19:00 - 19:30</div>
+                </div>
+                <div class="epg-item" style="flex: 3;">
+                    <div style="font-weight: bold;">Eastenders</div>
+                    <div style="color: #666; font-size: 0.8rem;">19:30 - 20:00</div>
+                </div>
+            </div>
+
+            <div class="epg-row">
+                <div class="epg-ch">Sky F1</div>
+                <div class="epg-item" onclick="startPlayer('F1 Race')" style="flex: 6;">
+                    <div style="font-weight: bold;">Saudi Arabian Grand Prix</div>
+                    <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="epg-item" style="flex: 2;">
+                    <div style="font-weight: bold;">Chequered Flag</div>
+                    <div style="color: #666; font-size: 0.8rem;">18:00 - 19:00</div>
+                </div>
+            </div>
+
+            <div class="epg-row">
+                <div class="epg-ch">Discovery</div>
+                <div class="epg-item" onclick="startPlayer('Gold Rush')" style="flex: 3;">
+                    <div style="font-weight: bold;">Gold Rush: Alaska</div>
+                    <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="epg-item" style="flex: 3;">
+                    <div style="font-weight: bold;">Deadliest Catch</div>
+                    <div style="color: #666; font-size: 0.8rem;">Upcoming</div>
+                </div>
+                 <div class="epg-item" style="flex: 2;">
+                    <div style="font-weight: bold;">How It's Made</div>
+                    <div style="color: #666; font-size: 0.8rem;">Upcoming</div>
+                </div>
+            </div>
+            
+            <div class="epg-row">
+                <div class="epg-ch">CN</div>
+                <div class="epg-item" style="flex: 2;">
+                    <div style="font-weight: bold;">Gumball</div>
+                    <div style="color: #666; font-size: 0.8rem;">16:00 - 16:30</div>
+                </div>
+                <div class="epg-item" style="flex: 2;">
+                    <div style="font-weight: bold;">Teen Titans Go!</div>
+                    <div style="color: #666; font-size: 0.8rem;">16:30 - 17:00</div>
+                </div>
+                <div class="epg-item" style="flex: 4;">
+                    <div style="font-weight: bold;">Adventure Time Movie</div>
+                    <div class="live-badge">● LIVE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plus" class="tab-content">
+            <h1 style="font-size: 2.5rem;">On Demand</h1>
+            
+            <div class="section-header">Trending Movies</div>
+            <div class="scroller">
+                <div class="card c-poster" onclick="openDetails('Godzilla x Kong', '', 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
+                <div class="card c-poster" onclick="openDetails('Civil War', '', 'https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                <div class="card c-poster" onclick="openDetails('Oppenheimer', '', 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
+                <div class="card c-poster" onclick="openDetails('Barbie', '', 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg');"></div>
+            </div>
+
+            <div class="section-header">Popular Series</div>
+            <div class="scroller">
+                <div class="card c-thumb" onclick="openDetails('House of the Dragon', '', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
+                    <div class="card-meta"><div class="card-title">House of the Dragon</div></div>
+                </div>
+                <div class="card c-thumb" onclick="openDetails('The Last of Us', '', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
+                    <div class="card-meta"><div class="card-title">The Last of Us</div></div>
+                </div>
+            </div>
+            
+            <div class="section-header">Action</div>
+            <div class="scroller">
+                <div class="card c-poster" style="background: #333;"></div>
+                <div class="card c-poster" style="background: #333;"></div>
+                <div class="card c-poster" style="background: #333;"></div>
+                    user-select: none;
         }
 
         /* --- TOP UI LAYER (Floating Capsule) --- */
