@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V16: Settings & Content</title>
+    <title>FibreTV V17: Fixed & Features</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* CSS RESET */
+        /* --- RESET & VARS --- */
         :root {
             --bg-color: #000000;
             --surface-color: #141414;
@@ -37,7 +37,7 @@
             user-select: none;
         }
 
-        /* --- TOP CAPSULE NAV --- */
+        /* --- TOP CAPSULE --- */
         .top-bar-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 110px;
             z-index: 1000;
@@ -118,7 +118,7 @@
         .card-title { font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
         .card-sub { font-size: 0.85rem; color: #ddd; margin-top: 4px; font-weight: 500; opacity: 0.9; }
 
-        /* Card Sizes */
+        /* Sizes */
         .c-hero { width: 85vw; height: 50vh; border-radius: 32px; background-size: cover; background-position: center; }
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 160px; background-size: cover; background-color: #222; }
@@ -168,6 +168,14 @@
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
         
+        /* Modal Box */
+        .modal-box {
+            background: #1a1a1a; width: 90%; max-width: 400px; padding: 30px; border-radius: 30px;
+            text-align: center; border: 1px solid #333;
+        }
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; }
+        .modal-subtitle { color: #888; margin-bottom: 30px; font-size: 0.9rem; }
+
         /* Details Overlay */
         .detail-bg { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-gradient {
@@ -176,10 +184,11 @@
         }
         .btn-action {
             padding: 15px 35px; border-radius: 50px; font-weight: bold; font-family: inherit; font-size: 1rem;
-            cursor: pointer; border: none; margin-top: 20px; transition: transform 0.1s;
+            cursor: pointer; border: none; margin-top: 10px; transition: transform 0.1s; width: 100%;
         }
         .btn-primary { background: white; color: black; }
-        .btn-secondary { background: rgba(255,255,255,0.2); color: white; margin-left: 10px; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
         .btn-action:active { transform: scale(0.95); }
 
     </style>
@@ -190,7 +199,7 @@
         <i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom: 30px; opacity: 0.5;"></i>
         <h1 id="player-title">Video Title</h1>
         <p style="color: #888;">Simulated Playback</p>
-        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-player')">Stop</button>
+        <button class="btn-action btn-secondary" style="width: auto; margin-top: 30px;" onclick="hideOverlay('overlay-player')">Stop</button>
     </div>
 
     <div id="overlay-details" class="overlay" style="padding:0;">
@@ -199,12 +208,33 @@
                 <div style="max-width: 600px; padding-right: 20px;">
                     <h1 id="detail-title" style="font-size: 3rem; line-height: 1.1; margin-bottom: 15px;">Title</h1>
                     <p id="detail-desc" style="font-size: 1.1rem; color: #ddd; line-height: 1.5;">Description...</p>
-                    <div>
-                        <button class="btn-action btn-primary" onclick="startPlayer()">Play</button>
-                        <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-details')">Back</button>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action btn-primary" style="width:auto;" onclick="startPlayer()">Play</button>
+                        <button class="btn-action btn-secondary" style="width:auto;" onclick="hideOverlay('overlay-details')">Back</button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="overlay-live-options" class="overlay">
+        <div class="modal-box">
+            <div class="modal-title" id="live-title">Program Title</div>
+            <div class="modal-subtitle">This program is currently Live.</div>
+            <button class="btn-action btn-primary" onclick="startPlayer(null, 'Live')">Watch Live</button>
+            <button class="btn-action btn-secondary" onclick="startPlayer(null, 'Start')">Watch from Start</button>
+            <button class="btn-action btn-secondary" style="background:transparent; border:1px solid #333;" onclick="hideOverlay('overlay-live-options')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="overlay-future-options" class="overlay">
+        <div class="modal-box">
+            <div class="modal-title" id="future-title">Program Title</div>
+            <div class="modal-subtitle">This program starts later.</div>
+            <button class="btn-action btn-primary" onclick="hideOverlay('overlay-future-options')">Record Series</button>
+            <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-future-options')">Record Episode</button>
+            <button class="btn-action btn-secondary" onclick="hideOverlay('overlay-future-options')">Set Reminder</button>
+            <button class="btn-action btn-secondary" style="background:transparent; border:1px solid #333;" onclick="hideOverlay('overlay-future-options')">Cancel</button>
         </div>
     </div>
 
@@ -246,11 +276,20 @@
                 </div>
             </div>
 
+            <div class="section-header">Recent Channels</div>
+            <div class="scroller">
+                <div class="card c-square" onclick="startPlayer('Sky Sports')" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
+                <div class="card c-square" onclick="startPlayer('BBC One')" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
+                <div class="card c-square" onclick="startPlayer('CNN')" style="background: #CC0000;"><span style="font-weight:900; font-size: 1.5rem;">CNN</span></div>
+                <div class="card c-square" onclick="startPlayer('Nat Geo')" style="background: #FFCC00; color:black;"><span style="font-weight:900; font-size: 1.2rem;">NAT GEO</span></div>
+            </div>
+
             <div class="section-header">Apps</div>
             <div class="scroller">
                 <div class="card c-app" style="background: #E50914;"><i class="fab fa-netflix fa-2x"></i></div>
                 <div class="card c-app" style="background: #00A8E8;"><i class="fab fa-amazon fa-2x"></i></div>
                 <div class="card c-app" style="background: #6441a5;"><i class="fab fa-twitch fa-2x"></i></div>
+                <div class="card c-app" style="background: #1DB954;"><i class="fab fa-spotify fa-2x"></i></div>
             </div>
         </div>
 
@@ -259,21 +298,45 @@
             
             <div class="epg-row">
                 <div class="epg-ch">BBC One</div>
-                <div class="epg-item" onclick="startPlayer('BBC News')" style="flex: 2;">
+                <div class="epg-item" onclick="handleEpgClick('BBC News at Six', 'live')" style="flex: 2;">
                     <div style="font-weight: bold;">BBC News at Six</div>
                     <div class="live-badge">● LIVE</div>
                 </div>
-                <div class="epg-item" style="flex: 3;">
+                <div class="epg-item" onclick="handleEpgClick('The One Show', 'future')" style="flex: 3;">
                     <div style="font-weight: bold;">The One Show</div>
                     <div style="color: #666; font-size: 0.8rem;">19:00 - 19:30</div>
+                </div>
+                <div class="epg-item" onclick="handleEpgClick('Eastenders', 'future')" style="flex: 3;">
+                    <div style="font-weight: bold;">Eastenders</div>
+                    <div style="color: #666; font-size: 0.8rem;">19:30 - 20:00</div>
                 </div>
             </div>
 
             <div class="epg-row">
                 <div class="epg-ch">Sky F1</div>
-                <div class="epg-item" onclick="startPlayer('F1 Race')" style="flex: 6;">
+                <div class="epg-item" onclick="handleEpgClick('Saudi Arabian Grand Prix', 'live')" style="flex: 6;">
                     <div style="font-weight: bold;">Saudi Arabian Grand Prix</div>
                     <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="epg-item" onclick="handleEpgClick('Chequered Flag', 'future')" style="flex: 2;">
+                    <div style="font-weight: bold;">Chequered Flag</div>
+                    <div style="color: #666; font-size: 0.8rem;">18:00 - 19:00</div>
+                </div>
+            </div>
+            
+             <div class="epg-row">
+                <div class="epg-ch">Discovery</div>
+                <div class="epg-item" onclick="handleEpgClick('Gold Rush: Alaska', 'live')" style="flex: 3;">
+                    <div style="font-weight: bold;">Gold Rush: Alaska</div>
+                    <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="epg-item" onclick="handleEpgClick('Deadliest Catch', 'future')" style="flex: 3;">
+                    <div style="font-weight: bold;">Deadliest Catch</div>
+                    <div style="color: #666; font-size: 0.8rem;">Upcoming</div>
+                </div>
+                 <div class="epg-item" onclick="handleEpgClick('How It is Made', 'future')" style="flex: 2;">
+                    <div style="font-weight: bold;">How It's Made</div>
+                    <div style="color: #666; font-size: 0.8rem;">Upcoming</div>
                 </div>
             </div>
         </div>
@@ -299,7 +362,7 @@
                 </div>
             </div>
             
-            <div class="section-header">Action</div>
+             <div class="section-header">Action</div>
             <div class="scroller">
                 <div class="card c-poster" onclick="openDetails('John Wick 4', '', 'https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg');"></div>
                 <div class="card c-poster" onclick="openDetails('Top Gun', '', 'https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg');"></div>
@@ -414,9 +477,24 @@
         }
 
         function startPlayer(title) {
-            if(title) document.getElementById('player-title').innerText = title;
+            // Close any open overlay first
+            hideOverlay('overlay-live-options');
+            hideOverlay('overlay-future-options');
             hideOverlay('overlay-details');
+            
+            if(title) document.getElementById('player-title').innerText = title;
             showOverlay('overlay-player');
+        }
+
+        // --- Linear Logic ---
+        function handleEpgClick(title, status) {
+            if(status === 'live') {
+                document.getElementById('live-title').innerText = title;
+                showOverlay('overlay-live-options');
+            } else {
+                document.getElementById('future-title').innerText = title;
+                showOverlay('overlay-future-options');
+            }
         }
     </script>
 </body>
