@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V27: Live Preview & Icons</title>
+    <title>FibreTV V28: Icons & Centering</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -64,26 +64,44 @@
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- MAIN LAYOUT ENGINE --- */
         .main-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
+            flex: 1; 
+            overflow: hidden; /* Prevent body scroll */
             padding-top: 120px; /* Space for nav */
-            padding-bottom: 50px;
+            position: relative;
         }
 
-        .tab-content { display: none; padding: 0 0 0 4%; padding-bottom: 100px; }
+        /* Standard Tab (Hidden by default) */
+        .tab-content { 
+            display: none; 
+            height: 100%; /* Take full height of main-content */
+            padding-left: 4%; 
+        }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        /* Home Tab Logic (Scrolls entire page) */
+        #tab-home {
+            overflow-y: auto; /* Internal scroll */
+            padding-bottom: 100px;
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Fixed Linear Tab Layout */
-        #tab-linear { height: calc(100vh - 120px); overflow: hidden; padding-bottom: 0; }
-
         /* --- SPLIT VIEW (Sidebars) --- */
-        .split-view { display: flex; gap: 30px; height: 100%; }
+        /* Fixed height ensures vertical centering works */
+        .split-view { 
+            display: flex; gap: 30px; 
+            height: 100%; 
+            overflow: hidden;
+        }
         
         .vertical-filter-col {
-            width: 150px; flex-shrink: 0; padding-top: 10px;
-            display: flex; flex-direction: column; gap: 10px; justify-content: center;
+            width: 150px; flex-shrink: 0; 
+            display: flex; flex-direction: column; 
+            justify-content: center; /* This centers the capsule vertically */
+            height: 80%; /* confine to visual center area */
+            margin: auto 0;
         }
         
         .vert-capsule {
@@ -96,16 +114,25 @@
         .v-item {
             padding: 12px 15px; border-radius: 20px;
             color: #888; font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s; text-align: center;
+            cursor: pointer; transition: all 0.2s; text-align: left;
             display: flex; align-items: center; gap: 12px;
         }
-        .v-item i { width: 20px; text-align: center; }
+        .v-item i { width: 20px; text-align: center; color: white; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
+        .v-item.active i { color: black; }
 
-        /* Right Content Column */
-        .content-col { flex: 1; padding-right: 4%; padding-top: 10px; }
+        /* Right Content Column (Scrolls independently) */
+        .content-col { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding-right: 4%; 
+            padding-top: 10px; 
+            padding-bottom: 150px; 
+        }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
+        
+        .content-col::-webkit-scrollbar { display: none; }
 
         /* --- NEW LINEAR HEADER (Video Preview) --- */
         .linear-header {
@@ -119,7 +146,7 @@
         .header-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
-            filter: blur(50px) brightness(0.3); /* Dark blur */
+            filter: blur(50px) brightness(0.3);
             transform: scale(1.1); 
             z-index: 0; transition: background-image 0.4s ease;
         }
@@ -139,9 +166,7 @@
             position: relative;
         }
         
-        .preview-video {
-            width: 100%; height: 100%; object-fit: cover;
-        }
+        .preview-video { width: 100%; height: 100%; object-fit: cover; }
 
         /* Info Area */
         .header-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
@@ -169,10 +194,9 @@
         /* --- HOME ROW STYLES --- */
         .section-header { 
             font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee;
-            display: flex; align-items: center; gap: 10px; 
+            display: flex; align-items: center; gap: 12px; 
         }
-        /* Icon styling within headers */
-        .section-header i { font-size: 1.1rem; opacity: 0.9; }
+        .section-header i { color: white; font-size: 1.1rem; }
 
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
         ::-webkit-scrollbar { display: none; }
@@ -201,7 +225,7 @@
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
 
-        /* --- MODALS & OVERLAYS --- */
+        /* --- OVERLAYS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: #1a1a1a; width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
