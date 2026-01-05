@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V34: Home Preview</title>
+    <title>FibreTV V36: Smart Reminders</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -172,6 +172,16 @@
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
 
+        /* REMINDER CARD (New) */
+        .c-reminder {
+            width: 260px; height: 146px;
+            background: linear-gradient(135deg, #4A00E0, #8E2DE2); /* Purple Gradient */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+        .c-reminder .card-title { font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .c-reminder .countdown { font-size: 0.9rem; font-weight: 700; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px; }
+
         /* Sizes */
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
@@ -182,7 +192,7 @@
         .cw-info-panel {
             padding: 5px 10px; margin-bottom: 20px; min-height: 80px;
             display: flex; flex-direction: column; justify-content: center;
-            opacity: 0; transition: opacity 0.2s; /* Hidden by default until hover */
+            opacity: 0; transition: opacity 0.2s;
         }
         .cw-info-panel.visible { opacity: 1; }
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
@@ -257,7 +267,7 @@
         <div class="modal-box">
             <h2 id="future-title" style="margin-top:0;">Program</h2>
             <button class="btn-modal btn-pri" onclick="closeOverlays()">Record Series</button>
-            <button class="btn-modal btn-sec" onclick="closeOverlays()">Set Reminder</button>
+            <button class="btn-modal btn-sec" onclick="setReminder()">Set Reminder</button>
             <button class="btn-modal btn-sec" style="background:transparent;" onclick="closeOverlays()">Cancel</button>
         </div>
     </div>
@@ -283,7 +293,7 @@
             <div style="height: 10px;"></div>
             
             <div class="section-header"><i class="fas fa-play-circle"></i> Continue Watching</div>
-            <div class="scroller">
+            <div class="scroller" id="scroller-cw">
                 <div class="c-watch-tv" onmouseover="updateHomePreview('Watch Live TV', 'Return to live broadcast', 'Jump straight back into the last watched channel.')" onclick="watchLiveTV()">
                     <i class="fas fa-tv"></i>
                     <span>Watch Live TV</span>
@@ -316,7 +326,7 @@
                 <div class="card c-thumb" onclick="showDetails('House of the Dragon', 'S2 E1', 'https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');">
                     <div class="card-meta"><div class="card-title">House of the Dragon</div><div class="card-sub">S2 E1</div></div>
                 </div>
-                <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
+                <div class="card c-thumb" onclick="showDetails('The Last of Us', 'S1 E6', 'https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg')" style="background-image: url('https://image.tmdb.og/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');">
                     <div class="card-meta"><div class="card-title">The Last of Us</div><div class="card-sub">S1 E6</div></div>
                 </div>
             </div>
@@ -674,6 +684,48 @@
             pDesc.innerText = desc;
             
             panel.classList.add('visible');
+        }
+
+        // --- SMART REMINDER LOGIC ---
+        function setReminder() {
+            // 1. Get info from the future modal
+            const title = document.getElementById('future-title').innerText;
+            
+            // 2. Generate Reminder Card HTML
+            const reminderHTML = `
+                <div class="c-reminder" onmouseover="updateHomePreview('${title}', 'Starts in 44m', 'Reminder set for 19:00')" style="order:-1;">
+                    <div class="card-title">${title}</div>
+                    <div class="countdown">Starts in 44m 59s</div>
+                </div>
+            `;
+            
+            // 3. Inject into Home Scroller (After "Watch TV" button)
+            const scroller = document.getElementById('scroller-cw');
+            // We insert it at the 2nd position (index 1) to keep "Watch TV" first
+            // But for simplicity in prototype, we just prepend it after the first child
+            const watchBtn = scroller.querySelector('.c-watch-tv');
+            watchBtn.insertAdjacentHTML('afterend', reminderHTML);
+
+            // 4. Close & Go Home
+            closeOverlays();
+            switchTab('home');
+            
+            // Start simple countdown simulation for this card
+            startCountdown();
+        }
+
+        function startCountdown() {
+            // Find all countdowns and animate them
+            setInterval(() => {
+                document.querySelectorAll('.countdown').forEach(el => {
+                    // Fake countdown logic for prototype
+                    let text = el.innerText; 
+                    // In a real app, calculate diff from target time
+                    // Here we just toggle seconds to look alive
+                    if(text.includes('59s')) el.innerText = "Starts in 44m 58s";
+                    else el.innerText = "Starts in 44m 59s"; 
+                });
+            }, 1000);
         }
 
         function watchLiveTV() {
