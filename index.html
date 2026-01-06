@@ -1,13 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV Ultimate Prototype</title>
+    <title>FibreTV V40: Sub-Nav Symbols</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#000000","theme_color":"#ffffff","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,7 +38,7 @@
             user-select: none;
         }
 
-        /* --- SYSTEM INFO (Date/Time/Weather) --- */
+        /* --- SYSTEM INFO --- */
         .system-info {
             position: fixed; top: 35px; right: 50px;
             display: flex; gap: 15px; align-items: center;
@@ -60,7 +60,7 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .system-info { display: none !important; }
 
-        /* --- TOP NAV CAPSULE --- */
+        /* --- TOP NAV --- */
         .top-bar-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100px;
             z-index: 1000; display: flex; align-items: center; justify-content: center;
@@ -89,7 +89,7 @@
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
-        /* Dynamic Sub-Buttons */
+        /* Sub-Items (Hidden by default) */
         .nav-sub { 
             display: none; 
             font-size: 0.85rem; 
@@ -104,7 +104,7 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* --- MAIN CONTENT AREA --- */
+        /* --- MAIN LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
             padding-top: 120px; padding-bottom: 50px;
@@ -115,8 +115,9 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW LAYOUT --- */
+        /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; }
+        
         .vertical-filter-col { 
             width: var(--sidebar-width); flex-shrink: 0; 
             display: flex; flex-direction: column; justify-content: center; 
@@ -144,11 +145,10 @@
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- MEGA SIDEBAR (Plus/Linear) --- */
+        /* --- PLUS/LINEAR SIDEBAR ITEMS --- */
+        #tab-plus, #tab-linear { padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
         .split-inner { display: flex; flex: 1; overflow: hidden; padding-left: 4%; }
-        
-        #tab-plus, #tab-linear { padding-left: 0; } /* Reset padding for full width layout */
         
         .mega-sidebar { width: var(--sidebar-width); flex-shrink: 0; overflow-y: auto; padding-right: 10px; padding-bottom: 50px; }
         .mega-sidebar::-webkit-scrollbar { width: 4px; }
@@ -161,7 +161,7 @@
         .genre-item:hover { background: #222; color: white; }
         .genre-item.active { color: white; background: #333; font-weight: 700; border-left: 4px solid white; }
 
-        /* --- LINEAR HEADER (Swapped Layout) --- */
+        /* --- LINEAR HEADER --- */
         .linear-header {
             flex: 0 0 auto; width: 100%; border-radius: 24px;
             margin-bottom: 20px; overflow: hidden;
@@ -171,22 +171,16 @@
             height: 100%; width: 100%; display: flex; align-items: center; 
             justify-content: space-between; gap: 30px;
         }
-        
-        /* 1. Static Image (Left) */
         .image-box-left {
             width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
             background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .static-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s; }
-        
-        /* 2. Middle Info */
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
         .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* 3. Video Preview (Right) */
         .preview-box-right {
             width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
             background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -196,7 +190,7 @@
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        /* --- HOME CARDS --- */
+        /* --- CARDS & ROWS --- */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
         .section-header i { color: white; font-size: 1.1rem; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
@@ -213,7 +207,6 @@
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
 
-        /* Smart Reminder Card */
         .c-reminder { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #4A00E0, #8E2DE2); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
         .c-reminder .card-title { font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .c-reminder .countdown { font-size: 0.9rem; font-weight: 700; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px; }
@@ -315,8 +308,8 @@
             
             <div id="nav-linear-group" style="display:flex; align-items:center;">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">≈Sports</div>
-                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">≈Stream</div>
+                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">~Sports</div>
+                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">~Stream</div>
             </div>
             
             <div id="nav-plus-group" style="display:flex; align-items:center;">
