@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V40: Sub-Nav Symbols</title>
+    <title>FibreTV V41: Symbol Anchors</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -504,6 +503,10 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
             
+            // Restore Texts
+            document.getElementById('nav-linear').innerText = "Linear";
+            document.getElementById('nav-plus').innerText = "Plus";
+
             // Tab Content
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
@@ -514,6 +517,7 @@
 
             // Handle Dynamic Linear Menu
             if(tabId === 'linear') {
+                document.getElementById('nav-linear').innerText = "~"; // Change to Symbol
                 document.getElementById('nav-lin-sports').classList.add('visible');
                 document.getElementById('nav-lin-stream').classList.add('visible');
             } else {
@@ -523,6 +527,7 @@
 
             // Handle Dynamic Plus Menu
             if(tabId === 'plus') {
+                document.getElementById('nav-plus').innerText = "+"; // Change to Symbol
                 document.getElementById('nav-plus-movies').classList.add('visible');
                 document.getElementById('nav-plus-tv').classList.add('visible');
                 document.getElementById('plus-header-title').innerText = "All Content";
