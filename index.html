@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V48: Player & EPG</title>
+    <title>FibreTV V49: Player Fix & EPG</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -152,10 +152,9 @@
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
 
         /* --- SPLIT VIEW --- */
-        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; } /* Reset padding */
-        
+        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
-        .split-inner { display: flex; flex: 1; overflow: hidden; } /* Padding handled by child content */
+        .split-inner { display: flex; flex: 1; overflow: hidden; }
 
         .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; }
         .vert-capsule { background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 100%; overflow-y: auto; }
@@ -164,7 +163,6 @@
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
-        
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
@@ -250,7 +248,7 @@
         <span id="weather-el"><i class="fas fa-cloud-sun"></i> 12°C</span>
     </div>
 
-    <video id="global-bg-video" autoplay muted loop src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"></video>
+    <video id="global-bg-video" autoplay muted loop></video>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -298,7 +296,9 @@
             
             <div id="nav-linear-group" class="nav-group">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-                </div>
+                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">~Sports</div>
+                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">~Stream</div>
+            </div>
             
             <div id="nav-plus-group" class="nav-group">
                 <div id="nav-plus" class="nav-item" onclick="switchTab('plus', this)">Plus</div>
@@ -309,6 +309,7 @@
 
             <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
             <div id="nav-music" class="nav-item" onclick="switchTab('music', this)">Music</div>
+            <div id="nav-local" class="nav-item" onclick="switchTab('local', this)">Local</div>
             <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
             <div class="nav-item icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
         </div>
@@ -391,8 +392,7 @@
                                 <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
                             </div>
                         </div>
-                        <div class="epg-scroll-area" id="linear-list">
-                            </div>
+                        <div class="epg-scroll-area" id="linear-list"></div>
                     </div>
                 </div>
             </div>
@@ -447,7 +447,10 @@
                     </div>
                     <div class="setting-card" style="display:block;">
                         <div class="setting-label">EPG URL (XMLTV)</div>
-                        <input id="iptv-epg" class="setting-input" placeholder="http://example.com/guide.xml">
+                        <div style="display:flex; gap:10px;">
+                            <input id="iptv-epg" class="setting-input" placeholder="http://example.com/guide.xml">
+                            <button class="btn-settings" onclick="loadEPG()" style="margin-top:10px;">Load EPG</button>
+                        </div>
                     </div>
                     <div class="setting-card" style="display:block;">
                         <div class="setting-label">Load Demo Data</div>
@@ -458,9 +461,9 @@
 
                 <h3 style="margin-top:30px;">Navigation Visibility</h3>
                 <div class="settings-grid">
-                    <div class="setting-card"><div class="setting-label">Linear Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-linear-group', [], this.checked)"><span class="slider round"></span></label></div>
+                    <div class="setting-card"><div class="setting-label">Linear Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-linear-group', ['row-recent-channels'], this.checked)"><span class="slider round"></span></label></div>
                     <div class="setting-card"><div class="setting-label">Plus Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-plus-group', [], this.checked)"><span class="slider round"></span></label></div>
-                    <div class="setting-card"><div class="setting-label">YouTube Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-youtube', [], this.checked)"><span class="slider round"></span></label></div>
+                    <div class="setting-card"><div class="setting-label">YouTube Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-youtube', ['row-youtube-rec'], this.checked)"><span class="slider round"></span></label></div>
                     <div class="setting-card"><div class="setting-label">Music Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-music', [], this.checked)"><span class="slider round"></span></label></div>
                 </div>
             </div>
@@ -474,7 +477,7 @@
         // --- DATA STORE ---
         let iptvChannels = [];
         let iptvCategories = [];
-        let epgData = {}; // Map: Channel Name -> { title, desc, start, end }
+        let epgData = {}; 
 
         // --- SYSTEM INFO ---
         function updateSystemInfo() {
@@ -543,7 +546,6 @@
         }
 
         // --- IPTV ENGINE ---
-        
         function loadDemoData() {
             const mockData = [
                 { name: "BBC One", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/4/43/BBC_One_2021.svg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
@@ -555,10 +557,10 @@
                 { name: "HBO Stream", cat: "~Stream", logo: "", url: "" }
             ];
             
-            // DEMO EPG DATA
+            // DEMO EPG
             epgData = {
-                "BBC One": { title: "BBC News at Six", desc: "The latest national and international news.", start: "18:00", end: "19:00" },
-                "Sky Sports F1": { title: "Saudi Arabian GP", desc: "Live coverage of the race.", start: "17:00", end: "20:00" }
+                "BBC One": { title: "BBC News at Six", desc: "The latest national and international news stories from the BBC News team.", start: "18:00", end: "19:00" },
+                "Sky Sports F1": { title: "Saudi Arabian GP", desc: "Live coverage of the Saudi Arabian Grand Prix.", start: "17:00", end: "20:00" }
             };
 
             processIPTVData(mockData);
@@ -569,32 +571,55 @@
             const url = document.getElementById('iptv-m3u').value;
             if(!url) return alert("Please enter a URL");
             
-            fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    const lines = data.split('\n');
-                    const channels = [];
-                    let currentChannel = {};
-                    lines.forEach(line => {
-                        line = line.trim();
-                        if(line.startsWith('#EXTINF')) {
-                            const tvgName = line.match(/tvg-name="([^"]*)"/);
-                            const groupTitle = line.match(/group-title="([^"]*)"/);
-                            const tvgLogo = line.match(/tvg-logo="([^"]*)"/);
-                            const commaSplit = line.split(',');
-                            currentChannel.name = tvgName ? tvgName[1] : (commaSplit[1] || "Unknown");
-                            currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
-                            currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
-                        } else if (line.startsWith('http')) {
-                            currentChannel.url = line;
-                            channels.push({...currentChannel});
-                            currentChannel = {};
-                        }
-                    });
-                    processIPTVData(channels);
-                    alert(`Loaded ${channels.length} channels!`);
-                })
-                .catch(err => alert("Failed to load: " + err));
+            fetch(url).then(r => r.text()).then(data => {
+                const lines = data.split('\n');
+                const channels = [];
+                let currentChannel = {};
+                lines.forEach(line => {
+                    line = line.trim();
+                    if(line.startsWith('#EXTINF')) {
+                        const tvgName = line.match(/tvg-name="([^"]*)"/);
+                        const groupTitle = line.match(/group-title="([^"]*)"/);
+                        const tvgLogo = line.match(/tvg-logo="([^"]*)"/);
+                        const commaSplit = line.split(',');
+                        currentChannel.name = tvgName ? tvgName[1] : (commaSplit[1] || "Unknown");
+                        currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
+                        currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
+                    } else if (line.startsWith('http')) {
+                        currentChannel.url = line;
+                        channels.push({...currentChannel});
+                        currentChannel = {};
+                    }
+                });
+                processIPTVData(channels);
+                alert(`Loaded ${channels.length} channels!`);
+            }).catch(err => alert("Failed to load: " + err));
+        }
+
+        function loadEPG() {
+            const url = document.getElementById('iptv-epg').value;
+            if(!url) return alert("Please enter an EPG URL");
+            
+            fetch(url).then(r => r.text()).then(str => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(str, "text/xml");
+                const programmes = xmlDoc.getElementsByTagName("programme");
+                
+                // Very basic parser: grabs first program for each channel for demo
+                for (let i = 0; i < Math.min(programmes.length, 500); i++) {
+                    const prog = programmes[i];
+                    const channelId = prog.getAttribute("channel");
+                    const title = prog.getElementsByTagName("title")[0]?.textContent;
+                    const desc = prog.getElementsByTagName("desc")[0]?.textContent;
+                    // In real app, you'd map IDs to Names. Here we just key by ID.
+                    if(channelId && title) {
+                        epgData[channelId] = { title, desc, start: "Now", end: "Later" };
+                    }
+                }
+                alert("EPG Loaded (Basic)");
+                // Refresh Linear if active
+                if(document.getElementById('tab-linear').classList.contains('active')) renderLinearUI();
+            }).catch(e => alert("EPG Error: " + e));
         }
 
         function processIPTVData(channels) {
@@ -647,7 +672,7 @@
                 row.className = 'epg-row';
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
-                // Get EPG Data if available
+                // Check EPG (Basic check by name)
                 const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
@@ -661,32 +686,22 @@
             });
         }
 
-        // --- PLAYER LOGIC (HLS) ---
         function playChannel(url) {
             if(!url) return;
-            
-            // Update Global Video
             const video = document.getElementById('global-bg-video');
             
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
+                hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play(); });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // Native HLS (Safari)
                 video.src = url;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
+                video.addEventListener('loadedmetadata', function() { video.play(); });
             } else {
-                // Standard MP4
                 video.src = url;
                 video.play();
             }
-
             document.body.classList.add('mode-fullscreen');
         }
 
@@ -702,6 +717,24 @@
             document.getElementById('cw-meta').innerText = meta;
             document.getElementById('cw-desc').innerText = desc;
             document.getElementById('home-cw-panel').classList.add('visible');
+        }
+
+        function setReminder() {
+            const title = document.getElementById('future-title').innerText;
+            const reminderHTML = `<div class="c-reminder" onmouseover="updateHomePreview('${title}', 'Starts in 44m', 'Reminder set')" style="order:-1;"><div class="card-title">${title}</div><div class="countdown">Starts in 44m 59s</div></div>`;
+            document.getElementById('scroller-cw').querySelector('.c-watch-tv').insertAdjacentHTML('afterend', reminderHTML);
+            closeOverlays();
+            switchTab('home');
+            startCountdown();
+        }
+
+        function startCountdown() {
+            setInterval(() => {
+                document.querySelectorAll('.countdown').forEach(el => {
+                    if(el.innerText.includes('59s')) el.innerText = "Starts in 44m 58s";
+                    else el.innerText = "Starts in 44m 59s"; 
+                });
+            }, 1000);
         }
 
         function watchLiveTV() { document.body.classList.add('mode-fullscreen'); }
