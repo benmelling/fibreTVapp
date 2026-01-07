@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V63: Extra Categories Fix</title>
+    <title>FibreTV V64: Tighter Sidebar</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -153,11 +153,14 @@
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
+        /* --- SIDEBAR ITEMS (TIGHTENED) --- */
         .v-item { 
-            padding: 15px 25px; border-radius: 18px; 
+            padding: 15px; /* Uniform padding */
+            border-radius: 18px; 
             color: #999; font-weight: 600; font-size: 1rem; 
             cursor: pointer; transition: all 0.2s; text-align: left; 
-            display: flex; align-items: center; gap: 20px; 
+            display: flex; align-items: center; 
+            gap: 15px; /* Reduced gap */
         }
         .v-item i { width: 30px; text-align: center; font-size: 1.2rem; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
