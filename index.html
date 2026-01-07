@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V42: Settings & Symbols</title>
+    <title>FibreTV V43: Nav Control</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -80,7 +80,10 @@
         }
 
         .nav-item {
-            padding: 10px 22px; border-radius: var(--radius-capsule);
+            /* Fixed height ensures active buttons don't shrink */
+            height: 44px;
+            padding: 0 22px; 
+            border-radius: var(--radius-capsule);
             color: var(--text-secondary); font-weight: 700; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
@@ -88,25 +91,24 @@
         .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         
-        /* LARGE SYMBOL STYLING */
+        /* LARGE SYMBOL STYLING (Fixed Height) */
         #nav-linear.active, #nav-plus.active {
-            font-size: 1.8rem; /* Much Larger */
-            line-height: 1rem;
-            padding: 5px 22px;
+            font-size: 1.8rem; 
             font-weight: 800;
+            padding: 0 22px; /* Keep padding consistent */
         }
 
-        .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
+        .nav-item.icon-only { padding: 0; width: 44px; display: flex; justify-content: center; align-items: center; }
 
         /* Sub-Items (Hidden by default) */
         .nav-sub { 
             display: none; 
             font-size: 0.85rem; 
-            padding: 8px 16px; 
+            padding: 0 16px; 
             opacity: 0;
             animation: slideIn 0.2s forwards;
         }
-        .nav-sub.visible { display: block; }
+        .nav-sub.visible { display: flex; }
         
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-10px); }
@@ -132,7 +134,6 @@
         }
         .setting-label { font-weight: 700; font-size: 1.1rem; }
         
-        /* Toggle Switch CSS */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
@@ -292,8 +293,9 @@
             
             <div id="nav-plus-group" style="display:flex; align-items:center;">
                 <div id="nav-plus" class="nav-item" onclick="switchTab('plus', this)">Plus</div>
-                <div id="nav-plus-movies" class="nav-item nav-sub" onclick="filterPlusContent('Movies', this)">+Movies</div>
                 <div id="nav-plus-tv" class="nav-item nav-sub" onclick="filterPlusContent('TV', this)">+TV Shows</div>
+                <div id="nav-plus-movies" class="nav-item nav-sub" onclick="filterPlusContent('Movies', this)">+Movies</div>
+                <div id="nav-plus-kids" class="nav-item nav-sub" onclick="filterPlusContent('Kids', this)">+Kids</div>
             </div>
 
             <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
@@ -464,13 +466,27 @@
             
             <div class="settings-grid">
                 <div class="setting-card">
-                    <div class="setting-label">~Stream (Linear)</div>
-                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-lin-stream', this.checked)"><span class="slider round"></span></label>
+                    <div class="setting-label">Linear Tab</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-linear-group', this.checked)"><span class="slider round"></span></label>
                 </div>
                 <div class="setting-card">
-                    <div class="setting-label">~Sports (Linear)</div>
-                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-lin-sports', this.checked)"><span class="slider round"></span></label>
+                    <div class="setting-label">Plus Tab</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-plus-group', this.checked)"><span class="slider round"></span></label>
                 </div>
+
+                <div class="setting-card">
+                    <div class="setting-label">+TV Shows</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-plus-tv', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">+Movies</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-plus-movies', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">+Kids</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-plus-kids', this.checked)"><span class="slider round"></span></label>
+                </div>
+
                 <div class="setting-card">
                     <div class="setting-label">YouTube Tab</div>
                     <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-youtube', this.checked)"><span class="slider round"></span></label>
@@ -534,12 +550,14 @@
             // Handle Dynamic Plus Menu
             if(tabId === 'plus') {
                 document.getElementById('nav-plus').innerText = "+"; // Change to Large Symbol
-                document.getElementById('nav-plus-movies').classList.add('visible');
                 document.getElementById('nav-plus-tv').classList.add('visible');
+                document.getElementById('nav-plus-movies').classList.add('visible');
+                document.getElementById('nav-plus-kids').classList.add('visible');
                 document.getElementById('plus-header-title').innerText = "All Content";
             } else {
-                document.getElementById('nav-plus-movies').classList.remove('visible');
                 document.getElementById('nav-plus-tv').classList.remove('visible');
+                document.getElementById('nav-plus-movies').classList.remove('visible');
+                document.getElementById('nav-plus-kids').classList.remove('visible');
             }
         }
 
@@ -565,7 +583,11 @@
         // --- SETTINGS: TOGGLE NAV ITEMS ---
         function toggleNav(id, isVisible) {
             const el = document.getElementById(id);
-            if(el) el.style.display = isVisible ? '' : 'none'; // Uses Flex display when not 'none'
+            if(el) {
+                // If it's a sub-item, we toggle visibility logic
+                // If it's a main group (like linear-group), we toggle display
+                el.style.display = isVisible ? (id.includes('group') ? 'flex' : '') : 'none';
+            }
         }
 
         // --- OVERLAYS & MODALS ---
