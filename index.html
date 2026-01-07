@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V65: Extra Logic Fixed</title>
+    <title>FibreTV V65: Extra Fixed & Colors</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -27,11 +27,13 @@
 
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
-            --col-live-bg: rgba(0, 71, 171, 0.4);
+            --col-live-txt: #8FA4C8;
             --col-stream: #D35400;      /* Dark Orange */
-            --col-stream-bg: rgba(211, 84, 0, 0.4);
+            --col-stream-txt: #C8A08F;
             --col-yt: #E50914;          /* Dark Red */
+            --col-yt-txt: #C88F93;
             --col-music: #C2185B;       /* Dark Pink */
+            --col-music-txt: #C88FA8;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -81,9 +83,7 @@
             display: flex; align-items: center; border-radius: var(--radius-capsule);
             transition: background-color 0.2s ease; padding: 0; margin: 0 2px;
         }
-        .nav-group.group-active-live { background-color: var(--col-live-bg); }
-        .nav-group.group-active-stream { background-color: var(--col-stream-bg); }
-
+        
         .nav-item {
             height: 44px; padding: 0 22px; 
             border-radius: var(--radius-capsule);
@@ -91,14 +91,29 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
+        .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
         
-        /* Active Colors */
+        /* --- RESTORED SPECIFIC COLORS --- */
+        /* Home/Search/Generic Active */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-        #nav-live-group .nav-item.active { background: var(--col-live); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.5); }
-        #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.5); }
-        #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.5); }
-        #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.5); }
+
+        /* Live (Blue) */
+        #nav-live { color: var(--col-live-txt); }
+        #nav-live.active { background: var(--col-live); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.6); }
+        #nav-live-group .nav-item.active { background: var(--col-live); color: white; }
+
+        /* Stream (Orange) */
+        #nav-stream { color: var(--col-stream-txt); }
+        #nav-stream.active { background: var(--col-stream); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.6); }
+        #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; }
+
+        /* YouTube (Red) */
+        #nav-youtube { color: var(--col-yt-txt); }
+        #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.6); }
+
+        /* Music (Pink) */
+        #nav-music { color: var(--col-music-txt); }
+        #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.6); }
 
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-sub { display: none; font-size: 0.85rem; padding: 0 16px; opacity: 0; animation: slideIn 0.2s forwards; }
@@ -149,13 +164,13 @@
             padding: 20px; 
             display: flex; flex-direction: column; gap: 8px;
             border: 1px solid rgba(255,255,255,0.1); 
-            max-height: 85vh; /* Prevent cut-off */
+            max-height: 85vh;
             overflow-y: auto; 
-            z-index: 50; /* Ensure clickable */
+            z-index: 50; 
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
-        /* --- SIDEBAR ITEMS (TIGHTENED) --- */
+        /* --- SIDEBAR ITEMS --- */
         .v-item { 
             padding: 12px 20px; 
             border-radius: 18px; 
@@ -572,11 +587,11 @@
                 { id: 401, name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
                 { id: 999, name: "Provider Test Ch", cat: "Test Category", logo: "", url: "" },
                 { id: 1000, name: "Netflix Action", cat: "Netflix", logo: "", url: "" },
-                { id: 1001, name: "Prime Movies", cat: "~Stream Movies", logo: "", url: "" }
+                { id: 1001, name: "Prime Movies", cat: "Prime Channels", logo: "", url: "" }
             ];
             epgData = { "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" } };
             iptvChannels = mockData;
-            iptvCategories = ["Test Category", "Sports", "Entertainment", "Netflix", "~Stream Movies"]; 
+            iptvCategories = ["Test Category", "Sports", "Entertainment", "Netflix", "Prime Channels"]; 
             alert("Demo Data Loaded! Go to Live tab.");
         }
 
@@ -667,16 +682,22 @@
                 ];
             } else if (mode === 'Extra') {
                 isGrid = true;
-                // --- FIX: Filter only categories that contain "Stream" or "Extra" or match the hardcoded list ---
-                const allowedTerms = ['Stream', 'Extra', 'Netflix', 'Apple', 'Prime', 'BBC', 'Sky', '24/7', 'Relax'];
+                
+                // --- FIX: EXACT LIST REQUESTED ---
+                const extraList = [
+                    '24/7 Streaming', 
+                    'Apple TV', 
+                    'BBC iPlayer', 
+                    'Netflix', 
+                    'Prime Channels', 
+                    'Prime Video', 
+                    'Relax', 
+                    'Sky Docs', 
+                    'Sky Mix'
+                ];
                 
                 cats = [{name: 'All Streams', icon: 'fa-layer-group'}];
-                
-                iptvCategories.forEach(c => {
-                    if(allowedTerms.some(term => c.includes(term))) {
-                        cats.push({ name: c, icon: 'fa-folder' });
-                    }
-                });
+                extraList.forEach(c => cats.push({ name: c, icon: 'fa-folder' }));
             }
 
             // Toggle Layout
@@ -703,7 +724,6 @@
             const sidebar = document.getElementById('stream-sidebar');
             sidebar.innerHTML = '';
             
-            // Standard VOD Categories
             const vodCats = [
                 { name: 'All Content', icon: 'fa-layer-group' },
                 { name: 'Movies', icon: 'fa-film' },
@@ -737,15 +757,15 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Show all matching 'Extra' criteria
-                    const allowedTerms = ['Stream', 'Extra', 'Netflix', 'Apple', 'Prime', 'BBC', 'Sky', '24/7', 'Relax'];
-                    filtered = iptvChannels.filter(c => allowedTerms.some(t => c.cat.includes(t)));
+                    // Filter to show ONLY requested extra categories
+                    const targets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
+                    filtered = iptvChannels.filter(c => targets.some(t => c.cat.includes(t)));
                     renderGroupedGrid(filtered, list);
                     return; 
                 }
                 else {
-                    // Exact match from sidebar
-                    filtered = iptvChannels.filter(c => c.cat === category);
+                    // Match category (case insensitive search for "Netflix" within "Netflix Action")
+                    filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
                 }
             } 
             else if (mode === 'Sports') {
@@ -758,7 +778,6 @@
                 }
             }
             else {
-                // Default Fuzzy Match
                 if(category === 'All Channels') filtered = iptvChannels;
                 else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
@@ -769,7 +788,7 @@
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
                 if (mode === 'Extra') {
-                    // GRID CARD
+                    // GRID CARD (No mouseover)
                     const card = document.createElement('div');
                     card.className = 'channel-card';
                     card.onclick = () => playChannel(ch.url);
@@ -855,7 +874,7 @@
 
         function updatePreview(title, time, desc, img) {
             const elTitle = document.getElementById('lh-title');
-            if(!elTitle) return; // Fix for null error
+            if(!elTitle) return; // FIX
             elTitle.innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
