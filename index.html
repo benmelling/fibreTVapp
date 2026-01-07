@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V53: Stable Core</title>
+    <title>FibreTV V53: Error Free Core</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -232,9 +232,6 @@
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
-        /* Error Message in Player */
-        #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
-
     </style>
 </head>
 <body class="mode-home">
@@ -248,7 +245,6 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
-    <div id="player-error">Stream failed (likely Browser Security).<br>Will work in App.</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -746,6 +742,7 @@
                 row.className = 'epg-row';
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
+                // Check EPG
                 const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
@@ -763,9 +760,7 @@
         function playChannel(url) {
             if(!url) return;
             const video = document.getElementById('global-bg-video');
-            const errorOverlay = document.getElementById('player-error');
-            errorOverlay.style.display = 'none';
-
+            
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
                 hls.loadSource(url);
@@ -774,7 +769,6 @@
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
                        console.log("HLS Fatal Error (Browser Restriction Likely)");
-                       // errorOverlay.style.display = 'block'; // Disabled per user request
                     }
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -832,6 +826,8 @@
                 if(document.getElementById('tab-home').classList.contains('active')) { watchLiveTV(); }
             }
         });
+
+        window.onload = () => { document.body.classList.add('mode-home'); };
     </script>
 </body>
 </html>
