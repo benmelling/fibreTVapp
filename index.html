@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V55: Custom Logic</title>
+    <title>FibreTV V56: True Channel Numbers</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -201,7 +201,7 @@
         
         .epg-cell { padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .epg-num { width: 50px; color: #666; font-weight: 700; font-size: 0.9rem; text-align: center; }
+        .epg-num { width: 60px; color: #888; font-weight: 700; font-size: 0.95rem; text-align: center; }
         .epg-logo { width: 70px; display: grid; place-items: center; }
         .epg-logo img { max-height: 40px; max-width: 100%; object-fit: contain; }
         .epg-name { width: 150px; font-weight: 700; font-size: 0.95rem; }
@@ -239,7 +239,6 @@
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
         .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
         .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
-        
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -255,7 +254,6 @@
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
-        /* Error Message in Player */
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
 
     </style>
@@ -271,7 +269,7 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
-    <div id="player-error">Stream failed (likely Browser Security).</div>
+    <div id="player-error">Stream failed.</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -348,6 +346,9 @@
             <div class="scroller" id="scroller-cw">
                 <div class="c-watch-tv" onmouseover="updateHomePreview('Watch Live TV', 'Return to live broadcast', 'Jump straight back into the last watched channel.')" onclick="watchLiveTV()">
                     <i class="fas fa-tv"></i><span>Watch Live TV</span>
+                </div>
+                <div class="card c-square" onmouseover="updateHomePreview('BBC One', 'LIVE • BBC News at Six', 'Next: The One Show (19:00)')" style="background: #990000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <span style="font-weight:900; font-size:1.5rem;" class="card-text">BBC ONE</span>
                 </div>
             </div>
 
@@ -525,7 +526,7 @@
     <script>
         // --- DATA STORE ---
         let iptvChannels = [];
-        let globalChannelIndex = 1;
+        let iptvCategories = [];
         let epgData = {}; 
 
         // --- SYSTEM INFO ---
@@ -619,13 +620,13 @@
         // --- IPTV ENGINE ---
         
         function loadDemoData() {
-            // Demo data with HTTPS stream
+            // Updated Demo Stream (HLS HTTPS)
             const mockData = [
-                { name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-                { name: "BBC One", cat: "Entertainment", logo: "", url: "" },
-                { name: "ITV 1", cat: "Entertainment", logo: "", url: "" },
-                { name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
-                { name: "HBO Stream", cat: "Movies", logo: "", url: "" }
+                { id: 101, name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+                { id: 102, name: "BBC One", cat: "Entertainment", logo: "", url: "" },
+                { id: 103, name: "ITV 1", cat: "Entertainment", logo: "", url: "" },
+                { id: 401, name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
+                { id: 501, name: "HBO Stream", cat: "Movies", logo: "", url: "" }
             ];
             
             // DEMO EPG
@@ -633,8 +634,8 @@
                 "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" }
             };
 
-            processIPTVData(mockData);
-            alert("Demo Data Loaded! Go to Linear tab.");
+            iptvChannels = mockData;
+            alert("Demo Data Loaded! Go to Linear tab and click 'Demo Channel'.");
         }
 
         async function loadXtream() {
@@ -662,15 +663,15 @@
                 const streamRes = await fetch(streamUrl);
                 const streams = await streamRes.json();
 
-                const channels = streams.map(s => ({
+                iptvChannels = streams.map(s => ({
+                    id: s.num || s.stream_id,
                     name: s.name,
                     cat: catMap[s.category_id] || "Uncategorized",
                     logo: s.stream_icon,
                     url: `${url}/live/${user}/${pass}/${s.stream_id}.ts`
                 }));
 
-                processIPTVData(channels);
-                alert(`Loaded ${channels.length} channels!`);
+                alert(`Loaded ${iptvChannels.length} channels from Xtream!`);
 
             } catch(e) {
                 alert("Xtream Error: " + e);
@@ -683,29 +684,32 @@
             
             fetch(url).then(r => r.text()).then(data => {
                 const lines = data.split('\n');
-                const channels = [];
+                iptvChannels = [];
                 let currentChannel = {};
+                
                 lines.forEach(line => {
                     line = line.trim();
                     if(line.startsWith('#EXTINF')) {
                         const tvgName = line.match(/tvg-name="([^"]*)"/);
                         const groupTitle = line.match(/group-title="([^"]*)"/);
                         const tvgLogo = line.match(/tvg-logo="([^"]*)"/);
+                        const tvgChNo = line.match(/tvg-chno="([^"]*)"/);
                         const commaSplit = line.split(',');
+                        
                         currentChannel.name = tvgName ? tvgName[1] : (commaSplit[1] || "Unknown");
                         currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
                         currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
+                        currentChannel.id = tvgChNo ? tvgChNo[1] : 0;
+                        
                     } else if (line.startsWith('http')) {
-                        // Filter VOD files from M3U
-                        if(!line.match(/\.(mp4|mkv|avi)$/i)) {
+                        if(!line.match(/\.(mp4|mkv|avi)$/i)) { // Filter VOD
                             currentChannel.url = line;
-                            channels.push({...currentChannel});
+                            iptvChannels.push({...currentChannel});
                         }
                         currentChannel = {};
                     }
                 });
-                processIPTVData(channels);
-                alert(`Loaded ${channels.length} channels!`);
+                alert(`Loaded ${iptvChannels.length} channels!`);
             }).catch(err => alert("Failed to load: " + err));
         }
 
@@ -727,17 +731,11 @@
                     const desc = prog.getElementsByTagName("desc")[0]?.textContent;
                     if(channelId && title) {
                         epgData[channelId] = { title, desc, start: "Now", end: "Later" };
+                        epgData[title] = { title, desc, start: "Now", end: "Later" }; // Fallback map by name
                     }
                 }
                 alert("EPG Loaded (Basic)");
             }).catch(e => alert("EPG Error: " + e));
-        }
-
-        function processIPTVData(channels) {
-            // Assign Permanent IDs
-            iptvChannels = channels.map((c, i) => ({...c, id: i + 1}));
-            // Default view is usually entertainment
-            renderLinearSidebar('Default');
         }
 
         // --- CUSTOM SIDEBAR LOGIC ---
@@ -852,6 +850,7 @@
         }
 
         function updatePreview(title, time, desc, img, isLive) {
+            // Safety check for null elements (Fixes TypeError)
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
