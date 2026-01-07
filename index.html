@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V54: EPG Grid & Fixes</title>
+    <title>FibreTV V55: Custom Logic</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -133,6 +133,20 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- SETTINGS --- */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; margin-bottom: 40px; }
+        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-label { font-weight: 700; font-size: 1.1rem; }
+        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
+        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
+        
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ffffff; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
+
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
@@ -225,6 +239,7 @@
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
         .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
         .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
+        
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -232,21 +247,6 @@
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
-        
-        /* SETTINGS TOGGLES */
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
-        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-label { font-weight: 700; font-size: 1.1rem; }
-        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
-        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ffffff; }
-        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-
-        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
@@ -255,6 +255,7 @@
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
+        /* Error Message in Player */
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
 
     </style>
@@ -318,6 +319,8 @@
             
             <div id="nav-linear-group" class="nav-group">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
+                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('~Sports', this)">~Sports</div>
+                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('~Stream', this)">~Stream</div>
             </div>
             
             <div id="nav-plus-group" class="nav-group">
@@ -346,9 +349,6 @@
                 <div class="c-watch-tv" onmouseover="updateHomePreview('Watch Live TV', 'Return to live broadcast', 'Jump straight back into the last watched channel.')" onclick="watchLiveTV()">
                     <i class="fas fa-tv"></i><span>Watch Live TV</span>
                 </div>
-                <div class="card c-square" onmouseover="updateHomePreview('BBC One', 'LIVE • BBC News at Six', 'Next: The One Show (19:00)')" style="background: #990000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <span style="font-weight:900; font-size:1.5rem;" class="card-text">BBC ONE</span>
-                </div>
             </div>
 
             <div id="home-cw-panel" class="cw-info-panel">
@@ -361,6 +361,7 @@
                 <div class="section-header"><i class="fas fa-fast-forward"></i> Watch Next</div>
                 <div class="scroller">
                     <div class="card c-thumb" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');"></div>
+                    <div class="card c-thumb" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');"></div>
                 </div>
             </div>
 
@@ -377,6 +378,7 @@
                 <div class="scroller">
                     <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
                     <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
+                    <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
                 </div>
             </div>
 
@@ -415,7 +417,7 @@
             <div class="layout-container">
                 <div class="split-inner">
                     <div class="mega-sidebar" id="linear-sidebar">
-                        <div class="genre-item active">Loading...</div>
+                        <div class="genre-item active">All Channels</div>
                     </div>
                     
                     <div class="linear-content-col">
@@ -523,7 +525,7 @@
     <script>
         // --- DATA STORE ---
         let iptvChannels = [];
-        let iptvCategories = [];
+        let globalChannelIndex = 1;
         let epgData = {}; 
 
         // --- SYSTEM INFO ---
@@ -570,9 +572,13 @@
             // Dynamic Nav Logic
             if(tabId === 'linear') {
                 document.getElementById('nav-linear').innerText = "~";
-                document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.add('visible'));
+                document.getElementById('nav-lin-sports').classList.add('visible');
+                document.getElementById('nav-lin-stream').classList.add('visible');
+                // Default view
+                renderLinearSidebar('Default');
             } else {
-                document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.remove('visible'));
+                document.getElementById('nav-lin-sports').classList.remove('visible');
+                document.getElementById('nav-lin-stream').classList.remove('visible');
             }
 
             if(tabId === 'plus') {
@@ -585,6 +591,13 @@
                 document.getElementById('nav-plus-movies').classList.remove('visible');
                 document.getElementById('nav-plus-kids').classList.remove('visible');
             }
+        }
+
+        function filterLinContent(type, el) {
+            event.stopPropagation();
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            renderLinearSidebar(type);
         }
 
         function filterPlusContent(type, el) {
@@ -606,20 +619,22 @@
         // --- IPTV ENGINE ---
         
         function loadDemoData() {
-            // Updated Demo Stream (HLS HTTPS)
+            // Demo data with HTTPS stream
             const mockData = [
                 { name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-                { name: "Sky Sports F1", cat: "~Sports", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Sky_Sports_F1_logo_2017.svg/2560px-Sky_Sports_F1_logo_2017.svg.png", url: "" },
-                { name: "HBO Stream", cat: "~Stream", logo: "", url: "" },
-                { name: "BBC One", cat: "Entertainment", logo: "", url: "" }
+                { name: "BBC One", cat: "Entertainment", logo: "", url: "" },
+                { name: "ITV 1", cat: "Entertainment", logo: "", url: "" },
+                { name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
+                { name: "HBO Stream", cat: "Movies", logo: "", url: "" }
             ];
             
+            // DEMO EPG
             epgData = {
                 "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" }
             };
 
             processIPTVData(mockData);
-            alert("Demo Data Loaded! Go to Linear tab and click 'Demo Channel'.");
+            alert("Demo Data Loaded! Go to Linear tab.");
         }
 
         async function loadXtream() {
@@ -629,7 +644,6 @@
 
             if(!url || !user || !pass) return alert("Please fill all Xtream fields");
 
-            // Save Credentials
             localStorage.setItem('xc_url', url);
             localStorage.setItem('xc_user', user);
             localStorage.setItem('xc_pass', pass);
@@ -656,7 +670,7 @@
                 }));
 
                 processIPTVData(channels);
-                alert(`Loaded ${channels.length} channels from Xtream!`);
+                alert(`Loaded ${channels.length} channels!`);
 
             } catch(e) {
                 alert("Xtream Error: " + e);
@@ -682,8 +696,11 @@
                         currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
                         currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
                     } else if (line.startsWith('http')) {
-                        currentChannel.url = line;
-                        channels.push({...currentChannel});
+                        // Filter VOD files from M3U
+                        if(!line.match(/\.(mp4|mkv|avi)$/i)) {
+                            currentChannel.url = line;
+                            channels.push({...currentChannel});
+                        }
                         currentChannel = {};
                     }
                 });
@@ -710,7 +727,6 @@
                     const desc = prog.getElementsByTagName("desc")[0]?.textContent;
                     if(channelId && title) {
                         epgData[channelId] = { title, desc, start: "Now", end: "Later" };
-                        epgData[title] = { title, desc, start: "Now", end: "Later" }; // Fallback map by name
                     }
                 }
                 alert("EPG Loaded (Basic)");
@@ -718,41 +734,44 @@
         }
 
         function processIPTVData(channels) {
-            iptvChannels = channels;
-            iptvCategories = [...new Set(channels.map(c => c.cat))].sort();
-            renderLinearUI();
+            // Assign Permanent IDs
+            iptvChannels = channels.map((c, i) => ({...c, id: i + 1}));
+            // Default view is usually entertainment
+            renderLinearSidebar('Default');
         }
 
-        function renderLinearUI() {
+        // --- CUSTOM SIDEBAR LOGIC ---
+        function renderLinearSidebar(mode) {
             const sidebar = document.getElementById('linear-sidebar');
-            const navGroup = document.getElementById('nav-linear-group');
-            
             sidebar.innerHTML = '';
-            document.querySelectorAll('.dynamic-lin-sub').forEach(e => e.remove());
 
-            iptvCategories.forEach(cat => {
-                if(cat.startsWith('~') || cat.startsWith('≈')) {
-                    const navBtn = document.createElement('div');
-                    navBtn.className = 'nav-item nav-sub dynamic-lin-sub';
-                    navBtn.innerText = cat;
-                    navBtn.onclick = (e) => filterLinearChannels(cat, e.target);
-                    navGroup.appendChild(navBtn);
-                } else {
-                    const sideItem = document.createElement('div');
-                    sideItem.className = 'genre-item';
-                    sideItem.innerText = cat;
-                    sideItem.onclick = (e) => filterLinearChannels(cat, e.target);
-                    sidebar.appendChild(sideItem);
-                }
+            let categories = [];
+
+            if (mode === 'Default') {
+                categories = ['All Channels', 'Favourites', 'Entertainment', 'Documentaries', '+1', 'Movies', 'Music', 'News', 'Kids'];
+            } else if (mode === '~Sports') {
+                categories = ['Sports', 'More'];
+            } else if (mode === '~Stream') {
+                categories = ['24/7 Streaming', 'Apple TV', 'BBC iPlayer', 'Netflix', 'Prime Channels', 'Prime Video', 'Relax', 'Sky Docs', 'Sky Mix'];
+            }
+
+            categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'genre-item';
+                item.innerText = cat;
+                item.onclick = (e) => filterLinearChannels(cat, e.target);
+                sidebar.appendChild(item);
             });
 
-            if(iptvCategories.length > 0) filterLinearChannels(iptvCategories[0], null);
+            // Load first category
+            if(categories.length > 0) filterLinearChannels(categories[0], sidebar.firstChild);
         }
 
         function filterLinearChannels(category, el) {
             if(event) event.stopPropagation();
             if(el) {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                // Keep Nav Item Active
+                // Clear Sidebar Active
                 document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
                 el.classList.add('active');
             }
@@ -760,19 +779,28 @@
             const list = document.getElementById('linear-list');
             list.innerHTML = '';
 
-            const filtered = iptvChannels.filter(c => c.cat === category);
+            let filtered = [];
+            if(category === 'All Channels') {
+                filtered = iptvChannels;
+            } else if (category === 'More') {
+                // Show channels that map to ~Sports but aren't just "Sports"
+                filtered = iptvChannels.filter(c => c.cat.includes('Sport') && c.cat !== 'Sports');
+            } else {
+                // Fuzzy Match
+                filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
+            }
             
-            filtered.forEach((ch, index) => {
+            filtered.forEach(ch => {
                 const row = document.createElement('div');
                 row.className = 'epg-row';
-                // Attach click listener here directly to row
+                // Click handler on row
                 row.onclick = () => playChannel(ch.url);
                 
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 const prog = epgData[ch.name] || { title: "No Information", desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
-                    <div class="epg-cell epg-num">${index + 1}</div>
+                    <div class="epg-cell epg-num">${ch.id}</div>
                     <div class="epg-cell epg-logo"><img src="${logo}"></div>
                     <div class="epg-cell epg-name">${ch.name}</div>
                     <div class="epg-cell epg-now" onmouseover="updatePreview('${prog.title}', '${prog.start} - ${prog.end}', '${prog.desc}', '${logo}', true)">
@@ -791,6 +819,13 @@
         // --- PLAYER LOGIC (HLS) ---
         function playChannel(url) {
             if(!url) return;
+            
+            // HTTPS Upgrade Attempt
+            if(window.location.protocol === 'https:' && url.startsWith('http:')) {
+                console.log("Attempting to upgrade stream to HTTPS...");
+                url = url.replace('http:', 'https:');
+            }
+
             const video = document.getElementById('global-bg-video');
             const errorOverlay = document.getElementById('player-error');
             errorOverlay.style.display = 'none';
@@ -802,7 +837,8 @@
                 hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(e => console.log("Auto-play prevented")); });
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
-                       console.log("HLS Fatal Error (Browser Restriction Likely)");
+                       console.log("HLS Fatal Error");
+                       errorOverlay.style.display = 'block';
                     }
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -810,13 +846,12 @@
                 video.addEventListener('loadedmetadata', function() { video.play(); });
             } else {
                 video.src = url;
-                video.play().catch(e => console.log("Stream failed"));
+                video.play().catch(e => { errorOverlay.style.display = 'block'; });
             }
             document.body.classList.add('mode-fullscreen');
         }
 
         function updatePreview(title, time, desc, img, isLive) {
-            // FIX: Guard Clause to prevent console errors if elements aren't ready
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
