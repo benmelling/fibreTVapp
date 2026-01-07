@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V66: Sidebar Layout Fix</title>
+    <title>FibreTV V66: Search Engine</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,14 +23,14 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            
-            /* WIDER SIDEBAR TO FIT TEXT ON ONE LINE */
-            --sidebar-width: 300px; 
+            --sidebar-width: 280px;
 
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
+            --col-live-bg: rgba(0, 71, 171, 0.4);
             --col-live-txt: #8FA4C8;
             --col-stream: #D35400;      /* Dark Orange */
+            --col-stream-bg: rgba(211, 84, 0, 0.4);
             --col-stream-txt: #C8A08F;
             --col-yt: #E50914;          /* Dark Red */
             --col-yt-txt: #C88F93;
@@ -95,26 +95,18 @@
         }
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
         
-        /* COLORS RESTORED */
+        /* Active Colors */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-
-        /* Live (Blue) */
-        #nav-live { color: var(--col-live-txt); }
-        #nav-live.active { background: var(--col-live); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.6); }
         #nav-live-group .nav-item.active { background: var(--col-live); color: white; }
-
-        /* Stream (Orange) */
-        #nav-stream { color: var(--col-stream-txt); }
-        #nav-stream.active { background: var(--col-stream); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.6); }
         #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; }
+        #nav-youtube.active { background: var(--col-yt); color: white; }
+        #nav-music.active { background: var(--col-music); color: white; }
 
-        /* YouTube (Red) */
+        /* Inactive Tints */
+        #nav-live { color: var(--col-live-txt); }
+        #nav-stream { color: var(--col-stream-txt); }
         #nav-youtube { color: var(--col-yt-txt); }
-        #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.6); }
-
-        /* Music (Pink) */
         #nav-music { color: var(--col-music-txt); }
-        #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.6); }
 
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-sub { display: none; font-size: 0.85rem; padding: 0 16px; opacity: 0; animation: slideIn 0.2s forwards; }
@@ -144,8 +136,7 @@
         /* --- MAIN LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 130px; /* Space for Nav */
-            padding-bottom: 50px;
+            padding-top: 120px; padding-bottom: 50px;
         }
 
         .tab-content { display: none; padding: 0 0 0 4%; height: 100%; }
@@ -153,50 +144,47 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW --- */
-        .split-view { display: flex; gap: 60px; height: 100%; overflow: hidden; padding-left: 0; }
-        .layout-container { display: flex; flex-direction: column; height: 100%; }
-        .split-inner { display: flex; gap: 60px; flex: 1; overflow: hidden; }
-
-        /* SIDEBAR CONTAINER - ANCHORED TOP */
-        .vertical-filter-col { 
-            width: var(--sidebar-width); 
-            flex-shrink: 0; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; /* Aligns to TOP */
-            padding-top: 10px; /* Space below Nav */
-            height: 95%; 
-            margin: 0; 
-            padding-left: 40px; 
+        /* --- SEARCH TAB --- */
+        #search-container { padding: 20px 5%; max-width: 1400px; margin: 0 auto; }
+        .search-input {
+            width: 100%;
+            background: #222;
+            border: 2px solid #333;
+            color: white;
+            font-size: 1.5rem;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-family: 'Outfit';
+            font-weight: 700;
+            outline: none;
+            transition: all 0.2s;
+            margin-bottom: 30px;
         }
+        .search-input:focus { border-color: var(--col-live); box-shadow: 0 0 20px var(--col-live-bg); }
+        .search-section { margin-bottom: 40px; }
+        .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .search-sec-title::after { content:''; flex:1; height: 1px; background: #333; }
+        .no-results { color: #555; font-style: italic; padding-left: 10px; }
+
+        /* --- SPLIT VIEW --- */
+        .split-view { display: flex; gap: 50px; height: 100%; overflow: hidden; padding-left: 0; }
+        .layout-container { display: flex; flex-direction: column; height: 100%; }
+        .split-inner { display: flex; gap: 50px; flex: 1; overflow: hidden; }
+
+        .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; padding-left:40px; }
         
-        /* CAPSULE STYLING */
         .vert-capsule { 
-            background: rgba(25, 25, 25, 0.95); 
-            border-radius: 25px; 
-            padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px;
-            border: 1px solid rgba(255,255,255,0.1); 
-            max-height: calc(100vh - 160px); /* Fill space without cut-off */
-            overflow-y: auto; 
-            z-index: 50; 
+            background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 20px; 
+            display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.1); 
+            max-height: 85vh; overflow-y: auto; z-index: 50; 
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
-        /* SIDEBAR ITEMS - ONE LINE FORCED */
         .v-item { 
-            padding: 12px 20px; 
-            border-radius: 18px; 
-            color: #999; font-weight: 600; font-size: 1rem; 
-            cursor: pointer; transition: all 0.2s; text-align: left; 
-            display: flex; align-items: center; 
-            gap: 15px;
-            white-space: nowrap; /* Forces one line */
-            overflow: hidden;
-            text-overflow: ellipsis; 
+            padding: 12px 20px; border-radius: 18px; color: #999; font-weight: 600; font-size: 1rem; 
+            cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px; 
         }
-        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; flex-shrink: 0; }
+        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
@@ -221,11 +209,7 @@
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
         /* --- EPG LAYOUT --- */
-        .epg-row {
-            display: flex; align-items: center; height: 70px; padding: 5px 15px; margin-bottom: 5px;
-            border-radius: 10px; cursor: pointer; transition: background 0.2s;
-            border: 1px solid transparent; background: rgba(255,255,255,0.03);
-        }
+        .epg-row { display: flex; align-items: center; height: 70px; padding: 5px 15px; margin-bottom: 5px; border-radius: 10px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; background: rgba(255,255,255,0.03); }
         .epg-row:hover { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-cell { padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; height: 100%; }
         .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.1rem; justify-content: center; }
@@ -237,29 +221,32 @@
         .prog-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
         .prog-time { font-size: 0.8rem; color: #aaa; font-weight: 500; }
 
-        /* --- EXTRA GRID LAYOUT --- */
+        /* --- GRID LAYOUT --- */
         .grid-section-title { font-size: 1.2rem; font-weight: 700; margin: 20px 0 10px 0; padding-left: 10px; border-left: 4px solid var(--col-live); }
         .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 10px; }
         .channel-card { 
             background: #222; border-radius: 16px; aspect-ratio: 1/1; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; padding: 15px;
+            flex: 0 0 auto; width: 140px; /* Forced width for horizontal scroll context */
         }
         .channel-card:hover { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
         .cc-logo { width: 100%; height: 60%; object-fit: contain; margin-bottom: 10px; }
         .cc-name { font-size: 0.9rem; font-weight: 700; text-align: center; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* --- CARDS & ROWS --- */
-        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
-        .section-header i { color: white; font-size: 1.1rem; }
+        /* --- SCROLLERS --- */
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
         ::-webkit-scrollbar { display: none; }
+        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
+        .section-header i { color: white; font-size: 1.1rem; }
+
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
         .card:active { transform: scale(0.96); }
         .card:hover { transform: scale(1.03); z-index: 5; border-color: rgba(255,255,255,0.3); }
         .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
         .card-title { font-weight: 700; font-size: 1rem; }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
+        
         .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
@@ -280,8 +267,6 @@
         .st-thumb { height: 170px; background-size: cover; position: relative; }
         .st-meta { padding: 12px; display: flex; gap: 10px; }
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
-        .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
-        .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
         
         /* SETTINGS TOGGLES */
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
@@ -509,7 +494,13 @@
             </div>
         </div>
 
-        <div id="tab-search" class="tab-content"></div>
+        <div id="tab-search" class="tab-content">
+            <div id="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="Search TV, Movies, Music..." autofocus>
+                <div id="search-results">
+                    </div>
+            </div>
+        </div>
 
     </div>
 
@@ -580,6 +571,58 @@
                 document.getElementById('nav-stream-movies').classList.remove('visible');
                 document.getElementById('nav-stream-kids').classList.remove('visible');
             }
+
+            // --- SEARCH FOCUS ---
+            if(tabId === 'search') {
+                setTimeout(() => document.getElementById('search-input').focus(), 100);
+            }
+        }
+
+        // --- SEARCH LOGIC ---
+        const searchInput = document.getElementById('search-input');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+        }
+
+        function performSearch(query) {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+            
+            if(!query || query.length < 2) return;
+
+            const q = query.toLowerCase();
+            const categories = ['Channels', 'Recordings', 'Reminders', 'TV Shows', 'Movies', 'YouTube', 'Music'];
+
+            categories.forEach(cat => {
+                const secTitle = document.createElement('div');
+                secTitle.className = 'search-sec-title';
+                secTitle.innerText = cat;
+                container.appendChild(secTitle);
+
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                
+                if(cat === 'Channels') {
+                    const hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
+                    hits.sort((a,b) => parseInt(a.id) - parseInt(b.id)); // Sort by Ch Number
+
+                    if(hits.length === 0) {
+                        scroller.innerHTML = '<div class="no-results">No channels found</div>';
+                    } else {
+                        hits.forEach(ch => {
+                            const card = document.createElement('div');
+                            card.className = 'channel-card';
+                            card.onclick = () => playChannel(ch.url);
+                            const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                            card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
+                            scroller.appendChild(card);
+                        });
+                    }
+                } else {
+                    scroller.innerHTML = '<div class="no-results">0 Results</div>';
+                }
+                container.appendChild(scroller);
+            });
         }
 
         // --- FILTERING WRAPPERS ---
@@ -700,8 +743,9 @@
             } else if (mode === 'Extra') {
                 isGrid = true;
                 
-                // --- FIX: EXACT LIST REQUESTED ---
+                // EXACT LIST REQUESTED
                 const extraList = [
+                    'All Streams',
                     '24/7 Streaming', 
                     'Apple TV', 
                     'BBC iPlayer', 
@@ -713,8 +757,10 @@
                     'Sky Mix'
                 ];
                 
-                cats = [{name: 'All Streams', icon: 'fa-layer-group'}];
-                extraList.forEach(c => cats.push({ name: c, icon: 'fa-folder' }));
+                extraList.forEach(c => cats.push({ 
+                    name: c, 
+                    icon: c === 'All Streams' ? 'fa-layer-group' : 'fa-folder' 
+                }));
             }
 
             // Toggle Layout
@@ -774,14 +820,13 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Show all matching 'Extra' criteria
-                    const targets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
-                    filtered = iptvChannels.filter(c => targets.some(t => c.cat.includes(t)));
+                    const extraTargets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
+                    filtered = iptvChannels.filter(c => extraTargets.some(t => c.cat.includes(t)));
                     renderGroupedGrid(filtered, list);
                     return; 
                 }
                 else {
-                    // Match category (case insensitive search for "Netflix" within "Netflix Action")
+                    // Fuzzy match the sidebar text against provider category
                     filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
                 }
             } 
@@ -795,7 +840,6 @@
                 }
             }
             else {
-                // Default Fuzzy Match
                 if(category === 'All Channels') filtered = iptvChannels;
                 else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
@@ -806,7 +850,7 @@
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
                 if (mode === 'Extra') {
-                    // GRID CARD (No mouseover)
+                    // GRID CARD (No mouseover to prevent console error)
                     const card = document.createElement('div');
                     card.className = 'channel-card';
                     card.onclick = () => playChannel(ch.url);
@@ -892,7 +936,7 @@
 
         function updatePreview(title, time, desc, img) {
             const elTitle = document.getElementById('lh-title');
-            if(!elTitle) return; // FIX
+            if(!elTitle) return; // Fix
             elTitle.innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
