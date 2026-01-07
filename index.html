@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V45: Colors & Groups</title>
+    <title>FibreTV V46: Refined & Ready</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -91,11 +91,13 @@
         .nav-group {
             display: flex; align-items: center;
             border-radius: var(--radius-capsule);
-            transition: background-color 0.3s ease, padding 0.3s ease;
+            transition: background-color 0.3s ease;
+            /* REMOVED PADDING TO FIX GAP ISSUE */
+            padding: 0; 
         }
         /* Active Group Backgrounds */
-        .nav-group.group-active-linear { background-color: var(--col-linear-bg); padding-right: 5px; }
-        .nav-group.group-active-plus { background-color: var(--col-plus-bg); padding-right: 5px; }
+        .nav-group.group-active-linear { background-color: var(--col-linear-bg); }
+        .nav-group.group-active-plus { background-color: var(--col-plus-bg); }
 
 
         /* Base Nav Item */
