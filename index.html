@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V42: The Double Wave</title>
+    <title>FibreTV V42: Settings & Symbols</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -83,9 +83,19 @@
             padding: 10px 22px; border-radius: var(--radius-capsule);
             color: var(--text-secondary); font-weight: 700; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center;
         }
         .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
+        
+        /* LARGE SYMBOL STYLING */
+        #nav-linear.active, #nav-plus.active {
+            font-size: 1.8rem; /* Much Larger */
+            line-height: 1rem;
+            padding: 5px 22px;
+            font-weight: 800;
+        }
+
         .nav-item.icon-only { padding: 0; width: 42px; height: 42px; display: grid; place-items: center; }
 
         /* Sub-Items (Hidden by default) */
@@ -114,32 +124,32 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- SETTINGS TOGGLES --- */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
+        .setting-card {
+            background: #222; padding: 20px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .setting-label { font-weight: 700; font-size: 1.1rem; }
+        
+        /* Toggle Switch CSS */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ffffff; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
+
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; }
-        
-        .vertical-filter-col { 
-            width: var(--sidebar-width); flex-shrink: 0; 
-            display: flex; flex-direction: column; justify-content: center; 
-            height: 90%; margin: auto 0;
-        }
-        
-        .vert-capsule {
-            background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px;
-            display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1);
-            max-height: 100%; overflow-y: auto;
-        }
+        .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; }
+        .vert-capsule { background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 100%; overflow-y: auto; }
         .vert-capsule::-webkit-scrollbar { display:none; }
-
-        .v-item {
-            padding: 12px 20px; border-radius: 20px;
-            color: #888; font-weight: 600; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px;
-        }
+        .v-item { padding: 12px 20px; border-radius: 20px; color: #888; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px; }
         .v-item i { width: 20px; text-align: center; color: white; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
-
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
@@ -148,44 +158,25 @@
         #tab-plus, #tab-linear { padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
         .split-inner { display: flex; flex: 1; overflow: hidden; padding-left: 4%; }
-        
         .mega-sidebar { width: var(--sidebar-width); flex-shrink: 0; overflow-y: auto; padding-right: 10px; padding-bottom: 50px; }
         .mega-sidebar::-webkit-scrollbar { width: 4px; }
         .mega-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-
-        .genre-item {
-            padding: 15px; color: #888; font-weight: 600; cursor: pointer; border-radius: 12px;
-            transition: 0.2s; font-size: 1rem;
-        }
+        .genre-item { padding: 15px; color: #888; font-weight: 600; cursor: pointer; border-radius: 12px; transition: 0.2s; font-size: 1rem; }
         .genre-item:hover { background: #222; color: white; }
         .genre-item.active { color: white; background: #333; font-weight: 700; border-left: 4px solid white; }
 
         /* --- LINEAR HEADER --- */
-        .linear-header {
-            flex: 0 0 auto; width: 100%; border-radius: 24px;
-            margin-bottom: 20px; overflow: hidden;
-            background: var(--surface-color); border: 2px solid transparent; padding: 25px;
-        }
-        .header-content {
-            height: 100%; width: 100%; display: flex; align-items: center; 
-            justify-content: space-between; gap: 30px;
-        }
-        .image-box-left {
-            width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
-            background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .linear-header { flex: 0 0 auto; width: 100%; border-radius: 24px; margin-bottom: 20px; overflow: hidden; background: var(--surface-color); border: 2px solid transparent; padding: 25px; }
+        .header-content { height: 100%; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+        .image-box-left { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .static-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s; }
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
         .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-        .preview-box-right {
-            width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden;
-            background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .preview-box-right { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
-
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
@@ -194,42 +185,32 @@
         .section-header i { color: white; font-size: 1.1rem; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
         ::-webkit-scrollbar { display: none; }
-
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
         .card:active { transform: scale(0.96); }
         .card:hover { transform: scale(1.03); z-index: 5; border-color: rgba(255,255,255,0.3); }
         .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
         .card-title { font-weight: 700; font-size: 1rem; }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
-
         .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
-
         .c-reminder { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #4A00E0, #8E2DE2); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
         .c-reminder .card-title { font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .c-reminder .countdown { font-size: 0.9rem; font-weight: 700; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px; }
-
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
-
-        /* Preview Panel */
         .cw-info-panel { padding: 5px 10px; margin-bottom: 20px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; opacity: 0; transition: opacity 0.2s; }
         .cw-info-panel.visible { opacity: 1; }
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
         .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
         .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
-
-        /* EPG Items */
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
         .epg-item { height: 70px; background: var(--surface-color); padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
         .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
         .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
-
-        /* SmartTube */
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -237,8 +218,6 @@
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
-
-        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
@@ -307,8 +286,8 @@
             
             <div id="nav-linear-group" style="display:flex; align-items:center;">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">≈Sports</div>
-                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">≈Stream</div>
+                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">~Sports</div>
+                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">~Stream</div>
             </div>
             
             <div id="nav-plus-group" style="display:flex; align-items:center;">
@@ -479,10 +458,37 @@
             </div>
         </div>
 
+        <div id="tab-settings" class="tab-content">
+            <h1>Settings</h1>
+            <h3 style="margin-bottom:20px; opacity:0.7;">Navigation Visibility</h3>
+            
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <div class="setting-label">~Stream (Linear)</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-lin-stream', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">~Sports (Linear)</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-lin-sports', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">YouTube Tab</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-youtube', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">Music Tab</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-music', this.checked)"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">Local Tab</div>
+                    <label class="switch"><input type="checkbox" checked onchange="toggleNav('nav-local', this.checked)"><span class="slider round"></span></label>
+                </div>
+            </div>
+        </div>
+
         <div id="tab-music" class="tab-content"><h1>Music</h1></div>
         <div id="tab-local" class="tab-content"><h1>Local</h1></div>
         <div id="tab-search" class="tab-content"><h1>Search</h1></div>
-        <div id="tab-settings" class="tab-content"><h1>Settings</h1></div>
 
     </div>
 
@@ -497,7 +503,7 @@
         setInterval(updateSystemInfo, 1000);
         updateSystemInfo();
 
-        // --- NAVIGATION W/ DYNAMIC MENUS ---
+        // --- NAVIGATION W/ DYNAMIC MENUS & SYMBOLS ---
         function switchTab(tabId, el) {
             // UI Reset
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -517,7 +523,7 @@
 
             // Handle Dynamic Linear Menu
             if(tabId === 'linear') {
-                document.getElementById('nav-linear').innerText = "≈"; // Change to Symbol
+                document.getElementById('nav-linear').innerText = "~"; // Change to Large Symbol
                 document.getElementById('nav-lin-sports').classList.add('visible');
                 document.getElementById('nav-lin-stream').classList.add('visible');
             } else {
@@ -527,7 +533,7 @@
 
             // Handle Dynamic Plus Menu
             if(tabId === 'plus') {
-                document.getElementById('nav-plus').innerText = "+"; // Change to Symbol
+                document.getElementById('nav-plus').innerText = "+"; // Change to Large Symbol
                 document.getElementById('nav-plus-movies').classList.add('visible');
                 document.getElementById('nav-plus-tv').classList.add('visible');
                 document.getElementById('plus-header-title').innerText = "All Content";
@@ -542,7 +548,6 @@
             event.stopPropagation();
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
-            // Logic to filter EPG would go here
         }
 
         function filterPlusContent(type, el) {
@@ -555,6 +560,12 @@
         function activateFilter(el) {
             el.parentElement.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
+        }
+
+        // --- SETTINGS: TOGGLE NAV ITEMS ---
+        function toggleNav(id, isVisible) {
+            const el = document.getElementById(id);
+            if(el) el.style.display = isVisible ? '' : 'none'; // Uses Flex display when not 'none'
         }
 
         // --- OVERLAYS & MODALS ---
