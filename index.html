@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V53: Error Free Core</title>
+    <title>FibreTV V54: EPG Grid & Fixes</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -133,20 +133,6 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SETTINGS --- */
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; margin-bottom: 40px; }
-        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-label { font-weight: 700; font-size: 1.1rem; }
-        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
-        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
-        
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ffffff; }
-        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
@@ -186,6 +172,33 @@
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
+        /* --- NEW EPG GRID LAYOUT --- */
+        .epg-row {
+            display: flex; align-items: center;
+            height: 60px;
+            padding: 0 10px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+        .epg-row:hover { background: #222; border-color: rgba(255,255,255,0.1); }
+        
+        .epg-cell { padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .epg-num { width: 50px; color: #666; font-weight: 700; font-size: 0.9rem; text-align: center; }
+        .epg-logo { width: 70px; display: grid; place-items: center; }
+        .epg-logo img { max-height: 40px; max-width: 100%; object-fit: contain; }
+        .epg-name { width: 150px; font-weight: 700; font-size: 0.95rem; }
+        
+        .epg-now { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .epg-next { flex: 1; display: flex; flex-direction: column; justify-content: center; opacity: 0.6; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 15px; }
+        
+        .prog-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+        .prog-time { font-size: 0.75rem; color: #999; }
+
+
         /* --- CARDS & ROWS --- */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
         .section-header i { color: white; font-size: 1.1rem; }
@@ -212,11 +225,6 @@
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
         .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
         .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
-        .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
-        .epg-item { height: 70px; background: var(--surface-color); padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
-        .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
-        .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -224,6 +232,21 @@
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
+        
+        /* SETTINGS TOGGLES */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
+        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-label { font-weight: 700; font-size: 1.1rem; }
+        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
+        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ffffff; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
+
+        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
@@ -231,6 +254,8 @@
         .btn-sec { background: rgba(255,255,255,0.1); color: white; }
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
+
+        #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
 
     </style>
 </head>
@@ -245,6 +270,7 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
+    <div id="player-error">Stream failed (likely Browser Security).</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -292,7 +318,7 @@
             
             <div id="nav-linear-group" class="nav-group">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-                </div>
+            </div>
             
             <div id="nav-plus-group" class="nav-group">
                 <div id="nav-plus" class="nav-item" onclick="switchTab('plus', this)">Plus</div>
@@ -335,7 +361,6 @@
                 <div class="section-header"><i class="fas fa-fast-forward"></i> Watch Next</div>
                 <div class="scroller">
                     <div class="card c-thumb" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');"></div>
-                    <div class="card c-thumb" style="background-image: url('https://image.tmdb.org/t/p/w500/uDgy6hyPdbolW2uQI6kd7GV9pU.jpg');"></div>
                 </div>
             </div>
 
@@ -352,7 +377,6 @@
                 <div class="scroller">
                     <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
                     <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qA5kPYZA7FkVvqcEfJRoOy4kpHg.jpg');"></div>
-                    <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');"></div>
                 </div>
             </div>
 
@@ -686,6 +710,7 @@
                     const desc = prog.getElementsByTagName("desc")[0]?.textContent;
                     if(channelId && title) {
                         epgData[channelId] = { title, desc, start: "Now", end: "Later" };
+                        epgData[title] = { title, desc, start: "Now", end: "Later" }; // Fallback map by name
                     }
                 }
                 alert("EPG Loaded (Basic)");
@@ -737,19 +762,26 @@
 
             const filtered = iptvChannels.filter(c => c.cat === category);
             
-            filtered.forEach(ch => {
+            filtered.forEach((ch, index) => {
                 const row = document.createElement('div');
                 row.className = 'epg-row';
-                const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                // Attach click listener here directly to row
+                row.onclick = () => playChannel(ch.url);
                 
-                // Check EPG
-                const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
+                const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                const prog = epgData[ch.name] || { title: "No Information", desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
-                    <div class="epg-ch"><img src="${logo}" style="width:40px; height:40px; object-fit:contain;"></div>
-                    <div class="epg-item" style="flex:1;" onmouseover="updatePreview('${prog.title}', '${prog.start} - ${prog.end}', '${prog.desc}', '${logo}', true)" onclick="playChannel('${ch.url}')">
-                        <strong>${prog.title}</strong>
-                        <div class="live-text">${ch.name}</div>
+                    <div class="epg-cell epg-num">${index + 1}</div>
+                    <div class="epg-cell epg-logo"><img src="${logo}"></div>
+                    <div class="epg-cell epg-name">${ch.name}</div>
+                    <div class="epg-cell epg-now" onmouseover="updatePreview('${prog.title}', '${prog.start} - ${prog.end}', '${prog.desc}', '${logo}', true)">
+                        <div class="prog-title">${prog.title}</div>
+                        <div class="prog-time">${prog.start} - ${prog.end}</div>
+                    </div>
+                    <div class="epg-cell epg-next">
+                        <div class="prog-title">Next Program</div>
+                        <div class="prog-time">Later</div>
                     </div>
                 `;
                 list.appendChild(row);
@@ -760,7 +792,9 @@
         function playChannel(url) {
             if(!url) return;
             const video = document.getElementById('global-bg-video');
-            
+            const errorOverlay = document.getElementById('player-error');
+            errorOverlay.style.display = 'none';
+
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
                 hls.loadSource(url);
@@ -782,7 +816,7 @@
         }
 
         function updatePreview(title, time, desc, img, isLive) {
-            // Safety check for null elements (Fixes TypeError)
+            // FIX: Guard Clause to prevent console errors if elements aren't ready
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
