@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V47: IPTV Engine</title>
+    <title>FibreTV V48: Player & EPG</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
+    
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
@@ -85,6 +88,7 @@
             max-width: 98%; overflow-x: auto;
         }
 
+        /* Nav Groups */
         .nav-group {
             display: flex; align-items: center; border-radius: var(--radius-capsule);
             transition: background-color 0.3s ease; padding: 0;
@@ -148,7 +152,11 @@
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
 
         /* --- SPLIT VIEW --- */
-        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; }
+        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; } /* Reset padding */
+        
+        .layout-container { display: flex; flex-direction: column; height: 100%; }
+        .split-inner { display: flex; flex: 1; overflow: hidden; } /* Padding handled by child content */
+
         .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; }
         .vert-capsule { background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 100%; overflow-y: auto; }
         .vert-capsule::-webkit-scrollbar { display:none; }
@@ -156,14 +164,12 @@
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
+        
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
-        /* --- LAYOUTS --- */
-        #tab-plus, #tab-linear { padding-left: 0; }
-        .layout-container { display: flex; flex-direction: column; height: 100%; }
-        .split-inner { display: flex; flex: 1; overflow: hidden; padding-left: 4%; }
+        /* --- SIDEBARS --- */
         .mega-sidebar { width: var(--sidebar-width); flex-shrink: 0; overflow-y: auto; padding-right: 10px; padding-bottom: 50px; }
         .mega-sidebar::-webkit-scrollbar { width: 4px; }
         .mega-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -197,31 +203,26 @@
         .card-meta { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, black, transparent); padding: 20px; padding-top: 50px; pointer-events: none; }
         .card-title { font-weight: 700; font-size: 1rem; }
         .card-sub { font-size: 0.8rem; color: #ccc; margin-top: 3px; font-weight: 500; }
-        
         .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .c-watch-tv i { font-size: 2.5rem; margin-bottom: 10px; }
         .c-watch-tv span { font-weight: 800; font-size: 1.1rem; }
         .c-reminder { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #4A00E0, #8E2DE2); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
         .c-reminder .card-title { font-size: 1.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .c-reminder .countdown { font-size: 0.9rem; font-weight: 700; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px; }
-        
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
-        
         .cw-info-panel { padding: 5px 10px; margin-bottom: 20px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; opacity: 0; transition: opacity 0.2s; }
         .cw-info-panel.visible { opacity: 1; }
         .cw-info-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: white; }
         .cw-info-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 5px; font-weight: 600; display:flex; gap:10px; align-items:center; }
         .cw-info-desc { font-size: 0.9rem; color: #888; max-width: 600px; }
-        
         .epg-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .epg-ch { width: 80px; font-weight: 700; color: #888; display: grid; place-items: center; font-size: 0.85rem; text-align: center;}
         .epg-item { height: 70px; background: var(--surface-color); padding: 0 20px; border-radius: 16px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; border: 2px solid transparent; flex: 1; transition: all 0.2s; }
         .epg-item:hover { background: #333; border-color: rgba(255,255,255,0.3); }
         .live-text { color: #ef4444; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
-        
         .st-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .st-card { width: 300px; background: var(--surface-color); border-radius: 16px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .st-thumb { height: 170px; background-size: cover; position: relative; }
@@ -229,7 +230,6 @@
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
-        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
@@ -309,7 +309,6 @@
 
             <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
             <div id="nav-music" class="nav-item" onclick="switchTab('music', this)">Music</div>
-            <div id="nav-local" class="nav-item" onclick="switchTab('local', this)">Local</div>
             <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
             <div class="nav-item icon-only" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i></div>
         </div>
@@ -337,21 +336,20 @@
                 <div id="cw-desc" class="cw-info-desc">Hover over an item to see details.</div>
             </div>
 
+            <div id="row-inputs">
+                <div class="section-header"><i class="fas fa-plug"></i> Inputs</div>
+                <div class="scroller">
+                    <div class="card c-square" style="background:#222; border:1px solid #444; display:grid; place-items:center;"><span>HDMI 1</span></div>
+                    <div class="card c-square" style="background:#222; border:1px solid #444; display:grid; place-items:center;"><span>HDMI 2</span></div>
+                </div>
+            </div>
+
             <div id="row-files">
                 <div class="section-header"><i class="fas fa-folder"></i> My Files</div>
                 <div class="scroller">
                     <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-hdd fa-3x" style="color:#aaa;"></i><span>HDD</span></div>
                     <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fas fa-network-wired fa-3x" style="color:#aaa;"></i><span>NAS</span></div>
                     <div class="card c-square" style="background:#333; display:grid; place-items:center;"><i class="fab fa-usb fa-3x" style="color:#aaa;"></i><span>USB</span></div>
-                </div>
-            </div>
-
-            <div id="row-inputs">
-                <div class="section-header"><i class="fas fa-plug"></i> Inputs</div>
-                <div class="scroller">
-                    <div class="card c-square" style="background:#222; border:1px solid #444; display:grid; place-items:center;"><span>HDMI 1</span></div>
-                    <div class="card c-square" style="background:#222; border:1px solid #444; display:grid; place-items:center;"><span>HDMI 2</span></div>
-                    <div class="card c-square" style="background:#222; border:1px solid #444; display:grid; place-items:center;"><span>AV</span></div>
                 </div>
             </div>
 
@@ -365,18 +363,10 @@
                 </div>
             </div>
             
-            <div id="row-recent-channels">
-                <div class="section-header"><i class="fas fa-history"></i> Recent Channels</div>
+            <div id="row-watch-next">
+                <div class="section-header"><i class="fas fa-fast-forward"></i> Watch Next</div>
                 <div class="scroller">
-                    <div class="card c-square" onclick="playVideo()" style="background: #0047AB;"><i class="fas fa-futbol fa-3x"></i></div>
-                    <div class="card c-square" onclick="playVideo()" style="background: #D70000;"><span style="font-weight:900; font-size: 1.5rem;">BBC</span></div>
-                </div>
-            </div>
-
-            <div id="row-youtube-rec">
-                <div class="section-header"><i class="fab fa-youtube"></i> Recommended</div>
-                <div class="scroller">
-                    <div class="card c-thumb" style="background-image: url('https://img.youtube.com/vi/bWhh1rZtJaI/hqdefault.jpg');"></div>
+                    <div class="card c-thumb" style="background-image: url('https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg');"></div>
                 </div>
             </div>
         </div>
@@ -437,6 +427,13 @@
             </div>
         </div>
 
+        <div id="tab-music" class="tab-content" style="padding:0;">
+            <div class="split-view">
+                <div class="vertical-filter-col"><div class="vert-capsule"><div class="v-item active">Home</div></div></div>
+                <div class="content-col"><h1>Music</h1></div>
+            </div>
+        </div>
+
         <div id="tab-settings" class="tab-content">
             <div style="max-width:800px; padding:20px;">
                 <h1>Settings</h1>
@@ -449,23 +446,26 @@
                         <button class="btn-settings" onclick="loadIPTV()">Load M3U</button>
                     </div>
                     <div class="setting-card" style="display:block;">
+                        <div class="setting-label">EPG URL (XMLTV)</div>
+                        <input id="iptv-epg" class="setting-input" placeholder="http://example.com/guide.xml">
+                    </div>
+                    <div class="setting-card" style="display:block;">
                         <div class="setting-label">Load Demo Data</div>
-                        <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">Load simulated channels to test the interface.</p>
+                        <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">Load simulated channels & EPG to test the interface.</p>
                         <button class="btn-settings" onclick="loadDemoData()">Load Demo</button>
                     </div>
                 </div>
 
                 <h3 style="margin-top:30px;">Navigation Visibility</h3>
                 <div class="settings-grid">
-                    <div class="setting-card"><div class="setting-label">Linear Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-linear-group', ['row-recent-channels'], this.checked)"><span class="slider round"></span></label></div>
+                    <div class="setting-card"><div class="setting-label">Linear Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-linear-group', [], this.checked)"><span class="slider round"></span></label></div>
                     <div class="setting-card"><div class="setting-label">Plus Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-plus-group', [], this.checked)"><span class="slider round"></span></label></div>
-                    <div class="setting-card"><div class="setting-label">YouTube Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-youtube', ['row-youtube-rec'], this.checked)"><span class="slider round"></span></label></div>
+                    <div class="setting-card"><div class="setting-label">YouTube Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-youtube', [], this.checked)"><span class="slider round"></span></label></div>
+                    <div class="setting-card"><div class="setting-label">Music Tab</div><label class="switch"><input type="checkbox" checked onchange="toggleNavWithContent('nav-music', [], this.checked)"><span class="slider round"></span></label></div>
                 </div>
             </div>
         </div>
 
-        <div id="tab-music" class="tab-content"></div>
-        <div id="tab-local" class="tab-content"></div>
         <div id="tab-search" class="tab-content"></div>
 
     </div>
@@ -474,6 +474,7 @@
         // --- DATA STORE ---
         let iptvChannels = [];
         let iptvCategories = [];
+        let epgData = {}; // Map: Channel Name -> { title, desc, start, end }
 
         // --- SYSTEM INFO ---
         function updateSystemInfo() {
@@ -508,7 +509,6 @@
             // Dynamic Nav Logic
             if(tabId === 'linear') {
                 document.getElementById('nav-linear').innerText = "~";
-                // Show sub-items based on loaded data
                 document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.add('visible'));
             } else {
                 document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.remove('visible'));
@@ -545,9 +545,8 @@
         // --- IPTV ENGINE ---
         
         function loadDemoData() {
-            // Simulate fetched data
             const mockData = [
-                { name: "BBC One", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/4/43/BBC_One_2021.svg", url: "" },
+                { name: "BBC One", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/4/43/BBC_One_2021.svg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
                 { name: "ITV 1", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/9/92/ITV1_logo_2022.svg/1200px-ITV1_logo_2022.svg.png", url: "" },
                 { name: "Sky Sports F1", cat: "~Sports", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Sky_Sports_F1_logo_2017.svg/2560px-Sky_Sports_F1_logo_2017.svg.png", url: "" },
                 { name: "Sky Cinema Action", cat: "Movies", logo: "", url: "" },
@@ -555,8 +554,15 @@
                 { name: "CNN", cat: "News", logo: "", url: "" },
                 { name: "HBO Stream", cat: "~Stream", logo: "", url: "" }
             ];
+            
+            // DEMO EPG DATA
+            epgData = {
+                "BBC One": { title: "BBC News at Six", desc: "The latest national and international news.", start: "18:00", end: "19:00" },
+                "Sky Sports F1": { title: "Saudi Arabian GP", desc: "Live coverage of the race.", start: "17:00", end: "20:00" }
+            };
+
             processIPTVData(mockData);
-            alert("Demo Data Loaded! Go to Linear tab.");
+            alert("Demo Data Loaded!");
         }
 
         function loadIPTV() {
@@ -566,20 +572,16 @@
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
-                    // Very basic M3U parser for prototype
                     const lines = data.split('\n');
                     const channels = [];
                     let currentChannel = {};
-                    
                     lines.forEach(line => {
                         line = line.trim();
                         if(line.startsWith('#EXTINF')) {
-                            // Extract info
                             const tvgName = line.match(/tvg-name="([^"]*)"/);
                             const groupTitle = line.match(/group-title="([^"]*)"/);
                             const tvgLogo = line.match(/tvg-logo="([^"]*)"/);
                             const commaSplit = line.split(',');
-                            
                             currentChannel.name = tvgName ? tvgName[1] : (commaSplit[1] || "Unknown");
                             currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
                             currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
@@ -589,7 +591,6 @@
                             currentChannel = {};
                         }
                     });
-                    
                     processIPTVData(channels);
                     alert(`Loaded ${channels.length} channels!`);
                 })
@@ -598,7 +599,6 @@
 
         function processIPTVData(channels) {
             iptvChannels = channels;
-            // Extract unique categories
             iptvCategories = [...new Set(channels.map(c => c.cat))].sort();
             renderLinearUI();
         }
@@ -607,21 +607,17 @@
             const sidebar = document.getElementById('linear-sidebar');
             const navGroup = document.getElementById('nav-linear-group');
             
-            // Clear existing dynamic elements
             sidebar.innerHTML = '';
             document.querySelectorAll('.dynamic-lin-sub').forEach(e => e.remove());
 
-            // Split Categories
             iptvCategories.forEach(cat => {
                 if(cat.startsWith('~') || cat.startsWith('≈')) {
-                    // Add to Top Nav
                     const navBtn = document.createElement('div');
                     navBtn.className = 'nav-item nav-sub dynamic-lin-sub';
                     navBtn.innerText = cat;
                     navBtn.onclick = (e) => filterLinearChannels(cat, e.target);
                     navGroup.appendChild(navBtn);
                 } else {
-                    // Add to Sidebar
                     const sideItem = document.createElement('div');
                     sideItem.className = 'genre-item';
                     sideItem.innerText = cat;
@@ -630,22 +626,15 @@
                 }
             });
 
-            // Load first category by default
             if(iptvCategories.length > 0) filterLinearChannels(iptvCategories[0], null);
         }
 
         function filterLinearChannels(category, el) {
             if(event) event.stopPropagation();
-            
-            // Highlight logic
             if(el) {
-                if(el.classList.contains('nav-item')) {
-                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                    el.classList.add('active');
-                } else {
-                    document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
-                    el.classList.add('active');
-                }
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
             }
 
             const list = document.getElementById('linear-list');
@@ -656,22 +645,48 @@
             filtered.forEach(ch => {
                 const row = document.createElement('div');
                 row.className = 'epg-row';
-                // Use default image if no logo
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
+                // Get EPG Data if available
+                const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
+
                 row.innerHTML = `
                     <div class="epg-ch"><img src="${logo}" style="width:40px; height:40px; object-fit:contain;"></div>
-                    <div class="epg-item" style="flex:1;" onmouseover="updatePreview('${ch.name}', 'Live', '${ch.cat}', '${logo}', true)" onclick="playChannel('${ch.url}')">
-                        <strong>${ch.name}</strong>
+                    <div class="epg-item" style="flex:1;" onmouseover="updatePreview('${prog.title}', '${prog.start} - ${prog.end}', '${prog.desc}', '${logo}', true)" onclick="playChannel('${ch.url}')">
+                        <strong>${prog.title}</strong>
+                        <div class="live-text">${ch.name}</div>
                     </div>
                 `;
                 list.appendChild(row);
             });
         }
 
+        // --- PLAYER LOGIC (HLS) ---
         function playChannel(url) {
-            // For prototype, we just go full screen. 
-            // In real app, we would pass 'url' to the player
+            if(!url) return;
+            
+            // Update Global Video
+            const video = document.getElementById('global-bg-video');
+            
+            if (Hls.isSupported() && url.endsWith('.m3u8')) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS (Safari)
+                video.src = url;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                // Standard MP4
+                video.src = url;
+                video.play();
+            }
+
             document.body.classList.add('mode-fullscreen');
         }
 
