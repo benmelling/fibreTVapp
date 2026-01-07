@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V68: VOD & Search Fix</title>
+    <title>FibreTV V69: VOD & Search</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -161,27 +161,6 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SEARCH TAB --- */
-        #search-container { padding: 20px 5%; max-width: 1400px; margin: 0 auto; }
-        .search-input {
-            width: 100%;
-            background: #222;
-            border: 2px solid #333;
-            color: white;
-            font-size: 1.5rem;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-family: 'Outfit';
-            font-weight: 700;
-            outline: none;
-            transition: all 0.2s;
-            margin-bottom: 30px;
-        }
-        .search-input:focus { border-color: var(--col-live); box-shadow: 0 0 20px var(--col-live-bg); }
-        .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-        .search-sec-title::after { content:''; flex:1; height: 1px; background: #333; }
-        .no-results { color: #555; font-style: italic; padding-left: 10px; }
-
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 50px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
@@ -197,7 +176,7 @@
             height: 100%; 
             margin: 0; 
             padding-left: 40px; 
-            margin-top: 130px; /* MATCHES MAIN CONTENT PADDING EXACTLY */
+            padding-top: 0; /* Align with content container manually via margin if needed, but flex-start handles it */
         }
         
         .vert-capsule { 
@@ -226,7 +205,7 @@
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
 
-        .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
+        .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 0; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
 
@@ -262,7 +241,7 @@
         .prog-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
         .prog-time { font-size: 0.8rem; color: #aaa; font-weight: 500; }
 
-        /* --- GRID LAYOUT (Extra Mode) --- */
+        /* --- EXTRA GRID LAYOUT --- */
         .grid-section-title { 
             font-size: 1.2rem; font-weight: 700; margin: 30px 0 15px 0; 
             padding-left: 15px; border-left: 4px solid var(--col-live); 
@@ -633,7 +612,8 @@
                 document.getElementById('nav-stream-movies').classList.add('visible');
                 document.getElementById('nav-stream-kids').classList.add('visible');
                 renderStreamSidebar();
-                loadStreamContent(); // Trigger content load based on settings
+                // We'll default show "All Content" (Movies + Series combined or similar)
+                loadStreamContent('All'); 
             } else {
                 document.getElementById('nav-stream-tv').classList.remove('visible');
                 document.getElementById('nav-stream-movies').classList.remove('visible');
@@ -658,7 +638,11 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('stream-header-title').innerText = type + " Library";
-            // Logic to filter displayed VOD content would go here
+            
+            if(type === 'Movies') loadStreamContent('Movies');
+            else if(type === 'TV Shows') loadStreamContent('Series');
+            else if(type === 'Kids') loadStreamContent('Kids');
+            else loadStreamContent('All');
         }
 
         // --- IPTV ENGINE ---
@@ -668,7 +652,7 @@
                 { id: 101, name: "Demo Channel", cat: "Entertainment", logo: "", url: "" },
                 { id: 1000, name: "Netflix Action", cat: "Netflix", logo: "", url: "" }
             ];
-            vodMovies = [{ name: "Demo Movie", icon: "" }];
+            vodMovies = [{ name: "Demo Movie", icon: "https://via.placeholder.com/150x225" }];
             alert("Demo Data Loaded!");
         }
 
@@ -702,12 +686,12 @@
                 // 3. VOD Streams (Movies)
                 const vodRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_vod_streams`);
                 const vods = await vodRes.json();
-                vodMovies = vods.map(v => ({ name: v.name, icon: v.stream_icon, id: v.stream_id }));
+                vodMovies = vods.map(v => ({ name: v.name, icon: v.stream_icon, id: v.stream_id, container_extension: v.container_extension, stream_type: 'movie' }));
 
                 // 4. Series
                 const seriesRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_series`);
                 const sers = await seriesRes.json();
-                vodSeries = sers.map(s => ({ name: s.name, icon: s.cover, id: s.series_id }));
+                vodSeries = sers.map(s => ({ name: s.name, icon: s.cover, id: s.series_id, stream_type: 'series' }));
 
                 alert(`Loaded: ${iptvChannels.length} Live, ${vodMovies.length} Movies, ${vodSeries.length} Series`);
             } catch(e) { alert("Xtream Error: " + e); }
@@ -719,7 +703,7 @@
         }
 
         // --- VOD CONTENT LOADER ---
-        function loadStreamContent() {
+        function loadStreamContent(filterType) {
             const container = document.getElementById('stream-content-area');
             container.innerHTML = '';
             
@@ -731,41 +715,66 @@
             }
 
             // IPTV MODE
-            // Movies Row
-            if(vodMovies.length > 0) {
-                const rowTitle = document.createElement('div');
-                rowTitle.className = 'section-header';
-                rowTitle.innerHTML = '<i class="fas fa-film"></i> Movies';
-                container.appendChild(rowTitle);
+            
+            // 1. Movies Row
+            if(filterType === 'All' || filterType === 'Movies') {
+                if(vodMovies.length > 0) {
+                    const rowTitle = document.createElement('div');
+                    rowTitle.className = 'section-header';
+                    rowTitle.innerHTML = '<i class="fas fa-film"></i> Movies';
+                    container.appendChild(rowTitle);
 
-                const scroller = document.createElement('div');
-                scroller.className = 'scroller';
-                vodMovies.slice(0, 20).forEach(m => {
-                    const card = document.createElement('div');
-                    card.className = 'card c-poster';
-                    if(m.icon) card.style.backgroundImage = `url('${m.icon}')`;
-                    scroller.appendChild(card);
-                });
-                container.appendChild(scroller);
+                    const scroller = document.createElement('div');
+                    scroller.className = 'scroller';
+                    // Show top 50 for performance in demo
+                    vodMovies.slice(0, 50).forEach(m => {
+                        const card = document.createElement('div');
+                        card.className = 'card c-poster';
+                        if(m.icon) card.style.backgroundImage = `url('${m.icon}')`;
+                        card.onclick = () => playVOD(m);
+                        scroller.appendChild(card);
+                    });
+                    container.appendChild(scroller);
+                }
             }
 
-            // Series Row
-            if(vodSeries.length > 0) {
-                const rowTitle = document.createElement('div');
-                rowTitle.className = 'section-header';
-                rowTitle.innerHTML = '<i class="fas fa-tv"></i> Series';
-                container.appendChild(rowTitle);
+            // 2. Series Row
+            if(filterType === 'All' || filterType === 'Series') {
+                if(vodSeries.length > 0) {
+                    const rowTitle = document.createElement('div');
+                    rowTitle.className = 'section-header';
+                    rowTitle.innerHTML = '<i class="fas fa-tv"></i> TV Shows';
+                    container.appendChild(rowTitle);
 
-                const scroller = document.createElement('div');
-                scroller.className = 'scroller';
-                vodSeries.slice(0, 20).forEach(s => {
-                    const card = document.createElement('div');
-                    card.className = 'card c-poster';
-                    if(s.icon) card.style.backgroundImage = `url('${s.icon}')`;
-                    scroller.appendChild(card);
-                });
-                container.appendChild(scroller);
+                    const scroller = document.createElement('div');
+                    scroller.className = 'scroller';
+                    vodSeries.slice(0, 50).forEach(s => {
+                        const card = document.createElement('div');
+                        card.className = 'card c-poster';
+                        if(s.icon) card.style.backgroundImage = `url('${s.icon}')`;
+                        card.onclick = () => playVOD(s);
+                        scroller.appendChild(card);
+                    });
+                    container.appendChild(scroller);
+                }
             }
+        }
+
+        function playVOD(item) {
+             const url = localStorage.getItem('xc_url');
+             const user = localStorage.getItem('xc_user');
+             const pass = localStorage.getItem('xc_pass');
+
+             if(item.stream_type === 'movie') {
+                 // Direct Play
+                 const ext = item.container_extension || 'mp4';
+                 const streamUrl = `${url}/movie/${user}/${pass}/${item.id}.${ext}`;
+                 playChannel(streamUrl); // Re-use player
+             } else {
+                 // Series requires fetching info
+                 alert("Series Playback: Fetches seasons/episodes (Not fully implemented in single-file demo)");
+                 console.log("Play Series ID:", item.id);
+             }
         }
 
         // --- SEARCH ENGINE ---
@@ -781,40 +790,57 @@
             if(!query || query.length < 2) return;
 
             const q = query.toLowerCase();
-            const categories = ['Channels', 'Recordings', 'Reminders', 'TV Shows', 'Movies', 'YouTube', 'Music'];
 
-            categories.forEach(cat => {
-                const secTitle = document.createElement('div');
-                secTitle.className = 'search-sec-title';
-                secTitle.innerText = cat;
-                container.appendChild(secTitle);
-
+            // 1. Live Channels
+            const channelHits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
+            if(channelHits.length > 0) {
+                container.innerHTML += `<div class="search-sec-title">Channels</div>`;
                 const scroller = document.createElement('div');
                 scroller.className = 'scroller';
-                
-                if(cat === 'Channels') {
-                    const hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
-                    hits.sort((a,b) => parseInt(a.id) - parseInt(b.id));
-
-                    if(hits.length === 0) {
-                        scroller.innerHTML = '<div class="no-results">No channels found</div>';
-                    } else {
-                        hits.forEach(ch => {
-                            const card = document.createElement('div');
-                            card.className = 'channel-card';
-                            card.style.flex = "0 0 auto"; // Force scroll
-                            card.style.width = "140px";
-                            card.onclick = () => playChannel(ch.url);
-                            const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
-                            card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
-                            scroller.appendChild(card);
-                        });
-                    }
-                } else {
-                    scroller.innerHTML = '<div class="no-results">0 Results</div>';
-                }
+                channelHits.slice(0, 20).forEach(ch => {
+                    const card = document.createElement('div');
+                    card.className = 'channel-card';
+                    card.style.flex = "0 0 auto"; 
+                    card.style.width = "140px";
+                    card.onclick = () => playChannel(ch.url);
+                    const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                    card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
+                    scroller.appendChild(card);
+                });
                 container.appendChild(scroller);
-            });
+            }
+
+            // 2. Movies
+            const movieHits = vodMovies.filter(m => m.name.toLowerCase().includes(q));
+            if(movieHits.length > 0) {
+                container.innerHTML += `<div class="search-sec-title">Movies</div>`;
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                movieHits.slice(0, 20).forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'card c-poster';
+                    if(m.icon) card.style.backgroundImage = `url('${m.icon}')`;
+                    card.onclick = () => playVOD(m);
+                    scroller.appendChild(card);
+                });
+                container.appendChild(scroller);
+            }
+
+            // 3. Series
+            const seriesHits = vodSeries.filter(s => s.name.toLowerCase().includes(q));
+            if(seriesHits.length > 0) {
+                container.innerHTML += `<div class="search-sec-title">TV Shows</div>`;
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                seriesHits.slice(0, 20).forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'card c-poster';
+                    if(s.icon) card.style.backgroundImage = `url('${s.icon}')`;
+                    card.onclick = () => playVOD(s);
+                    scroller.appendChild(card);
+                });
+                container.appendChild(scroller);
+            }
         }
 
         // --- SIDEBAR LOGIC ---
@@ -850,7 +876,7 @@
                 ];
             } else if (mode === 'Extra') {
                 isGrid = true;
-                // Specific List Requested
+                // EXACT LIST REQUESTED
                 const extraList = [
                     'All Streams',
                     '24/7 Streaming', 
@@ -903,6 +929,11 @@
                 item.onclick = (e) => {
                     document.querySelectorAll('.v-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
+                    // Simple filter mapping
+                    if(c.name === 'Movies') loadStreamContent('Movies');
+                    else if(c.name === 'TV Shows') loadStreamContent('Series');
+                    else if(c.name === 'Kids') loadStreamContent('Kids');
+                    else loadStreamContent('All');
                 };
                 sidebar.appendChild(item);
             });
@@ -922,24 +953,12 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Filter: Channel category MUST contain 'stream' or 'extra'
-                    filtered = iptvChannels.filter(c => 
-                        c.cat.toLowerCase().includes('stream') || 
-                        c.cat.toLowerCase().includes('extra')
-                    );
-                    // RENDER AS FLAT GRID (Request: "No sorting by category")
-                    filtered.forEach(ch => {
-                        const card = document.createElement('div');
-                        card.className = 'channel-card';
-                        card.onclick = () => playChannel(ch.url);
-                        const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
-                        card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
-                        list.appendChild(card);
-                    });
+                    const extraTargets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
+                    filtered = iptvChannels.filter(c => extraTargets.some(t => c.cat.includes(t)));
+                    renderGroupedGrid(filtered, list);
                     return; 
                 }
                 else {
-                    // Fuzzy match sidebar
                     filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
                 }
             } 
@@ -963,6 +982,7 @@
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
                 if (mode === 'Extra') {
+                    // GRID CARD (No mouseover)
                     const card = document.createElement('div');
                     card.className = 'channel-card';
                     card.onclick = () => playChannel(ch.url);
@@ -972,9 +992,11 @@
                     `;
                     list.appendChild(card);
                 } else {
+                    // LIST ROW
                     const row = document.createElement('div');
                     row.className = 'epg-row';
                     row.onclick = () => playChannel(ch.url);
+                    
                     const prog = epgData[ch.name] || { title: "No Information", desc: "", start: "", end: "" };
 
                     row.innerHTML = `
@@ -992,6 +1014,30 @@
                     `;
                     list.appendChild(row);
                 }
+            });
+        }
+
+        function renderGroupedGrid(channels, container) {
+            const cats = [...new Set(channels.map(c => c.cat))].sort();
+            cats.forEach(cat => {
+                const catHeader = document.createElement('div');
+                catHeader.className = 'grid-section-title';
+                catHeader.innerText = cat;
+                container.appendChild(catHeader);
+
+                const grid = document.createElement('div');
+                grid.className = 'channels-grid';
+                
+                const catChannels = channels.filter(c => c.cat === cat);
+                catChannels.forEach(ch => {
+                    const card = document.createElement('div');
+                    card.className = 'channel-card';
+                    card.onclick = () => playChannel(ch.url);
+                    const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                    card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
             });
         }
 
