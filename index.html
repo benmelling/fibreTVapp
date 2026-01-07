@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V59: Live & Stream</title>
+    <title>FibreTV V60: Uniform Nav</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,12 +23,12 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --sidebar-width: 260px; /* Wider for Icons + Text */
+            --sidebar-width: 260px;
 
             /* THEME COLORS */
-            --col-live: #0047AB;        /* Dark Blue (Was Linear) */
+            --col-live: #0047AB;        /* Dark Blue */
             --col-live-bg: rgba(0, 71, 171, 0.4);
-            --col-stream: #D35400;      /* Dark Orange (Was Plus) */
+            --col-stream: #D35400;      /* Dark Orange */
             --col-stream-bg: rgba(211, 84, 0, 0.4);
             --col-yt: #E50914;          /* Dark Red */
             --col-music: #C2185B;       /* Dark Pink */
@@ -113,8 +113,6 @@
         #nav-youtube.active { background: var(--col-yt); color: white; }
         #nav-music.active { background: var(--col-music); color: white; }
 
-        /* Large Symbol Styling */
-        #nav-live.active, #nav-stream.active { font-size: 1.2rem; font-weight: 800; padding: 0 22px; }
         .nav-item.icon-only { padding: 0; width: 44px; }
 
         /* Sub-Items Animation */
@@ -152,10 +150,8 @@
         .layout-container { display: flex; flex-direction: column; height: 100%; }
         .split-inner { display: flex; flex: 1; overflow: hidden; }
 
-        /* CENTERED SIDEBAR LOGIC (YouTube Style) */
         .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; padding-left:10px; }
         
-        /* The Capsule Container */
         .vert-capsule { 
             background: rgba(25, 25, 25, 0.9); 
             border-radius: 25px; 
@@ -166,7 +162,6 @@
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
-        /* Sidebar Items */
         .v-item { 
             padding: 14px 20px; border-radius: 18px; 
             color: #888; font-weight: 600; font-size: 1rem; 
@@ -178,7 +173,6 @@
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
 
-        /* Content Areas */
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
