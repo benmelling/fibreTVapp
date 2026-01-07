@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V64: Tighter Sidebar</title>
+    <title>FibreTV V64: Tighter & Colorful</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,7 +23,7 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --sidebar-width: 280px;
+            --sidebar-width: 260px;
 
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
@@ -91,14 +91,27 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
+        .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
         
-        /* Active Colors */
+        /* --- RESTORED COLOR LOGIC --- */
+        /* Default Active */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-        #nav-live-group .nav-item.active { background: var(--col-live); color: white; }
-        #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; }
-        #nav-youtube.active { background: var(--col-yt); color: white; }
-        #nav-music.active { background: var(--col-music); color: white; }
+
+        /* Live Group */
+        #nav-live-group .nav-item { color: #8FA4C8; } /* Inactive Tint */
+        #nav-live-group .nav-item.active { background: var(--col-live); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.5); }
+
+        /* Stream Group */
+        #nav-stream-group .nav-item { color: #C8A08F; } /* Inactive Tint */
+        #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.5); }
+
+        /* YouTube */
+        #nav-youtube { color: #C88F93; }
+        #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.5); }
+
+        /* Music */
+        #nav-music { color: #C88FA8; }
+        #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.5); }
 
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-sub { display: none; font-size: 0.85rem; padding: 0 16px; opacity: 0; animation: slideIn 0.2s forwards; }
@@ -147,7 +160,7 @@
             background: rgba(25, 25, 25, 0.95); 
             border-radius: 25px; 
             padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px; 
+            display: flex; flex-direction: column; gap: 8px; /* Tighter Gap */
             border: 1px solid rgba(255,255,255,0.1); 
             max-height: 100%; overflow-y: auto; 
         }
@@ -155,14 +168,14 @@
 
         /* --- SIDEBAR ITEMS (TIGHTENED) --- */
         .v-item { 
-            padding: 15px; /* Uniform padding */
+            padding: 12px 20px; /* Tighter Padding */
             border-radius: 18px; 
             color: #999; font-weight: 600; font-size: 1rem; 
             cursor: pointer; transition: all 0.2s; text-align: left; 
             display: flex; align-items: center; 
-            gap: 15px; /* Reduced gap */
+            gap: 15px; /* Tighter Gap */
         }
-        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; }
+        .v-item i { width: 30px; text-align: center; font-size: 1.1rem; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
@@ -572,7 +585,7 @@
             ];
             epgData = { "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" } };
             iptvChannels = mockData;
-            iptvCategories = ["Test Category", "Sports", "Entertainment", "Netflix", "Apple TV", "Relax"]; // Mock Raw Cats
+            iptvCategories = ["Test Category", "Sports", "Entertainment"]; 
             alert("Demo Data Loaded! Go to Live tab.");
         }
 
@@ -642,7 +655,7 @@
             let isGrid = false;
             
             if (mode === 'Default') {
-                // Hardcoded Live Categories
+                // Hardcoded Live Categories with Icons
                 isGrid = false;
                 cats = [
                     { name: 'All Channels', icon: 'fa-layer-group' },
@@ -663,18 +676,10 @@
                     { name: 'Sports Extra', icon: 'fa-trophy' }
                 ];
             } else if (mode === 'Extra') {
-                // MIXED LOGIC: "All Streams" + Specific Categories Requested + Dynamic Matching
+                // Dynamic Categories + GRID VIEW
                 isGrid = true;
-                
-                // 1. The hardcoded list user requested for Extra
-                const extraTargets = ['24/7 Streaming', 'Apple TV', 'BBC iPlayer', 'Netflix', 'Prime Channels', 'Prime Video', 'Relax', 'Sky Docs', 'Sky Mix'];
-                
                 cats = [{name: 'All Streams', icon: 'fa-layer-group'}];
-                
-                // 2. Add them if they exist in provider, or simply list them to act as filters
-                extraTargets.forEach(target => {
-                    cats.push({ name: target, icon: 'fa-folder' });
-                });
+                iptvCategories.forEach(c => cats.push({ name: c, icon: 'fa-folder' }));
             }
 
             // Toggle Layout Based on Mode
