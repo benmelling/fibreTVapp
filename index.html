@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V67: Extra Grid Fixed</title>
+    <title>FibreTV V68: VOD & Search Fix</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -89,6 +89,10 @@
             transition: background-color 0.2s ease; padding: 0; margin: 0 2px;
         }
         
+        /* Force background color when class is applied */
+        .nav-group.group-active-live { background-color: var(--col-live-bg) !important; }
+        .nav-group.group-active-stream { background-color: var(--col-stream-bg) !important; }
+
         .nav-item {
             height: 44px; padding: 0 22px; 
             border-radius: var(--radius-capsule);
@@ -157,6 +161,27 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- SEARCH TAB --- */
+        #search-container { padding: 20px 5%; max-width: 1400px; margin: 0 auto; }
+        .search-input {
+            width: 100%;
+            background: #222;
+            border: 2px solid #333;
+            color: white;
+            font-size: 1.5rem;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-family: 'Outfit';
+            font-weight: 700;
+            outline: none;
+            transition: all 0.2s;
+            margin-bottom: 30px;
+        }
+        .search-input:focus { border-color: var(--col-live); box-shadow: 0 0 20px var(--col-live-bg); }
+        .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .search-sec-title::after { content:''; flex:1; height: 1px; background: #333; }
+        .no-results { color: #555; font-style: italic; padding-left: 10px; }
+
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 50px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
@@ -172,7 +197,7 @@
             height: 100%; 
             margin: 0; 
             padding-left: 40px; 
-            padding-top: 20px; /* Space from top */
+            margin-top: 130px; /* MATCHES MAIN CONTENT PADDING EXACTLY */
         }
         
         .vert-capsule { 
@@ -457,9 +482,8 @@
                     </div>
                     <div class="content-col">
                         <h1 id="stream-header-title" style="margin-top:0;">Stream Content</h1>
-                        <div class="scroller" style="flex-wrap:wrap; gap:20px; overflow:visible;">
-                            <div class="card c-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg');"></div>
-                        </div>
+                        <div class="scroller" style="flex-wrap:wrap; gap:20px; overflow:visible;" id="stream-content-area">
+                            </div>
                     </div>
                 </div>
             </div>
@@ -485,46 +509,50 @@
         <div id="tab-settings" class="tab-content">
             <div style="max-width:800px; padding:20px;">
                 <h1>Settings</h1>
+
+                <h3 style="margin-top:30px;">1. VOD Source</h3>
+                 <div class="settings-grid">
+                    <div class="setting-card">
+                        <div class="setting-label">Source</div>
+                        <select id="vod-source-toggle" class="setting-input" onchange="saveVODSetting()">
+                            <option value="iptv">IPTV Provider</option>
+                            <option value="rd">Real-Debrid</option>
+                        </select>
+                    </div>
+                    <div class="setting-card" id="rd-key-card" style="display:none;">
+                        <div class="setting-label">Real-Debrid API Key</div>
+                        <input id="rd-api-key" class="setting-input" placeholder="Enter RD Token">
+                    </div>
+                </div>
                 
-                <h3 style="margin-top:30px;">1. Choose Provider</h3>
+                <h3 style="margin-top:30px;">2. IPTV Credentials</h3>
                 <div class="settings-grid">
                     <div class="setting-card" style="display:block;">
-                        <div class="setting-label">Option A: Xtream Codes</div>
+                        <div class="setting-label">Xtream Codes Login</div>
                         <input id="xc-url" class="setting-input" placeholder="http://url_here.com">
                         <input id="xc-user" class="setting-input" placeholder="Username">
                         <input id="xc-pass" class="setting-input" type="password" placeholder="Password">
                         <button class="btn-settings" onclick="loadXtream()">Login</button>
                     </div>
-
-                    <div class="setting-card" style="display:block;">
-                        <div class="setting-label">Option B: M3U Playlist</div>
-                        <input id="iptv-m3u" class="setting-input" placeholder="http://example.com/playlist.m3u">
-                        <button class="btn-settings" onclick="loadM3U()">Load M3U</button>
-                    </div>
-                </div>
-
-                <div class="settings-grid">
-                    <div class="setting-card" style="display:block;">
-                        <div class="setting-label">Load EPG (XMLTV)</div>
-                        <input id="iptv-epg" class="setting-input" placeholder="http://example.com/guide.xml">
-                        <button class="btn-settings" onclick="loadEPG()">Load EPG Data</button>
-                    </div>
-                    <div class="setting-card" style="display:block;">
-                        <div class="setting-label">Load Demo Data</div>
-                        <button class="btn-settings" onclick="loadDemoData()">Load Demo</button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="tab-search" class="tab-content"></div>
+        <div id="tab-search" class="tab-content">
+            <div id="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="Search TV, Movies, Music..." autofocus>
+                <div id="search-results"></div>
+            </div>
+        </div>
 
     </div>
 
     <script>
         // --- DATA STORE ---
         let iptvChannels = [];
-        let iptvCategories = []; // Raw categories from provider
+        let iptvCategories = []; 
+        let vodMovies = [];
+        let vodSeries = [];
         let epgData = {}; 
 
         // --- SYSTEM INFO ---
@@ -543,8 +571,23 @@
             if(localStorage.getItem('xc_url')) document.getElementById('xc-url').value = localStorage.getItem('xc_url');
             if(localStorage.getItem('xc_user')) document.getElementById('xc-user').value = localStorage.getItem('xc_user');
             if(localStorage.getItem('xc_pass')) document.getElementById('xc-pass').value = localStorage.getItem('xc_pass');
-            if(localStorage.getItem('epg_url')) document.getElementById('iptv-epg').value = localStorage.getItem('epg_url');
+            
+            // VOD Settings
+            const vodSource = localStorage.getItem('vod_source') || 'iptv';
+            document.getElementById('vod-source-toggle').value = vodSource;
+            toggleRDSettings(vodSource);
+            if(localStorage.getItem('rd_key')) document.getElementById('rd-api-key').value = localStorage.getItem('rd_key');
         };
+
+        function saveVODSetting() {
+            const val = document.getElementById('vod-source-toggle').value;
+            localStorage.setItem('vod_source', val);
+            toggleRDSettings(val);
+        }
+
+        function toggleRDSettings(val) {
+            document.getElementById('rd-key-card').style.display = (val === 'rd') ? 'block' : 'none';
+        }
 
         // --- NAVIGATION ---
         function switchTab(tabId, el) {
@@ -564,6 +607,7 @@
                 }
             }
             
+            // Reset Text
             document.getElementById('nav-live').innerText = "Live";
             document.getElementById('nav-stream').innerText = "Stream";
 
@@ -589,10 +633,15 @@
                 document.getElementById('nav-stream-movies').classList.add('visible');
                 document.getElementById('nav-stream-kids').classList.add('visible');
                 renderStreamSidebar();
+                loadStreamContent(); // Trigger content load based on settings
             } else {
                 document.getElementById('nav-stream-tv').classList.remove('visible');
                 document.getElementById('nav-stream-movies').classList.remove('visible');
                 document.getElementById('nav-stream-kids').classList.remove('visible');
+            }
+
+            if(tabId === 'search') {
+                 setTimeout(() => document.getElementById('search-input').focus(), 100);
             }
         }
 
@@ -609,22 +658,18 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('stream-header-title').innerText = type + " Library";
+            // Logic to filter displayed VOD content would go here
         }
 
         // --- IPTV ENGINE ---
         function loadDemoData() {
-            const mockData = [
-                { id: 101, name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-                { id: 401, name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
-                { id: 999, name: "Provider Test Ch", cat: "Test Category", logo: "", url: "" },
-                { id: 1000, name: "Netflix Action", cat: "Netflix", logo: "", url: "" },
-                { id: 1001, name: "Prime Movies", cat: "Prime Channels", logo: "", url: "" },
-                { id: 1002, name: "Relax 24/7", cat: "~Stream Relax", logo: "", url: "" }
+            // Mock Data
+            iptvChannels = [
+                { id: 101, name: "Demo Channel", cat: "Entertainment", logo: "", url: "" },
+                { id: 1000, name: "Netflix Action", cat: "Netflix", logo: "", url: "" }
             ];
-            epgData = { "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" } };
-            iptvChannels = mockData;
-            iptvCategories = ["Test Category", "Sports", "Entertainment", "Netflix", "Prime Channels", "~Stream Relax"]; 
-            alert("Demo Data Loaded! Go to Live tab.");
+            vodMovies = [{ name: "Demo Movie", icon: "" }];
+            alert("Demo Data Loaded!");
         }
 
         async function loadXtream() {
@@ -636,20 +681,16 @@
             localStorage.setItem('xc_url', url); localStorage.setItem('xc_user', user); localStorage.setItem('xc_pass', pass);
 
             try {
-                // Get Categories
-                const catUrl = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`;
-                const catRes = await fetch(catUrl);
+                // 1. Live Categories
+                const catRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`);
                 const cats = await catRes.json();
-                
                 let catMap = {};
                 cats.forEach(c => catMap[c.category_id] = c.category_name);
                 iptvCategories = cats.map(c => c.category_name).sort();
 
-                // Get Streams
-                const streamUrl = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
-                const streamRes = await fetch(streamUrl);
+                // 2. Live Streams
+                const streamRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`);
                 const streams = await streamRes.json();
-
                 iptvChannels = streams.map(s => ({
                     id: s.num || s.stream_id, 
                     name: s.name,
@@ -658,27 +699,122 @@
                     url: `${url}/live/${user}/${pass}/${s.stream_id}.m3u8`
                 }));
 
-                alert(`Loaded ${iptvChannels.length} channels!`);
+                // 3. VOD Streams (Movies)
+                const vodRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_vod_streams`);
+                const vods = await vodRes.json();
+                vodMovies = vods.map(v => ({ name: v.name, icon: v.stream_icon, id: v.stream_id }));
+
+                // 4. Series
+                const seriesRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_series`);
+                const sers = await seriesRes.json();
+                vodSeries = sers.map(s => ({ name: s.name, icon: s.cover, id: s.series_id }));
+
+                alert(`Loaded: ${iptvChannels.length} Live, ${vodMovies.length} Movies, ${vodSeries.length} Series`);
             } catch(e) { alert("Xtream Error: " + e); }
         }
 
         function loadEPG() {
-            const url = document.getElementById('iptv-epg').value;
-            if(!url) return;
-            localStorage.setItem('epg_url', url);
-            fetch(url).then(r => r.text()).then(str => {
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(str, "text/xml");
-                const programmes = xmlDoc.getElementsByTagName("programme");
-                for (let i = 0; i < Math.min(programmes.length, 1000); i++) {
-                    const prog = programmes[i];
-                    const channelId = prog.getAttribute("channel");
-                    const title = prog.getElementsByTagName("title")[0]?.textContent;
-                    const desc = prog.getElementsByTagName("desc")[0]?.textContent;
-                    if(channelId && title) epgData[channelId] = { title, desc, start: "Now", end: "Later" };
+             // Basic EPG Placeholder
+             alert("EPG Feature (Placeholder)");
+        }
+
+        // --- VOD CONTENT LOADER ---
+        function loadStreamContent() {
+            const container = document.getElementById('stream-content-area');
+            container.innerHTML = '';
+            
+            const source = localStorage.getItem('vod_source') || 'iptv';
+            
+            if (source === 'rd') {
+                container.innerHTML = '<div style="color:white; padding:20px;">Real-Debrid Integration Coming Soon</div>';
+                return;
+            }
+
+            // IPTV MODE
+            // Movies Row
+            if(vodMovies.length > 0) {
+                const rowTitle = document.createElement('div');
+                rowTitle.className = 'section-header';
+                rowTitle.innerHTML = '<i class="fas fa-film"></i> Movies';
+                container.appendChild(rowTitle);
+
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                vodMovies.slice(0, 20).forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'card c-poster';
+                    if(m.icon) card.style.backgroundImage = `url('${m.icon}')`;
+                    scroller.appendChild(card);
+                });
+                container.appendChild(scroller);
+            }
+
+            // Series Row
+            if(vodSeries.length > 0) {
+                const rowTitle = document.createElement('div');
+                rowTitle.className = 'section-header';
+                rowTitle.innerHTML = '<i class="fas fa-tv"></i> Series';
+                container.appendChild(rowTitle);
+
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                vodSeries.slice(0, 20).forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'card c-poster';
+                    if(s.icon) card.style.backgroundImage = `url('${s.icon}')`;
+                    scroller.appendChild(card);
+                });
+                container.appendChild(scroller);
+            }
+        }
+
+        // --- SEARCH ENGINE ---
+        const searchInput = document.getElementById('search-input');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+        }
+
+        function performSearch(query) {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+            
+            if(!query || query.length < 2) return;
+
+            const q = query.toLowerCase();
+            const categories = ['Channels', 'Recordings', 'Reminders', 'TV Shows', 'Movies', 'YouTube', 'Music'];
+
+            categories.forEach(cat => {
+                const secTitle = document.createElement('div');
+                secTitle.className = 'search-sec-title';
+                secTitle.innerText = cat;
+                container.appendChild(secTitle);
+
+                const scroller = document.createElement('div');
+                scroller.className = 'scroller';
+                
+                if(cat === 'Channels') {
+                    const hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
+                    hits.sort((a,b) => parseInt(a.id) - parseInt(b.id));
+
+                    if(hits.length === 0) {
+                        scroller.innerHTML = '<div class="no-results">No channels found</div>';
+                    } else {
+                        hits.forEach(ch => {
+                            const card = document.createElement('div');
+                            card.className = 'channel-card';
+                            card.style.flex = "0 0 auto"; // Force scroll
+                            card.style.width = "140px";
+                            card.onclick = () => playChannel(ch.url);
+                            const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                            card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
+                            scroller.appendChild(card);
+                        });
+                    }
+                } else {
+                    scroller.innerHTML = '<div class="no-results">0 Results</div>';
                 }
-                alert("EPG Loaded");
-            }).catch(e => alert("EPG Error"));
+                container.appendChild(scroller);
+            });
         }
 
         // --- SIDEBAR LOGIC ---
@@ -714,7 +850,7 @@
                 ];
             } else if (mode === 'Extra') {
                 isGrid = true;
-                // Specific List Requested by User
+                // Specific List Requested
                 const extraList = [
                     'All Streams',
                     '24/7 Streaming', 
@@ -730,7 +866,6 @@
                 extraList.forEach(c => cats.push({ name: c, icon: c === 'All Streams' ? 'fa-layer-group' : 'fa-folder' }));
             }
 
-            // Toggle Layout
             if (isGrid) {
                 list.className = 'channels-grid';
                 header.style.display = 'none';
@@ -787,20 +922,25 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Logic: Get ALL channels where category contains "Stream" or "Extra"
-                    // Also grab channels that match the sidebar keywords
-                    const keywords = ['Stream', 'Extra', 'Netflix', 'Apple', 'Prime', 'BBC', 'Sky', '24/7', 'Relax'];
-                    filtered = iptvChannels.filter(c => keywords.some(k => c.cat.toLowerCase().includes(k.toLowerCase())));
-                    
-                    // Render Grouped Grid for "All Streams"
-                    renderGroupedGrid(filtered, list);
+                    // Filter: Channel category MUST contain 'stream' or 'extra'
+                    filtered = iptvChannels.filter(c => 
+                        c.cat.toLowerCase().includes('stream') || 
+                        c.cat.toLowerCase().includes('extra')
+                    );
+                    // RENDER AS FLAT GRID (Request: "No sorting by category")
+                    filtered.forEach(ch => {
+                        const card = document.createElement('div');
+                        card.className = 'channel-card';
+                        card.onclick = () => playChannel(ch.url);
+                        const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                        card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
+                        list.appendChild(card);
+                    });
                     return; 
                 }
                 else {
-                    // Fuzzy match the specific sidebar item clicked
-                    // E.g. Click "Netflix" -> Find channels with "Netflix" in cat name
-                    const query = category.toLowerCase().replace(' streaming', ''); // simple cleanup
-                    filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(query));
+                    // Fuzzy match sidebar
+                    filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
                 }
             } 
             else if (mode === 'Sports') {
@@ -823,7 +963,6 @@
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
                 if (mode === 'Extra') {
-                    // GRID CARD (No mouseover)
                     const card = document.createElement('div');
                     card.className = 'channel-card';
                     card.onclick = () => playChannel(ch.url);
@@ -833,11 +972,9 @@
                     `;
                     list.appendChild(card);
                 } else {
-                    // LIST ROW
                     const row = document.createElement('div');
                     row.className = 'epg-row';
                     row.onclick = () => playChannel(ch.url);
-                    
                     const prog = epgData[ch.name] || { title: "No Information", desc: "", start: "", end: "" };
 
                     row.innerHTML = `
@@ -855,30 +992,6 @@
                     `;
                     list.appendChild(row);
                 }
-            });
-        }
-
-        function renderGroupedGrid(channels, container) {
-            const cats = [...new Set(channels.map(c => c.cat))].sort();
-            cats.forEach(cat => {
-                const catHeader = document.createElement('div');
-                catHeader.className = 'grid-section-title';
-                catHeader.innerText = cat;
-                container.appendChild(catHeader);
-
-                const grid = document.createElement('div');
-                grid.className = 'channels-grid';
-                
-                const catChannels = channels.filter(c => c.cat === cat);
-                catChannels.forEach(ch => {
-                    const card = document.createElement('div');
-                    card.className = 'channel-card';
-                    card.onclick = () => playChannel(ch.url);
-                    const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
-                    card.innerHTML = `<img src="${logo}" class="cc-logo"><div class="cc-name">${ch.name}</div>`;
-                    grid.appendChild(card);
-                });
-                container.appendChild(grid);
             });
         }
 
@@ -909,7 +1022,7 @@
 
         function updatePreview(title, time, desc, img) {
             const elTitle = document.getElementById('lh-title');
-            if(!elTitle) return; // Fix for null error
+            if(!elTitle) return; 
             elTitle.innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
