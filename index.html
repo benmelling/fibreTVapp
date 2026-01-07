@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V64: Tighter & Colorful</title>
+    <title>FibreTV V65: Extra Logic Fixed</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,7 +23,7 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
 
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
@@ -91,26 +91,13 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
         
-        /* --- RESTORED COLOR LOGIC --- */
-        /* Default Active */
+        /* Active Colors */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-
-        /* Live Group */
-        #nav-live-group .nav-item { color: #8FA4C8; } /* Inactive Tint */
         #nav-live-group .nav-item.active { background: var(--col-live); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.5); }
-
-        /* Stream Group */
-        #nav-stream-group .nav-item { color: #C8A08F; } /* Inactive Tint */
         #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.5); }
-
-        /* YouTube */
-        #nav-youtube { color: #C88F93; }
         #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.5); }
-
-        /* Music */
-        #nav-music { color: #C88FA8; }
         #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.5); }
 
         .nav-item.icon-only { padding: 0; width: 44px; }
@@ -160,22 +147,24 @@
             background: rgba(25, 25, 25, 0.95); 
             border-radius: 25px; 
             padding: 20px; 
-            display: flex; flex-direction: column; gap: 8px; /* Tighter Gap */
+            display: flex; flex-direction: column; gap: 8px;
             border: 1px solid rgba(255,255,255,0.1); 
-            max-height: 100%; overflow-y: auto; 
+            max-height: 85vh; /* Prevent cut-off */
+            overflow-y: auto; 
+            z-index: 50; /* Ensure clickable */
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
         /* --- SIDEBAR ITEMS (TIGHTENED) --- */
         .v-item { 
-            padding: 12px 20px; /* Tighter Padding */
+            padding: 12px 20px; 
             border-radius: 18px; 
             color: #999; font-weight: 600; font-size: 1rem; 
             cursor: pointer; transition: all 0.2s; text-align: left; 
             display: flex; align-items: center; 
-            gap: 15px; /* Tighter Gap */
+            gap: 15px; 
         }
-        .v-item i { width: 30px; text-align: center; font-size: 1.1rem; }
+        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
@@ -581,11 +570,13 @@
             const mockData = [
                 { id: 101, name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
                 { id: 401, name: "Sky Sports F1", cat: "Sports", logo: "", url: "" },
-                { id: 999, name: "Provider Test Ch", cat: "Test Category", logo: "", url: "" }
+                { id: 999, name: "Provider Test Ch", cat: "Test Category", logo: "", url: "" },
+                { id: 1000, name: "Netflix Action", cat: "Netflix", logo: "", url: "" },
+                { id: 1001, name: "Prime Movies", cat: "~Stream Movies", logo: "", url: "" }
             ];
             epgData = { "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" } };
             iptvChannels = mockData;
-            iptvCategories = ["Test Category", "Sports", "Entertainment"]; 
+            iptvCategories = ["Test Category", "Sports", "Entertainment", "Netflix", "~Stream Movies"]; 
             alert("Demo Data Loaded! Go to Live tab.");
         }
 
@@ -655,7 +646,6 @@
             let isGrid = false;
             
             if (mode === 'Default') {
-                // Hardcoded Live Categories with Icons
                 isGrid = false;
                 cats = [
                     { name: 'All Channels', icon: 'fa-layer-group' },
@@ -676,16 +666,23 @@
                     { name: 'Sports Extra', icon: 'fa-trophy' }
                 ];
             } else if (mode === 'Extra') {
-                // Dynamic Categories + GRID VIEW
                 isGrid = true;
+                // --- FIX: Filter only categories that contain "Stream" or "Extra" or match the hardcoded list ---
+                const allowedTerms = ['Stream', 'Extra', 'Netflix', 'Apple', 'Prime', 'BBC', 'Sky', '24/7', 'Relax'];
+                
                 cats = [{name: 'All Streams', icon: 'fa-layer-group'}];
-                iptvCategories.forEach(c => cats.push({ name: c, icon: 'fa-folder' }));
+                
+                iptvCategories.forEach(c => {
+                    if(allowedTerms.some(term => c.includes(term))) {
+                        cats.push({ name: c, icon: 'fa-folder' });
+                    }
+                });
             }
 
-            // Toggle Layout Based on Mode
+            // Toggle Layout
             if (isGrid) {
                 list.className = 'channels-grid';
-                header.style.display = 'none'; // Hide Preview in Grid Mode
+                header.style.display = 'none';
             } else {
                 list.className = 'epg-scroll-area';
                 header.style.display = 'block';
@@ -740,15 +737,15 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Show all channels that match ANY of the Extra targets
-                    const extraTargets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
-                    filtered = iptvChannels.filter(c => extraTargets.some(t => c.cat.includes(t)));
-                    renderGroupedGrid(filtered, list); // Use Grouped Render
+                    // Show all matching 'Extra' criteria
+                    const allowedTerms = ['Stream', 'Extra', 'Netflix', 'Apple', 'Prime', 'BBC', 'Sky', '24/7', 'Relax'];
+                    filtered = iptvChannels.filter(c => allowedTerms.some(t => c.cat.includes(t)));
+                    renderGroupedGrid(filtered, list);
                     return; 
                 }
                 else {
-                    // Fuzzy match the specific category selected (e.g. "Netflix")
-                    filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
+                    // Exact match from sidebar
+                    filtered = iptvChannels.filter(c => c.cat === category);
                 }
             } 
             else if (mode === 'Sports') {
@@ -766,14 +763,13 @@
                 else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
             
-            // Sort by ID
             filtered.sort((a,b) => parseInt(a.id) - parseInt(b.id));
 
             filtered.forEach(ch => {
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
                 
                 if (mode === 'Extra') {
-                    // GRID CARD RENDER
+                    // GRID CARD
                     const card = document.createElement('div');
                     card.className = 'channel-card';
                     card.onclick = () => playChannel(ch.url);
@@ -783,7 +779,7 @@
                     `;
                     list.appendChild(card);
                 } else {
-                    // LIST ROW RENDER
+                    // LIST ROW
                     const row = document.createElement('div');
                     row.className = 'epg-row';
                     row.onclick = () => playChannel(ch.url);
@@ -809,10 +805,7 @@
         }
 
         function renderGroupedGrid(channels, container) {
-            // Helper for "All Streams" view
-            // Get unique categories present in the filtered channels
             const cats = [...new Set(channels.map(c => c.cat))].sort();
-            
             cats.forEach(cat => {
                 const catHeader = document.createElement('div');
                 catHeader.className = 'grid-section-title';
@@ -838,13 +831,11 @@
         // --- PLAYER ---
         function playChannel(url) {
             if(!url) return;
-            // HTTPS Upgrade
             if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
-
             const video = document.getElementById('global-bg-video');
             const errorOverlay = document.getElementById('player-error');
             errorOverlay.style.display = 'none';
-            video.muted = false; // Unmute on click
+            video.muted = false; 
 
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
@@ -864,7 +855,7 @@
 
         function updatePreview(title, time, desc, img) {
             const elTitle = document.getElementById('lh-title');
-            if(!elTitle) return; // Guard clause
+            if(!elTitle) return; // Fix for null error
             elTitle.innerText = title;
             document.getElementById('lh-time').innerText = time;
             document.getElementById('lh-desc').innerText = desc;
