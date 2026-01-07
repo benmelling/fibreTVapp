@@ -809,6 +809,7 @@
                 }
             }
             else {
+                // Default Fuzzy Match
                 if(category === 'All Channels') filtered = iptvChannels;
                 else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
