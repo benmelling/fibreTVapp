@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V44: Smart Toggles & Layouts</title>
+    <title>FibreTV V45: Colors & Groups</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"FibreTV","display":"standalone","background_color":"#000000","theme_color":"#ffffff","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5906/5906124.png","sizes":"512x512","type":"image/png"}]}'>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
@@ -21,6 +23,14 @@
             --radius-capsule: 50px;
             --radius-card: 16px;
             --sidebar-width: 220px;
+
+            /* THEME COLORS */
+            --col-linear: #0047AB;      /* Dark Blue */
+            --col-linear-bg: rgba(0, 71, 171, 0.25);
+            --col-plus: #D35400;        /* Dark Orange */
+            --col-plus-bg: rgba(211, 84, 0, 0.25);
+            --col-yt: #E50914;          /* Dark Red */
+            --col-music: #C2185B;       /* Dark Pink */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -77,6 +87,18 @@
             max-width: 98%; overflow-x: auto;
         }
 
+        /* Nav Groups (The Container) */
+        .nav-group {
+            display: flex; align-items: center;
+            border-radius: var(--radius-capsule);
+            transition: background-color 0.3s ease, padding 0.3s ease;
+        }
+        /* Active Group Backgrounds */
+        .nav-group.group-active-linear { background-color: var(--col-linear-bg); padding-right: 5px; }
+        .nav-group.group-active-plus { background-color: var(--col-plus-bg); padding-right: 5px; }
+
+
+        /* Base Nav Item */
         .nav-item {
             height: 44px; padding: 0 22px; 
             border-radius: var(--radius-capsule);
@@ -84,12 +106,37 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
-        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
         
+        /* Default Active (White) */
+        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
+
+        /* --- COLOR CODING --- */
+
+        /* Linear Group */
+        #nav-linear-group .nav-item { color: #8FA4C8; } /* Inactive Tint */
+        #nav-linear-group .nav-item:hover { color: white; }
+        #nav-linear-group .nav-item.active { background: var(--col-linear); color: white; box-shadow: 0 2px 15px rgba(0, 71, 171, 0.6); }
+
+        /* Plus Group */
+        #nav-plus-group .nav-item { color: #C8A08F; } /* Inactive Tint */
+        #nav-plus-group .nav-item:hover { color: white; }
+        #nav-plus-group .nav-item.active { background: var(--col-plus); color: white; box-shadow: 0 2px 15px rgba(211, 84, 0, 0.6); }
+
+        /* YouTube */
+        #nav-youtube { color: #C88F93; }
+        #nav-youtube.active { background: var(--col-yt); color: white; box-shadow: 0 2px 15px rgba(229, 9, 20, 0.6); }
+
+        /* Music */
+        #nav-music { color: #C88FA8; }
+        #nav-music.active { background: var(--col-music); color: white; box-shadow: 0 2px 15px rgba(194, 24, 91, 0.6); }
+
+
+        /* Large Symbol Styling */
         #nav-linear.active, #nav-plus.active { font-size: 1.8rem; font-weight: 800; padding: 0 22px; }
         .nav-item.icon-only { padding: 0; width: 44px; }
 
+        /* Sub-Items Animation */
         .nav-sub { display: none; font-size: 0.85rem; padding: 0 16px; opacity: 0; animation: slideIn 0.2s forwards; }
         .nav-sub.visible { display: flex; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
@@ -100,51 +147,35 @@
             padding-top: 120px; padding-bottom: 50px;
         }
 
-        .tab-content { display: none; height: 100%; }
+        .tab-content { display: none; padding: 0 0 0 4%; height: 100%; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        
-        /* Padding Logic: Home has padding, Split Views handle it internally */
-        #tab-home, #tab-settings { padding: 0 4%; padding-bottom: 100px; }
-        
+        #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SPLIT VIEW (Unified for Linear, Plus, YouTube, Music, Local, Search) --- */
-        /* This container forces the sidebar to be centered vertically */
-        .split-view { 
-            display: flex; gap: 30px; height: 100%; overflow: hidden; 
-            padding-left: 4%; /* Unified left padding */
-        }
-        
-        .plus-layout { display: flex; flex-direction: column; height: 100%; } /* Wrapper for Plus sub-nav */
-
-        .vertical-filter-col { 
-            width: var(--sidebar-width); flex-shrink: 0; 
-            display: flex; flex-direction: column; 
-            justify-content: center; /* This centers the sidebar content vertically */
-            height: 90%; margin: auto 0;
-        }
-        
-        /* The container for the buttons */
-        .vert-capsule {
-            background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px;
-            display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1);
-            max-height: 100%; overflow-y: auto;
-        }
+        /* --- SPLIT VIEW --- */
+        .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; }
+        .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; }
+        .vert-capsule { background: rgba(25, 25, 25, 0.8); border-radius: 25px; padding: 10px; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.1); max-height: 100%; overflow-y: auto; }
         .vert-capsule::-webkit-scrollbar { display:none; }
-
-        .v-item {
-            padding: 12px 20px; border-radius: 20px;
-            color: #888; font-weight: 600; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px;
-        }
+        .v-item { padding: 12px 20px; border-radius: 20px; color: #888; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px; }
         .v-item i { width: 20px; text-align: center; color: white; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.05); }
         .v-item.active { background: white; color: black; }
         .v-item.active i { color: black; }
-
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
         .content-col::-webkit-scrollbar { display: none; }
+
+        /* --- PLUS/LINEAR SIDEBAR ITEMS --- */
+        #tab-plus, #tab-linear { padding-left: 0; }
+        .layout-container { display: flex; flex-direction: column; height: 100%; }
+        .split-inner { display: flex; flex: 1; overflow: hidden; padding-left: 4%; }
+        .mega-sidebar { width: var(--sidebar-width); flex-shrink: 0; overflow-y: auto; padding-right: 10px; padding-bottom: 50px; }
+        .mega-sidebar::-webkit-scrollbar { width: 4px; }
+        .mega-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .genre-item { padding: 15px; color: #888; font-weight: 600; cursor: pointer; border-radius: 12px; transition: 0.2s; font-size: 1rem; }
+        .genre-item:hover { background: #222; color: white; }
+        .genre-item.active { color: white; background: #333; font-weight: 700; border-left: 4px solid white; }
 
         /* --- LINEAR HEADER --- */
         .linear-header { flex: 0 0 auto; width: 100%; border-radius: 24px; margin-bottom: 20px; overflow: hidden; background: var(--surface-color); border: 2px solid transparent; padding: 25px; }
@@ -271,13 +302,13 @@
         <div class="nav-capsule">
             <div id="nav-home" class="nav-item active" onclick="switchTab('home', this)">Home</div>
             
-            <div id="nav-linear-group" style="display:flex; align-items:center;">
+            <div id="nav-linear-group" class="nav-group">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
                 <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">~Sports</div>
                 <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">~Stream</div>
             </div>
             
-            <div id="nav-plus-group" style="display:flex; align-items:center;">
+            <div id="nav-plus-group" class="nav-group">
                 <div id="nav-plus" class="nav-item" onclick="switchTab('plus', this)">Plus</div>
                 <div id="nav-plus-tv" class="nav-item nav-sub" onclick="filterPlusContent('TV', this)">+TV Shows</div>
                 <div id="nav-plus-movies" class="nav-item nav-sub" onclick="filterPlusContent('Movies', this)">+Movies</div>
@@ -571,7 +602,14 @@
         // --- NAVIGATION ---
         function switchTab(tabId, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
+            document.querySelectorAll('.nav-group').forEach(g => g.className = 'nav-group'); // Reset Group Active classes
+
+            if(el) {
+                el.classList.add('active');
+                // Activate Group Background
+                if(el.parentElement.id === 'nav-linear-group') document.getElementById('nav-linear-group').classList.add('group-active-linear');
+                if(el.parentElement.id === 'nav-plus-group') document.getElementById('nav-plus-group').classList.add('group-active-plus');
+            }
             
             // Restore Texts
             document.getElementById('nav-linear').innerText = "Linear";
