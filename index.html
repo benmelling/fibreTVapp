@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V52: Categories Fixed</title>
+    <title>FibreTV V53: Stable Core</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -232,6 +232,9 @@
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
+        /* Error Message in Player */
+        #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
+
     </style>
 </head>
 <body class="mode-home">
@@ -245,6 +248,7 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
+    <div id="player-error">Stream failed (likely Browser Security).<br>Will work in App.</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -512,6 +516,17 @@
         setInterval(updateSystemInfo, 1000);
         updateSystemInfo();
 
+        // --- PRELOAD SAVED SETTINGS ---
+        window.onload = () => {
+            document.body.classList.add('mode-home');
+            
+            // Restore Inputs
+            if(localStorage.getItem('xc_url')) document.getElementById('xc-url').value = localStorage.getItem('xc_url');
+            if(localStorage.getItem('xc_user')) document.getElementById('xc-user').value = localStorage.getItem('xc_user');
+            if(localStorage.getItem('xc_pass')) document.getElementById('xc-pass').value = localStorage.getItem('xc_pass');
+            if(localStorage.getItem('epg_url')) document.getElementById('iptv-epg').value = localStorage.getItem('epg_url');
+        };
+
         // --- NAVIGATION ---
         function switchTab(tabId, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -594,6 +609,11 @@
 
             if(!url || !user || !pass) return alert("Please fill all Xtream fields");
 
+            // Save Credentials
+            localStorage.setItem('xc_url', url);
+            localStorage.setItem('xc_user', user);
+            localStorage.setItem('xc_pass', pass);
+
             try {
                 // 1. Get Categories
                 const catUrl = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`;
@@ -656,6 +676,8 @@
             const url = document.getElementById('iptv-epg').value;
             if(!url) return alert("Please enter an EPG URL");
             
+            localStorage.setItem('epg_url', url);
+
             fetch(url).then(r => r.text()).then(str => {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(str, "text/xml");
@@ -723,6 +745,7 @@
                 const row = document.createElement('div');
                 row.className = 'epg-row';
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
+                
                 const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
@@ -740,13 +763,20 @@
         function playChannel(url) {
             if(!url) return;
             const video = document.getElementById('global-bg-video');
-            
+            const errorOverlay = document.getElementById('player-error');
+            errorOverlay.style.display = 'none';
+
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(e => console.log("Auto-play prevented")); });
-                hls.on(Hls.Events.ERROR, function (event, data) { console.log("HLS Error:", data); });
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                       console.log("HLS Fatal Error (Browser Restriction Likely)");
+                       // errorOverlay.style.display = 'block'; // Disabled per user request
+                    }
+                });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url;
                 video.addEventListener('loadedmetadata', function() { video.play(); });
@@ -758,7 +788,7 @@
         }
 
         function updatePreview(title, time, desc, img, isLive) {
-            // Safety check
+            // Safety check for null elements (Fixes TypeError)
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
@@ -802,8 +832,6 @@
                 if(document.getElementById('tab-home').classList.contains('active')) { watchLiveTV(); }
             }
         });
-
-        window.onload = () => { document.body.classList.add('mode-home'); };
     </script>
 </body>
 </html>
