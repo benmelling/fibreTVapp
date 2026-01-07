@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V41: Symbol Anchors</title>
+    <title>FibreTV V42: The Double Wave</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -307,8 +307,8 @@
             
             <div id="nav-linear-group" style="display:flex; align-items:center;">
                 <div id="nav-linear" class="nav-item" onclick="switchTab('linear', this)">Linear</div>
-                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">~Sports</div>
-                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">~Stream</div>
+                <div id="nav-lin-sports" class="nav-item nav-sub" onclick="filterLinContent('Sports', this)">≈Sports</div>
+                <div id="nav-lin-stream" class="nav-item nav-sub" onclick="filterLinContent('Stream', this)">≈Stream</div>
             </div>
             
             <div id="nav-plus-group" style="display:flex; align-items:center;">
@@ -517,7 +517,7 @@
 
             // Handle Dynamic Linear Menu
             if(tabId === 'linear') {
-                document.getElementById('nav-linear').innerText = "~"; // Change to Symbol
+                document.getElementById('nav-linear').innerText = "≈"; // Change to Symbol
                 document.getElementById('nav-lin-sports').classList.add('visible');
                 document.getElementById('nav-lin-stream').classList.add('visible');
             } else {
