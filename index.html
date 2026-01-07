@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V74: EPG & Sidebar Fix</title>
+    <title>FibreTV V74: Live Nav Overhaul</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -28,13 +28,17 @@
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
             --col-live-bg: rgba(0, 71, 171, 0.4);
+            --col-live-txt: #8FA4C8;
             
             --col-stream: #D35400;      /* Dark Orange */
             --col-stream-bg: rgba(211, 84, 0, 0.4);
+            --col-stream-txt: #C8A08F;
             
             --col-yt: #E50914;          /* Dark Red */
+            --col-yt-txt: #C88F93;
             
             --col-music: #C2185B;       /* Dark Pink */
+            --col-music-txt: #C88FA8;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -66,6 +70,7 @@
             position: fixed; top: 30px; left: 40px; 
             z-index: 1000; display: flex; align-items: flex-start;
             pointer-events: none;
+            max-width: 85%;
         }
 
         .nav-capsule {
@@ -77,7 +82,11 @@
             pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            overflow-x: auto; 
+            max-width: 100%;
+            scrollbar-width: none; 
         }
+        .nav-capsule::-webkit-scrollbar { display: none; }
 
         /* Nav Groups */
         .nav-group {
@@ -94,15 +103,18 @@
         }
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
         
-        /* ACTIVE STATES */
+        /* Active Colors */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
+        .col-live-active { background: var(--col-live) !important; color: white !important; }
         
-        #nav-live-group .nav-item.active { background: var(--col-live); color: white; }
-        #nav-stream-group .nav-item.active { background: var(--col-stream); color: white; }
-        #nav-youtube.active { background: var(--col-yt); color: white; }
-        #nav-music.active { background: var(--col-music); color: white; }
-
         .nav-item.icon-only { padding: 0; width: 44px; }
+        
+        /* Larger Touch Target for Back Button */
+        .nav-item.nav-back {
+            width: 54px; /* Wider */
+            padding: 0;
+            font-size: 1.2rem;
+        }
 
         /* --- INFO CAPSULE --- */
         .info-capsule {
@@ -125,35 +137,19 @@
         .layout-container { display: flex; flex-direction: column; height: 100%; }
         .split-inner { display: flex; gap: 50px; flex: 1; overflow: hidden; }
 
-        /* SIDEBAR (FIXED POSITION) */
-        .vertical-filter-col { 
-            width: var(--sidebar-width); 
-            flex-shrink: 0; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; /* Ensure top alignment */
-            height: 100%; 
-            margin: 0; 
-            padding-left: 40px; 
-            margin-top: 130px; /* Aligns with content area */
-        }
-        
-        .vert-capsule { 
-            background: rgba(25, 25, 25, 0.95); 
-            border-radius: 25px; padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            max-height: calc(100vh - 180px); overflow-y: auto; z-index: 50; 
-        }
+        /* SIDEBAR (Only for Stream/Extra now) */
+        .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-start; height: 100%; margin: 0; padding-left: 40px; margin-top: 130px; }
+        .vert-capsule { background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 20px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.1); max-height: calc(100vh - 180px); overflow-y: auto; z-index: 50; }
         .vert-capsule::-webkit-scrollbar { display:none; }
-        
         .v-item { padding: 12px 20px; border-radius: 18px; color: #999; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; }
         .v-item.active i { color: black; }
 
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
-        .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; }
+        
+        /* Full Width Content for Live (No Sidebar) */
+        .live-full-width { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 40px; padding-left: 40px; }
 
         /* --- LINEAR LIST --- */
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
@@ -161,7 +157,7 @@
         .epg-row { display: flex; align-items: center; height: 70px; padding: 5px 15px; margin-bottom: 5px; border-radius: 10px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; background: rgba(255,255,255,0.03); }
         .epg-row:hover { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.1rem; justify-content: center; }
-        .mode-extra .epg-num { display: none !important; }
+        .mode-extra .epg-num { display: none !important; } 
         .epg-logo { width: 80px; justify-content: center; }
         .epg-logo img { max-height: 45px; max-width: 100%; object-fit: contain; }
         .epg-name { width: 180px; font-weight: 700; font-size: 1rem; color: #eee; }
@@ -188,6 +184,9 @@
         .cp-desc { font-size: 1.1rem; color: #ccc; max-width: 700px; line-height: 1.5; margin-bottom: 30px; }
         .btn-play { background: white; color: black; padding: 15px 40px; font-size: 1.2rem; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; margin-right: 15px; }
         .btn-sec { background: rgba(255,255,255,0.2); color: white; padding: 15px 40px; font-size: 1.2rem; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; }
+        .ep-list { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .ep-card { background: #222; padding: 15px; border-radius: 10px; cursor: pointer; }
+        .ep-card:hover { background: #333; }
 
         /* --- UI ELEMENTS --- */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
@@ -201,6 +200,11 @@
         .c-poster { width: 150px; height: 225px; background-size: cover; background-color: #222; }
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; }
+        
+        .cw-info-panel { padding: 5px 10px; margin-bottom: 20px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .cw-info-panel.visible { opacity: 1; }
+        .cw-info-title { font-size: 1.2rem; font-weight: 700; }
+        .cw-info-desc { font-size: 0.9rem; color: #888; }
 
         /* SETTINGS & SEARCH */
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
@@ -272,10 +276,7 @@
         <div id="tab-live" class="tab-content" style="padding:0;">
             <div class="layout-container">
                 <div class="split-inner">
-                    <div class="vertical-filter-col">
-                        <div class="vert-capsule" id="live-sidebar"></div>
-                    </div>
-                    <div class="linear-content-col">
+                    <div class="live-full-width">
                         <div id="live-preview-header" class="linear-header">
                             <div class="header-content">
                                 <div class="image-box-left"><img id="static-hero-img" class="static-img" src=""></div>
@@ -336,8 +337,18 @@
     <script>
         let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[], epgMap={};
         
+        // --- NAV STRUCTURES ---
+        const defaultNav = `
+            <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
+            <div id="nav-home" class="nav-item active" onclick="switchTab('home', this)">Home</div>
+            <div id="nav-live-group" class="nav-group"><div id="nav-live" class="nav-item" onclick="switchTab('live', this)">Live</div></div>
+            <div id="nav-stream-group" class="nav-group"><div id="nav-stream" class="nav-item" onclick="switchTab('stream', this)">Stream</div></div>
+            <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube', this)">YouTube</div>
+            <div id="nav-music" class="nav-item" onclick="switchTab('music', this)">Music</div>
+        `;
+
         window.onload = () => {
-            document.body.classList.add('mode-home');
+            document.getElementById('main-nav').innerHTML = defaultNav;
             loadStoredCreds();
             loadHistory();
             renderContinueWatching();
@@ -361,56 +372,54 @@
             }
         }
 
+        // --- NAVIGATION LOGIC ---
         function switchTab(tabId, el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.nav-group').forEach(g => { g.className = 'nav-group'; g.style.backgroundColor = ''; });
-
-            if(el) {
-                el.classList.add('active');
-                if(el.parentElement.id) document.getElementById(el.parentElement.id).classList.add('group-active-' + tabId);
+            // Restore default nav if going Home
+            if(tabId === 'home') {
+                document.getElementById('main-nav').innerHTML = defaultNav;
+            } 
+            // Transform Nav if Live
+            else if(tabId === 'live') {
+                updateNavForLive();
             }
-            
+
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
 
             if(tabId === 'home') renderContinueWatching();
-            if(tabId === 'live') { renderLiveSidebar('Default'); }
-            if(tabId === 'stream') { renderStreamSidebar(); loadStreamContent('All'); }
+            if(tabId === 'live') { 
+                renderLiveSidebar('Default');
+            }
+            if(tabId === 'stream') {
+                renderStreamSidebar();
+                loadStreamContent('All');
+            }
             if(tabId === 'search') setTimeout(() => document.getElementById('search-input').focus(), 100);
         }
 
-        function filterLiveContent(cat, el) {
-            if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
-            renderLiveSidebar(cat); 
-        }
-
-        function filterStreamContent(type, el) {
-            if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
-            
-            // Re-render sidebar based on type
-            const sidebar = document.getElementById('stream-sidebar');
-            sidebar.innerHTML = '';
-            
-            let term = '';
-            if(type === 'Movies') term = 'movie';
-            else if(type === 'TV Shows') term = 'series';
-            else if(type === 'Kids') term = 'kid';
-
-            // Filter actual categories from provider
-            let cats = iptvCategories.filter(c => c.toLowerCase().includes(term));
-            if(cats.length === 0) cats = ["All " + type];
-
-            cats.forEach(c => {
-                const item = document.createElement('div');
-                item.className = 'v-item';
-                item.innerHTML = `<i class="fas fa-folder"></i> ${c}`;
-                item.onclick = () => loadStreamContent(type, c);
-                sidebar.appendChild(item);
+        function updateNavForLive() {
+            let html = `
+                <div class="nav-item icon-only" onclick="switchTab('home', null)"><i class="fas fa-arrow-left"></i></div>
+                <div class="nav-item active col-live-active" onclick="filterLiveContent('All Channels', this)">All</div>
+            `;
+            iptvCategories.forEach(cat => {
+                html += `<div class="nav-item" onclick="filterLiveContent('${cat.replace(/'/g, "")}', this)">${cat}</div>`;
             });
-            loadStreamContent(type, null);
+            document.getElementById('main-nav').innerHTML = html;
         }
 
-        // --- DATA ENGINE ---
+        function filterLiveContent(cat, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('col-live-active'));
+            if(el) el.classList.add('col-live-active');
+            
+            // Logic to update sidebar based on category clicked
+            // Here we can just re-render sidebar or filter list directly
+            // For simplicity in V73, we filter the list directly
+            renderLiveChannels(cat, 'Default'); 
+        }
+
+        // --- DATA & API ---
         async function loadXtream() {
             const url = document.getElementById('xc-url').value;
             const user = document.getElementById('xc-user').value;
@@ -438,30 +447,6 @@
             } catch(e) { alert("Error: " + e); }
         }
 
-        async function loadEPG() {
-            const url = document.getElementById('epg-url').value;
-            if(!url) return;
-            localStorage.setItem('epg_url', url);
-            try {
-                const res = await fetch(url);
-                const text = await res.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, "text/xml");
-                
-                // Map Data
-                const programs = xml.getElementsByTagName('programme');
-                const now = new Date();
-                
-                // Simple parser - grab current shows
-                for(let i=0; i<programs.length; i++) {
-                    const p = programs[i];
-                    // Logic to match channel and time would go here
-                    // Simplified: Just storing raw data structure in epgMap[channel_id]
-                }
-                alert("EPG Parsed (Logic Ready)");
-            } catch(e) { alert("EPG Error (CORS?): " + e); }
-        }
-
         // --- LIVE RENDER ---
         function renderLiveSidebar(mode) {
             const sidebar = document.getElementById('live-sidebar');
@@ -482,7 +467,10 @@
                 const item = document.createElement('div');
                 item.className = 'v-item';
                 item.innerHTML = `<i class="fas fa-folder"></i> ${c}`;
-                item.onclick = () => renderLiveChannels(c, mode);
+                item.onclick = () => {
+                    if(c === 'Extra') renderLiveSidebar('Extra');
+                    else renderLiveChannels(c, mode);
+                };
                 sidebar.appendChild(item);
             });
             renderLiveChannels(cats[0], mode);
@@ -493,15 +481,9 @@
             list.innerHTML = '';
             
             let filtered = [];
-            if(mode === 'Extra') {
-                if(cat === 'All Streams') filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes('stream') || c.cat.toLowerCase().includes('extra'));
-                else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(cat.toLowerCase()));
-            } else {
-                if(cat === 'All Channels') filtered = iptvChannels;
-                else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(cat.toLowerCase()));
-            }
-
-            if(mode !== 'Extra') filtered.sort((a,b) => parseInt(a.id) - parseInt(b.id));
+            if(cat === 'All Channels' || cat === 'All Streams') filtered = iptvChannels;
+            else if (cat === 'Extra') return; 
+            else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(cat.toLowerCase()));
 
             filtered.forEach(ch => {
                 const row = document.createElement('div');
@@ -518,16 +500,10 @@
         }
 
         // --- SERIES & VOD ---
-        function loadStreamContent(type, category) {
+        function loadStreamContent(type) {
             const container = document.getElementById('stream-content-area');
             container.innerHTML = '';
-            let items = [];
-            
-            if(type === 'Movies') items = vodMovies;
-            else if(type === 'TV Shows' || type === 'Series') items = vodSeries;
-            else items = [...vodMovies, ...vodSeries]; // All
-
-            if(category) items = items.filter(i => (i.category_name || "").includes(category));
+            const items = (type === 'Movies') ? vodMovies : (type === 'TV Shows') ? vodSeries : [...vodMovies, ...vodSeries];
             
             items.slice(0,100).forEach(i => {
                 const card = document.createElement('div');
@@ -542,6 +518,7 @@
             const cp = document.getElementById('content-page');
             cp.style.display = 'block';
             document.getElementById('cp-title').innerText = item.name;
+            document.getElementById('cp-desc').innerText = item.plot || "No description.";
             
             const btn = document.getElementById('btn-play-content');
             btn.onclick = () => {
@@ -583,7 +560,17 @@
             });
         }
 
-        // --- SEARCH ---
+        // --- UTILS ---
+        function playChannel(url) {
+            const vid = document.getElementById('global-bg-video');
+            if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:','https:');
+            if(Hls.isSupported() && url.endsWith('.m3u8')) {
+                const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
+            } else { vid.src = url; vid.play(); }
+            document.body.classList.add('mode-fullscreen');
+        }
+
         function performSearch(q) {
             const res = document.getElementById('search-results');
             res.innerHTML = '';
@@ -597,19 +584,13 @@
             if(movHits.length) res.innerHTML += `<h3>Movies</h3><div class="scroller">${movHits.slice(0,10).map(m=>`<div class="card c-poster" style="background-image:url('${m.stream_icon}')" onclick="openContentPage(this.dataset.item, 'movie')" data-item='${JSON.stringify(m).replace(/'/g, "")}'></div>`).join('')}</div>`;
         }
 
-        // --- UTILS ---
-        function playChannel(url) {
-            const vid = document.getElementById('global-bg-video');
-            if(window.location.protocol==='https:' && url.startsWith('http:')) url = url.replace('http:','https:');
-            if(Hls.isSupported() && url.endsWith('.m3u8')) {
-                const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
-            } else { vid.src = url; vid.play(); }
-            document.body.classList.add('mode-fullscreen');
+        function toggleFeature(feat, state) {
+            if(feat === 'live') document.getElementById('nav-live-group').style.display = state ? 'flex' : 'none';
+            if(feat === 'stream') document.getElementById('nav-stream-group').style.display = state ? 'flex' : 'none';
         }
 
         document.addEventListener('keydown', e => {
-            if(e.key==='Escape') { 
+            if(e.key==='Escape') {
                 if(document.body.classList.contains('mode-fullscreen')) document.body.classList.remove('mode-fullscreen');
                 else closeContentPage();
             }
