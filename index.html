@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V51: Stable & Clean</title>
+    <title>FibreTV V52: Categories Fixed</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -27,7 +27,7 @@
 
             /* THEME COLORS */
             --col-linear: #0047AB;      /* Dark Blue */
-            --col-linear-bg: rgba(0, 71, 171, 0.4); /* Darker for visibility */
+            --col-linear-bg: rgba(0, 71, 171, 0.4);
             --col-plus: #D35400;        /* Dark Orange */
             --col-plus-bg: rgba(211, 84, 0, 0.4);
             --col-yt: #E50914;          /* Dark Red */
@@ -94,7 +94,6 @@
             transition: background-color 0.2s ease; 
             padding: 0; margin: 0 2px;
         }
-        /* Active Group Backgrounds */
         .nav-group.group-active-linear { background-color: var(--col-linear-bg); }
         .nav-group.group-active-plus { background-color: var(--col-plus-bg); }
 
@@ -233,10 +232,6 @@
         .detail-layout { width: 100%; height: 100%; background-size: cover; background-position: center; }
         .detail-grad { width: 100%; height: 100%; background: linear-gradient(90deg, #000 10%, rgba(0,0,0,0.3) 100%); display: flex; align-items: center; padding-left: 8vw; }
 
-        /* Error Message in Player */
-        #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; text-align: center; pointer-events: none; }
-        #https-warning { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #E50914; color: white; padding: 15px; border-radius: 10px; display: none; z-index: 9999; text-align: center; font-weight: bold; }
-
     </style>
 </head>
 <body class="mode-home">
@@ -250,8 +245,6 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
-    <div id="player-error">Stream Error.</div>
-    <div id="https-warning">⚠️ Note: If streams don't play, it's due to Browser Security (HTTPS vs HTTP). <br>This will work perfectly when installed as an Android App.</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -519,11 +512,6 @@
         setInterval(updateSystemInfo, 1000);
         updateSystemInfo();
 
-        // Check for HTTPS
-        if(window.location.protocol === 'https:') {
-            document.getElementById('https-warning').style.display = 'block';
-        }
-
         // --- NAVIGATION ---
         function switchTab(tabId, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -583,7 +571,7 @@
         // --- IPTV ENGINE ---
         
         function loadDemoData() {
-            // Demo data with WORKING stream (Big Buck Bunny)
+            // Updated Demo Stream (HLS HTTPS)
             const mockData = [
                 { name: "Demo Channel", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
                 { name: "Sky Sports F1", cat: "~Sports", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Sky_Sports_F1_logo_2017.svg/2560px-Sky_Sports_F1_logo_2017.svg.png", url: "" },
@@ -591,7 +579,6 @@
                 { name: "BBC One", cat: "Entertainment", logo: "", url: "" }
             ];
             
-            // DEMO EPG
             epgData = {
                 "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" }
             };
@@ -600,30 +587,42 @@
             alert("Demo Data Loaded! Go to Linear tab and click 'Demo Channel'.");
         }
 
-        // XTREAM CODES LOGIN
-        function loadXtream() {
+        async function loadXtream() {
             const url = document.getElementById('xc-url').value;
             const user = document.getElementById('xc-user').value;
             const pass = document.getElementById('xc-pass').value;
 
             if(!url || !user || !pass) return alert("Please fill all Xtream fields");
 
-            // Fetch Live Streams (Filters VOD automatically via action)
-            const api = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
-            
-            fetch(api).then(r => r.json()).then(data => {
-                const channels = data.map(ch => ({
-                    name: ch.name,
-                    cat: "Uncategorized", 
-                    logo: ch.stream_icon,
-                    url: `${url}/live/${user}/${pass}/${ch.stream_id}.ts`
+            try {
+                // 1. Get Categories
+                const catUrl = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`;
+                const catRes = await fetch(catUrl);
+                const cats = await catRes.json();
+                
+                let catMap = {};
+                cats.forEach(c => catMap[c.category_id] = c.category_name);
+
+                // 2. Get Streams
+                const streamUrl = `${url}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`;
+                const streamRes = await fetch(streamUrl);
+                const streams = await streamRes.json();
+
+                const channels = streams.map(s => ({
+                    name: s.name,
+                    cat: catMap[s.category_id] || "Uncategorized",
+                    logo: s.stream_icon,
+                    url: `${url}/live/${user}/${pass}/${s.stream_id}.ts`
                 }));
+
                 processIPTVData(channels);
                 alert(`Loaded ${channels.length} channels from Xtream!`);
-            }).catch(e => alert("Xtream Error: " + e));
+
+            } catch(e) {
+                alert("Xtream Error: " + e);
+            }
         }
 
-        // M3U PARSER
         function loadM3U() {
             const url = document.getElementById('iptv-m3u').value;
             if(!url) return alert("Please enter a URL");
@@ -662,17 +661,13 @@
                 const xmlDoc = parser.parseFromString(str, "text/xml");
                 const programmes = xmlDoc.getElementsByTagName("programme");
                 
-                // Very basic parser: grabs first program for each channel for demo
                 for (let i = 0; i < Math.min(programmes.length, 1000); i++) {
                     const prog = programmes[i];
                     const channelId = prog.getAttribute("channel");
                     const title = prog.getElementsByTagName("title")[0]?.textContent;
                     const desc = prog.getElementsByTagName("desc")[0]?.textContent;
                     if(channelId && title) {
-                        // Map by Channel ID (Ideally needs mapping to Name)
                         epgData[channelId] = { title, desc, start: "Now", end: "Later" };
-                        // Also try mapping by raw name just in case
-                        epgData[title] = { title, desc, start: "Now", end: "Later" }; 
                     }
                 }
                 alert("EPG Loaded (Basic)");
@@ -681,9 +676,7 @@
 
         function processIPTVData(channels) {
             iptvChannels = channels;
-            // Get unique cats
-            const cats = [...new Set(channels.map(c => c.cat))].sort();
-            iptvCategories = cats;
+            iptvCategories = [...new Set(channels.map(c => c.cat))].sort();
             renderLinearUI();
         }
 
@@ -730,8 +723,6 @@
                 const row = document.createElement('div');
                 row.className = 'epg-row';
                 const logo = ch.logo || "https://cdn-icons-png.flaticon.com/512/5906/5906124.png";
-                
-                // Check EPG
                 const prog = epgData[ch.name] || { title: ch.name, desc: "No Program Info", start: "", end: "" };
 
                 row.innerHTML = `
@@ -749,29 +740,25 @@
         function playChannel(url) {
             if(!url) return;
             const video = document.getElementById('global-bg-video');
-            const errorOverlay = document.getElementById('player-error');
-            errorOverlay.style.display = 'none';
-
+            
             if (Hls.isSupported() && url.endsWith('.m3u8')) {
                 const hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play(); });
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) errorOverlay.style.display = 'block';
-                });
+                hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(e => console.log("Auto-play prevented")); });
+                hls.on(Hls.Events.ERROR, function (event, data) { console.log("HLS Error:", data); });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url;
                 video.addEventListener('loadedmetadata', function() { video.play(); });
             } else {
                 video.src = url;
-                video.play().catch(e => { errorOverlay.style.display = 'block'; });
+                video.play().catch(e => console.log("Stream failed"));
             }
             document.body.classList.add('mode-fullscreen');
         }
 
         function updatePreview(title, time, desc, img, isLive) {
-            // Safety check for null elements
+            // Safety check
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
