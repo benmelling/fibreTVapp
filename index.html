@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V65: Extra Fixed & Colors</title>
+    <title>FibreTV V66: Sidebar Layout Fix</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,7 +23,9 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --sidebar-width: 280px;
+            
+            /* WIDER SIDEBAR TO FIT TEXT ON ONE LINE */
+            --sidebar-width: 300px; 
 
             /* THEME COLORS */
             --col-live: #0047AB;        /* Dark Blue */
@@ -93,8 +95,7 @@
         }
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
         
-        /* --- RESTORED SPECIFIC COLORS --- */
-        /* Home/Search/Generic Active */
+        /* COLORS RESTORED */
         .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
 
         /* Live (Blue) */
@@ -143,7 +144,8 @@
         /* --- MAIN LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 120px; padding-bottom: 50px;
+            padding-top: 130px; /* Space for Nav */
+            padding-bottom: 50px;
         }
 
         .tab-content { display: none; padding: 0 0 0 4%; height: 100%; }
@@ -152,34 +154,49 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- SPLIT VIEW --- */
-        .split-view { display: flex; gap: 50px; height: 100%; overflow: hidden; padding-left: 0; }
+        .split-view { display: flex; gap: 60px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
-        .split-inner { display: flex; gap: 50px; flex: 1; overflow: hidden; }
+        .split-inner { display: flex; gap: 60px; flex: 1; overflow: hidden; }
 
-        .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; height: 90%; margin: auto 0; padding-left:40px; }
+        /* SIDEBAR CONTAINER - ANCHORED TOP */
+        .vertical-filter-col { 
+            width: var(--sidebar-width); 
+            flex-shrink: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Aligns to TOP */
+            padding-top: 10px; /* Space below Nav */
+            height: 95%; 
+            margin: 0; 
+            padding-left: 40px; 
+        }
         
+        /* CAPSULE STYLING */
         .vert-capsule { 
             background: rgba(25, 25, 25, 0.95); 
             border-radius: 25px; 
             padding: 20px; 
-            display: flex; flex-direction: column; gap: 8px;
+            display: flex; flex-direction: column; gap: 10px;
             border: 1px solid rgba(255,255,255,0.1); 
-            max-height: 85vh;
+            max-height: calc(100vh - 160px); /* Fill space without cut-off */
             overflow-y: auto; 
             z-index: 50; 
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
-        /* --- SIDEBAR ITEMS --- */
+        /* SIDEBAR ITEMS - ONE LINE FORCED */
         .v-item { 
             padding: 12px 20px; 
             border-radius: 18px; 
             color: #999; font-weight: 600; font-size: 1rem; 
             cursor: pointer; transition: all 0.2s; text-align: left; 
             display: flex; align-items: center; 
-            gap: 15px; 
+            gap: 15px;
+            white-space: nowrap; /* Forces one line */
+            overflow: hidden;
+            text-overflow: ellipsis; 
         }
-        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; }
+        .v-item i { width: 30px; text-align: center; font-size: 1.2rem; flex-shrink: 0; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .v-item.active i { color: black; }
@@ -757,7 +774,7 @@
             
             if (mode === 'Extra') {
                 if(category === 'All Streams') {
-                    // Filter to show ONLY requested extra categories
+                    // Show all matching 'Extra' criteria
                     const targets = ['24/7', 'Apple', 'BBC', 'Netflix', 'Prime', 'Relax', 'Sky Docs', 'Sky Mix'];
                     filtered = iptvChannels.filter(c => targets.some(t => c.cat.includes(t)));
                     renderGroupedGrid(filtered, list);
@@ -778,6 +795,7 @@
                 }
             }
             else {
+                // Default Fuzzy Match
                 if(category === 'All Channels') filtered = iptvChannels;
                 else filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
