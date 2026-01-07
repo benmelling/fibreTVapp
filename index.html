@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V56: True Channel Numbers</title>
+    <title>FibreTV V57: Player & EPG Grid</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -23,7 +23,7 @@
             --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 16px;
-            --sidebar-width: 220px;
+            --sidebar-width: 240px; /* Slightly wider for category names */
 
             /* THEME COLORS */
             --col-linear: #0047AB;      /* Dark Blue */
@@ -133,20 +133,6 @@
         #tab-home { overflow-y: auto; padding-bottom: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- SETTINGS --- */
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; margin-bottom: 40px; }
-        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-label { font-weight: 700; font-size: 1.1rem; }
-        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
-        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
-        
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ffffff; }
-        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-
         /* --- SPLIT VIEW --- */
         .split-view { display: flex; gap: 30px; height: 100%; overflow: hidden; padding-left: 0; }
         .layout-container { display: flex; flex-direction: column; height: 100%; }
@@ -189,28 +175,29 @@
         /* --- NEW EPG GRID LAYOUT --- */
         .epg-row {
             display: flex; align-items: center;
-            height: 60px;
-            padding: 0 10px;
+            height: 70px;
+            padding: 5px 15px;
             margin-bottom: 5px;
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.2s;
             border: 1px solid transparent;
+            background: rgba(255,255,255,0.03);
         }
-        .epg-row:hover { background: #222; border-color: rgba(255,255,255,0.1); }
+        .epg-row:hover { background: #333; border-color: rgba(255,255,255,0.2); }
         
-        .epg-cell { padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .epg-cell { padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; height: 100%; }
         
-        .epg-num { width: 60px; color: #888; font-weight: 700; font-size: 0.95rem; text-align: center; }
-        .epg-logo { width: 70px; display: grid; place-items: center; }
-        .epg-logo img { max-height: 40px; max-width: 100%; object-fit: contain; }
-        .epg-name { width: 150px; font-weight: 700; font-size: 0.95rem; }
+        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.1rem; justify-content: center; }
+        .epg-logo { width: 80px; justify-content: center; }
+        .epg-logo img { max-height: 45px; max-width: 100%; object-fit: contain; }
+        .epg-name { width: 180px; font-weight: 700; font-size: 1rem; color: #eee; }
         
-        .epg-now { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .epg-next { flex: 1; display: flex; flex-direction: column; justify-content: center; opacity: 0.6; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 15px; }
+        .epg-now { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; }
+        .epg-next { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; opacity: 0.5; }
         
-        .prog-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
-        .prog-time { font-size: 0.75rem; color: #999; }
+        .prog-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+        .prog-time { font-size: 0.8rem; color: #aaa; font-weight: 500; }
 
 
         /* --- CARDS & ROWS --- */
@@ -246,6 +233,21 @@
         .st-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
         .sb-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.2); }
         .sb-seg { position: absolute; height: 100%; opacity: 0.9; }
+        
+        /* SETTINGS TOGGLES */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
+        .setting-card { background: #222; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-label { font-weight: 700; font-size: 1.1rem; }
+        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-family: 'Outfit'; }
+        .btn-settings { background: var(--col-linear); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ffffff; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
+
+        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         .modal-box { background: var(--surface-color); width: 90%; max-width: 350px; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
         .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
@@ -269,7 +271,7 @@
     </div>
 
     <video id="global-bg-video" autoplay muted loop></video>
-    <div id="player-error">Stream failed.</div>
+    <div id="player-error">Stream failed (likely Browser Security).</div>
 
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
@@ -346,9 +348,6 @@
             <div class="scroller" id="scroller-cw">
                 <div class="c-watch-tv" onmouseover="updateHomePreview('Watch Live TV', 'Return to live broadcast', 'Jump straight back into the last watched channel.')" onclick="watchLiveTV()">
                     <i class="fas fa-tv"></i><span>Watch Live TV</span>
-                </div>
-                <div class="card c-square" onmouseover="updateHomePreview('BBC One', 'LIVE • BBC News at Six', 'Next: The One Show (19:00)')" style="background: #990000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <span style="font-weight:900; font-size:1.5rem;" class="card-text">BBC ONE</span>
                 </div>
             </div>
 
@@ -526,7 +525,6 @@
     <script>
         // --- DATA STORE ---
         let iptvChannels = [];
-        let iptvCategories = [];
         let epgData = {}; 
 
         // --- SYSTEM INFO ---
@@ -573,13 +571,10 @@
             // Dynamic Nav Logic
             if(tabId === 'linear') {
                 document.getElementById('nav-linear').innerText = "~";
-                document.getElementById('nav-lin-sports').classList.add('visible');
-                document.getElementById('nav-lin-stream').classList.add('visible');
-                // Default view
+                document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.add('visible'));
                 renderLinearSidebar('Default');
             } else {
-                document.getElementById('nav-lin-sports').classList.remove('visible');
-                document.getElementById('nav-lin-stream').classList.remove('visible');
+                document.querySelectorAll('.dynamic-lin-sub').forEach(item => item.classList.remove('visible'));
             }
 
             if(tabId === 'plus') {
@@ -629,7 +624,6 @@
                 { id: 501, name: "HBO Stream", cat: "Movies", logo: "", url: "" }
             ];
             
-            // DEMO EPG
             epgData = {
                 "Demo Channel": { title: "Big Buck Bunny", desc: "A giant rabbit meets three bullying rodents.", start: "Now", end: "Forever" }
             };
@@ -664,11 +658,13 @@
                 const streams = await streamRes.json();
 
                 iptvChannels = streams.map(s => ({
-                    id: s.num || s.stream_id,
+                    // FIX: Use 'num' from provider or fallback to stream_id
+                    id: s.num || s.stream_id, 
                     name: s.name,
                     cat: catMap[s.category_id] || "Uncategorized",
                     logo: s.stream_icon,
-                    url: `${url}/live/${user}/${pass}/${s.stream_id}.ts`
+                    // FIX: Force .m3u8 for HLS compatibility
+                    url: `${url}/live/${user}/${pass}/${s.stream_id}.m3u8` 
                 }));
 
                 alert(`Loaded ${iptvChannels.length} channels from Xtream!`);
@@ -699,7 +695,8 @@
                         currentChannel.name = tvgName ? tvgName[1] : (commaSplit[1] || "Unknown");
                         currentChannel.cat = groupTitle ? groupTitle[1] : "Uncategorized";
                         currentChannel.logo = tvgLogo ? tvgLogo[1] : "";
-                        currentChannel.id = tvgChNo ? tvgChNo[1] : 0;
+                        // FIX: Use provided ID or generate a temp one if missing
+                        currentChannel.id = tvgChNo ? tvgChNo[1] : 0; 
                         
                     } else if (line.startsWith('http')) {
                         if(!line.match(/\.(mp4|mkv|avi)$/i)) { // Filter VOD
@@ -709,6 +706,9 @@
                         currentChannel = {};
                     }
                 });
+                // Assign IDs to 0s
+                iptvChannels.forEach((ch, idx) => { if(ch.id == 0) ch.id = idx + 1000; });
+                
                 alert(`Loaded ${iptvChannels.length} channels!`);
             }).catch(err => alert("Failed to load: " + err));
         }
@@ -788,6 +788,9 @@
                 filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
             
+            // Sort by ID
+            filtered.sort((a,b) => parseInt(a.id) - parseInt(b.id));
+
             filtered.forEach(ch => {
                 const row = document.createElement('div');
                 row.className = 'epg-row';
@@ -850,7 +853,6 @@
         }
 
         function updatePreview(title, time, desc, img, isLive) {
-            // Safety check for null elements (Fixes TypeError)
             const elTitle = document.getElementById('lh-title');
             if(!elTitle) return;
 
