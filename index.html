@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V75: Timeline EPG</title>
+    <title>FibreTV V76: Colors & Nav Fix</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -124,9 +124,12 @@
         /* SIDEBAR (Stream Only) */
         .vertical-filter-col { width: var(--sidebar-width); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-start; height: 100%; margin: 0; padding-left: 40px; margin-top: 130px; }
         .vert-capsule { background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 20px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.1); max-height: calc(100vh - 180px); overflow-y: auto; z-index: 50; }
+        .vert-capsule::-webkit-scrollbar { display:none; }
         .v-item { padding: 12px 20px; border-radius: 18px; color: #999; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; }
+        .v-item.active i { color: black; }
+
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; }
         
         /* --- TIMELINE EPG (Sky Glass Style) --- */
@@ -150,15 +153,17 @@
         /* Channel Sticky Column */
         .tl-channel { 
             position: sticky; left: 0; z-index: 10;
-            width: 120px; flex-shrink: 0; 
-            background: #111; /* Opaque to cover scrolling */
+            width: 250px; flex-shrink: 0; 
+            background: #111;
             border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; padding: 10px;
+            display: flex; align-items: center; gap: 15px; padding: 0 20px;
         }
-        .tl-logo { max-height: 40px; max-width: 80%; object-fit: contain; }
+        .tl-ch-num { font-size: 1.2rem; font-weight: 800; color: #888; width: 40px; }
+        .tl-logo { max-height: 40px; max-width: 60px; object-fit: contain; }
+        .tl-name { font-size: 0.9rem; font-weight: 700; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Programs Track */
-        .tl-programs { flex: 1; display: flex; position: relative; overflow: hidden; } /* Overflow hidden to clip logic */
+        .tl-programs { flex: 1; display: flex; position: relative; overflow: hidden; }
         
         .prog-card {
             position: absolute; height: 80%; top: 10%;
@@ -316,7 +321,7 @@
     </div>
 
     <script>
-        let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[];
+        let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[], epgMap={};
         
         // --- NAV RENDERER ---
         const defaultNav = `
@@ -389,40 +394,39 @@
         function renderLiveNav(level, catName) {
             const nav = document.getElementById('main-nav');
             
-            // Add Search to Live Nav
             const searchIcon = `<div class="nav-item icon-only" onclick="switchTab('search', null)"><i class="fas fa-search"></i></div>`;
             
             if(level === 'root') {
                 let html = `${searchIcon}<div class="nav-item nav-back" onclick="switchTab('home', null)"><i class="fas fa-arrow-left"></i></div>
-                            <div class="nav-item active active-live">All</div>`;
+                            <div class="nav-item active active-live" onclick="renderLiveNav('root', 'All Channels')">All</div>`;
                 
-                // Main Categories
-                const mainCats = ['Entertainment', 'Sports', 'Movies', 'News', 'Kids', 'Music', 'Documentaries'];
+                // ORDERED CATEGORIES
+                const mainCats = ['Entertainment', 'Documentaries', '+1', 'Movies', 'Music', 'News', 'Kids', 'Sports', 'Extra'];
+                
                 mainCats.forEach(c => {
-                    html += `<div class="nav-item" onclick="renderLiveNav('sub', '${c}')">${c}</div>`;
+                    // Logic to maintain active state highlight
+                    const activeClass = (catName === c) ? 'active active-live' : '';
+                    html += `<div class="nav-item ${activeClass}" onclick="renderLiveNav('sub', '${c}')">${c}</div>`;
                 });
                 nav.innerHTML = html;
-                renderTimeline('All Channels');
+                
+                if(!catName) renderTimeline('All Channels');
             }
-            else if (level === 'sub' && catName === 'Sports') {
-                // Example of Drilling into Sports
-                nav.innerHTML = `
-                    ${searchIcon}
-                    <div class="nav-item nav-back" onclick="renderLiveNav('root')"><i class="fas fa-arrow-left"></i></div>
-                    <div class="nav-item active active-live">All Sports</div>
-                    <div class="nav-item" onclick="renderTimeline('Sports')">Sports</div>
-                    <div class="nav-item" onclick="renderTimeline('Sports Extra')">Sports Extra</div>
-                `;
-                renderTimeline('Sports');
-            }
-            else {
-                // Generic Category Click
-                // For this demo, non-Sports just filter the timeline immediately without nav change, 
-                // OR we could make them active. Let's just highlight them.
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active', 'active-live'));
-                // Find the element clicked if passed, otherwise re-render root with active
-                // Simplified: just filter timeline
-                renderTimeline(catName);
+            else if (level === 'sub') {
+                 if (catName === 'Sports') {
+                    nav.innerHTML = `
+                        ${searchIcon}
+                        <div class="nav-item nav-back" onclick="renderLiveNav('root')"><i class="fas fa-arrow-left"></i></div>
+                        <div class="nav-item active active-live">All Sports</div>
+                        <div class="nav-item" onclick="renderTimeline('Sports')">Sports</div>
+                        <div class="nav-item" onclick="renderTimeline('Sports Extra')">Sports Extra</div>
+                    `;
+                    renderTimeline('Sports');
+                 } else {
+                     // Re-render root but highlight the selected category
+                     renderLiveNav('root', catName);
+                     renderTimeline(catName);
+                 }
             }
         }
 
@@ -434,7 +438,7 @@
             // Add Current Time Line
             const nowLine = document.createElement('div');
             nowLine.className = 'now-line';
-            nowLine.style.left = '30%'; // Fixed visual position for demo
+            nowLine.style.left = '30%'; 
             const nowMarker = document.createElement('div');
             nowMarker.className = 'now-marker';
             nowMarker.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -444,8 +448,9 @@
 
             // Filter Channels
             let filtered = iptvChannels;
-            if(category !== 'All Channels') {
-                 // Simple includes check
+            if(category === 'Extra') {
+                filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes('stream') || c.cat.toLowerCase().includes('extra'));
+            } else if(category !== 'All Channels') {
                  filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes(category.toLowerCase()));
             }
 
@@ -453,19 +458,24 @@
                 const row = document.createElement('div');
                 row.className = 'tl-row';
                 
-                // Channel Logo Box
+                // Channel Logo Box (WITH NUMBER)
                 const logoBox = document.createElement('div');
                 logoBox.className = 'tl-channel';
-                logoBox.innerHTML = `<img src="${ch.logo || ''}" class="tl-logo" onerror="this.style.display='none'">`;
-                // Play on logo click
+                
+                // CHANNEL NUMBER & NAME RESTORED
+                logoBox.innerHTML = `
+                    <div class="tl-ch-num">${ch.id}</div>
+                    <img src="${ch.logo || ''}" class="tl-logo" onerror="this.style.display='none'">
+                    <div class="tl-name">${ch.name}</div>
+                `;
+                
                 logoBox.onclick = () => playChannel(ch.url);
                 
                 // Program Track
                 const track = document.createElement('div');
                 track.className = 'tl-programs';
                 
-                // Generate Mock Programs (Since we don't have real XMLTV in this snippet)
-                // 1 minute = 4px width roughly
+                // Generate Mock Programs
                 const progs = generateMockEPG(ch.name);
                 let leftOffset = 0;
                 
@@ -474,11 +484,10 @@
                     block.className = 'prog-card';
                     if(index === 1) block.classList.add('active'); // Highlight "Now"
                     
-                    // Width calc (mock)
                     const width = p.duration * 4; 
                     block.style.width = width + 'px';
                     block.style.left = leftOffset + 'px';
-                    leftOffset += width + 2; // 2px gap
+                    leftOffset += width + 2; 
 
                     block.innerText = p.title;
                     block.onmouseover = () => updatePreview(p.title, p.time, `Now watching on ${ch.name}`, null);
@@ -494,10 +503,9 @@
         }
 
         function generateMockEPG(name) {
-            // Creates 3 blocks: Past, Now, Future
             return [
                 { title: "Previous Show", time: "10:00 - 11:00", duration: 60 },
-                { title: `Live on ${name}`, time: "11:00 - 12:30", duration: 90 }, // Current
+                { title: `Live on ${name}`, time: "11:00 - 12:30", duration: 90 }, 
                 { title: "Next Program", time: "12:30 - 13:00", duration: 30 },
                 { title: "Afternoon Movie", time: "13:00 - 15:00", duration: 120 },
             ];
@@ -603,7 +611,6 @@
             document.getElementById('cp-hero').style.backgroundImage = `url('${item.stream_icon || item.cover}')`;
             document.getElementById('btn-play-content').onclick = () => {
                 addToHistory(item, type);
-                // Play logic for Movie vs Series would go here
                 alert("Playing " + item.name);
             };
         }
@@ -635,7 +642,6 @@
             res.innerHTML = '';
             if(q.length < 2) return;
             q = q.toLowerCase();
-            // Filter Arrays and Render...
             const hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
             hits.slice(0,10).forEach(c => {
                 res.innerHTML += `<div style="padding:10px; border-bottom:1px solid #333">${c.name}</div>`;
