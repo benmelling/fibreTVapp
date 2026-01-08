@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V103: The Refined Experience</title>
+    <title>FibreTV V104: Final Polish & My TV</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -105,7 +105,7 @@
         
         .mode-live .nav-item:not(.active), .mode-tv .nav-item:not(.active), .mode-movies .nav-item:not(.active) { color: #ccc; }
 
-        /* Default Active */
+        /* Active Colors */
         .mode-default #nav-live.active { background: var(--col-live) !important; color: white !important; }
         .mode-default #nav-tv.active { background: var(--col-tv) !important; color: white !important; }
         .mode-default #nav-movies.active { background: var(--col-movie) !important; color: white !important; }
@@ -140,6 +140,7 @@
             background: linear-gradient(to bottom, #000000 0%, #111111 100%);
         }
         
+        /* Gradients */
         .page-live-bg { background: linear-gradient(to bottom, #000000 0%, #001a40 100%) !important; }
         .page-tv-bg { background: linear-gradient(to bottom, #000000 0%, #401a00 100%) !important; }
         .page-movies-bg { background: linear-gradient(to bottom, #000000 0%, #00331a 100%) !important; }
@@ -201,7 +202,6 @@
             display: flex; align-items: center; justify-content: space-between; 
             padding: 30px; gap: 30px;
         }
-        /* No Border on Logo Box as requested */
         .lh-logo-box {
             width: 200px; aspect-ratio: 1/1; background: black; border-radius: 16px;
             display: grid; place-items: center; 
@@ -237,7 +237,9 @@
         }
         .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
         .epg-logo { width: 100px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
-        .epg-logo img { max-height: 55px; max-width: 100%; object-fit: contain; }
+        .epg-logo img { max-height: 55px; max-width: 100%; object-fit: contain; filter: none; transition: filter 0.3s; }
+        .white-logos .epg-logo img { filter: grayscale(100%) brightness(200%); } /* White Logo Filter */
+
         .epg-name { width: 180px; font-weight: 700; font-size: 1.1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         
         /* Timeline Blocks */
@@ -272,7 +274,6 @@
         
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
-        /* Uniform Square */
         .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: grid; place-items: center; font-weight:700; color:#aaa; font-size:1.2rem; } 
         .c-app { width: 100px; height: 100px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
         
@@ -351,7 +352,7 @@
                                 <div class="header-info-mid">
                                     <h1 id="lh-title" class="lh-title">Select Channel</h1>
                                     <div class="lh-meta"><span id="lh-time">--:--</span></div>
-                                    <p id="lh-desc" class="lh-desc">Hover over a program to see details.</p>
+                                    <p id="lh-desc" class="lh-desc">Hover over a channel to see details.</p>
                                 </div>
                                 <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
                             </div>
@@ -389,7 +390,7 @@
                         <div class="vert-capsule">
                             <div class="v-item active" onclick="showSettingsSection('user', this)">User Details</div>
                             <div class="v-item" onclick="showSettingsSection('features', this)">App Features</div>
-                            <div class="v-item" onclick="alert('Opening Android Settings...')">OS Settings</div>
+                            <div class="v-item" onclick="showSettingsSection('mytv', this)">My TV</div>
                         </div>
                     </div>
                     <div class="content-col settings-content">
@@ -404,13 +405,9 @@
                                     <button class="btn-settings" onclick="loadXtream()">Login</button>
                                 </div>
                                 <div class="setting-card">
-                                    <span class="setting-label">EPG URL</span>
-                                    <input id="epg-url" class="setting-input" placeholder="http://example.com/guide.xml">
-                                    <button class="btn-settings" onclick="loadEPG()">Load EPG</button>
-                                </div>
-                                <div class="setting-card">
-                                    <span class="setting-label">Prefix Filter (Comma Separated)</span>
-                                    <input id="prefix-filter" class="setting-input" placeholder="EN -, UK -" oninput="localStorage.setItem('prefixFilter', this.value)">
+                                    <span class="setting-label">Option B: Real Debrid</span>
+                                    <input id="rd-key" class="setting-input" placeholder="API Key">
+                                    <div style="margin-top:10px;">Use Debrid Source <label class="switch"><input type="checkbox" id="toggle-debrid"><span class="slider round"></span></label></div>
                                 </div>
                             </div>
                         </div>
@@ -418,16 +415,44 @@
                             <div class="section-header">App Features</div>
                             <div class="settings-grid">
                                 <div class="setting-card">
+                                    <span class="setting-label">Visible Tabs</span>
                                     <div style="margin-bottom:10px;">Live Tab <label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
                                     <div style="margin-bottom:10px;">TV Shows <label class="switch"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
                                     <div style="margin-bottom:10px;">Movies <label class="switch"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
                                     <div style="margin-bottom:10px;">YouTube <label class="switch"><input type="checkbox" checked id="toggle-youtube" onchange="toggleFeature('youtube')"><span class="slider round"></span></label></div>
                                     <div style="margin-bottom:10px;">Music <label class="switch"><input type="checkbox" checked id="toggle-music" onchange="toggleFeature('music')"><span class="slider round"></span></label></div>
                                 </div>
+                                <div class="setting-card">
+                                    <span class="setting-label">Filters</span>
+                                    <input id="prefix-filter" class="setting-input" placeholder="Prefix (e.g. EN -)" oninput="localStorage.setItem('prefixFilter', this.value)">
+                                    <input id="suffix-filter" class="setting-input" style="margin-top:10px;" placeholder="Suffix (e.g. [4K])" oninput="localStorage.setItem('suffixFilter', this.value)">
+                                    <div style="margin-top:15px;">White Channel Logos <label class="switch"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
+                                </div>
                             </div>
+                        </div>
+                        <div id="set-mytv" style="display:none;">
+                             <div class="section-header">My TV</div>
+                             <div class="settings-grid">
+                                 <div class="setting-card" onclick="alert('Opening Inputs...')"><h3>TV Inputs</h3><p style="color:#888;">HDMI, Component, AV</p></div>
+                                 <div class="setting-card" onclick="alert('Opening Apps...')"><h3>TV Apps</h3><p style="color:#888;">Manage Installed Apps</p></div>
+                                 <div class="setting-card" onclick="alert('Opening Files...')"><h3>Local Files</h3><p style="color:#888;">USB, HDD, Network</p></div>
+                                 <div class="setting-card" onclick="alert('Opening Settings...')"><h3>OS Settings</h3><p style="color:#888;">Android / FireTV Settings</p></div>
+                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="content-page">
+        <div class="cp-hero" id="cp-hero"><div class="cp-grad"></div></div>
+        <div class="cp-details">
+            <h1 class="cp-title" id="cp-title">Title</h1>
+            <p class="cp-desc" id="cp-desc">Description...</p>
+            <div style="display:flex;">
+                <button class="btn-settings" style="background:white; color:black; width:auto; padding:15px 40px; margin-right:15px;" id="btn-play-content">Play</button>
+                <button class="btn-settings" style="background:rgba(255,255,255,0.2); color:white; width:auto; padding:15px 40px;" onclick="closeContentPage()">Back</button>
             </div>
         </div>
     </div>
@@ -437,6 +462,7 @@
         let currentContext = 'Home';
         let previousNavState = null;
 
+        // --- INIT ---
         const defaultNav = `
             <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
             <div id="nav-home" class="nav-item active" onclick="switchTab('home')">Home</div>
@@ -458,6 +484,8 @@
                 document.getElementById('xc-pass').value = localStorage.getItem('xc_pass');
             }
             if(localStorage.getItem('prefixFilter')) document.getElementById('prefix-filter').value = localStorage.getItem('prefixFilter');
+            if(localStorage.getItem('suffixFilter')) document.getElementById('suffix-filter').value = localStorage.getItem('suffixFilter');
+            
             if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
             if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
             if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
@@ -468,6 +496,11 @@
                 const saved = localStorage.getItem('toggle-'+f);
                 if(saved !== null) document.getElementById('toggle-'+f).checked = (saved === 'true');
             });
+            if(localStorage.getItem('whiteLogo') === 'true') {
+                document.getElementById('toggle-whitelogo').checked = true;
+                document.body.classList.add('white-logos');
+            }
+
             applyToggles();
 
             if(iptvChannels.length === 0) loadDemoData();
@@ -501,6 +534,7 @@
                 if(tabId === 'home') document.getElementById('nav-home').classList.add('active');
             }
             
+            // EXPANDED MODES
             if (tabId === 'live') {
                 nav.className = 'nav-capsule mode-live';
                 bg.classList.add('page-live-bg');
@@ -633,7 +667,7 @@
                 row.className = 'epg-row';
                 
                 // Row hover updates preview with channel info
-                row.onmouseenter = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
+                row.onmouseover = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
 
                 const left = document.createElement('div');
                 left.className = 'epg-channel-col';
@@ -674,7 +708,6 @@
         function updatePreview(ch, title, time) {
             document.getElementById('lh-title').innerText = cleanName(ch.name);
             document.getElementById('lh-desc').innerText = title;
-            document.getElementById('lh-time').innerText = time || "";
             if(ch.logo) document.getElementById('static-hero-img').src = ch.logo;
             document.getElementById('lh-blur-bg').style.backgroundImage = `url('${ch.logo}')`;
         }
@@ -697,8 +730,9 @@
             const container = document.getElementById(type + '-content-area'); container.innerHTML = '';
             const source = type === 'tv' ? vodSeries : vodMovies;
             if (mode === 'All' || mode === 'Favs') {
+                // ROWS
                 const cwItems = watchHistory.filter(h => h.type === type && (h.progress||0) < 0.9);
-                if(cwItems.length > 0) addVODRow(container, "Continue Watching", cwItems, true); // True = History
+                if(cwItems.length > 0) addVODRow(container, "Continue Watching", cwItems, true);
 
                 const favItems = source.filter(i => favStream.has(i.stream_id || i.series_id));
                 if(favItems.length > 0) addVODRow(container, "Watch Next", favItems, false);
@@ -712,6 +746,7 @@
                     });
                 }
             } else {
+                // GRID
                 container.innerHTML = `<h1>${mode}</h1><div class="channels-grid" id="vod-filtered-grid"></div>`;
                 const grid = document.getElementById('vod-filtered-grid');
                 const items = source.filter(i => i.category_name === mode);
@@ -727,20 +762,18 @@
         function addVODRow(container, title, items, isHistory) {
             const wrapper = document.createElement('div');
             wrapper.className = 'row-container';
-            const icon = title==="Continue Watching"?'<i class="fas fa-history"></i> ': title==="Watch Next"?'<i class="fas fa-play-circle"></i> ': '<i class="fas fa-star"></i> ';
-            const header = document.createElement('div'); header.className = 'section-header'; header.innerHTML = icon + title;
+            const header = document.createElement('div'); header.className = 'section-header'; header.innerText = title;
             const scroller = document.createElement('div'); scroller.className = 'scroller';
             const details = document.createElement('div'); details.className = 'row-details';
             details.innerHTML = `<h3 class="rd-title"></h3><p class="rd-desc"></p>`;
 
             items.forEach(i => {
                 const card = document.createElement('div'); 
-                // Fix for VOD History: Always square if it was live channel, else poster.
-                // Wait, request said: "make recently watched channels look like the main channel... but TV Shows/Movies full thing"
-                // So VOD history = Poster. Channel history = Square.
-                // This logic is handled in renderHome mainly, but if we have VOD history inside VOD tab, it should be Poster.
+                // VOD Tab: Always Poster (History is also Poster in VOD tab for consistency with grid)
+                // Exception: User asked for "same as Continue Watching" styling.
+                // In Home, CW is mixed. In TV/Movies tabs, they are all VOD type.
                 
-                card.className = 'card c-poster'; 
+                card.className = (isHistory && i.type === 'live') ? 'card c-square' : 'card c-poster';
                 if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
                 
                 card.onmouseenter = () => {
@@ -764,7 +797,7 @@
             container.appendChild(wrapper);
         }
 
-        // --- SEARCH ---
+        // --- SEARCH MODE ---
         function enableSearchMode() {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
@@ -778,7 +811,7 @@
 
         function performSearch(q) {
             const res = document.getElementById('search-results'); res.innerHTML = '';
-            if(q.length < 2) return; q = q.toLowerCase();
+            if(q.length < 1) return; q = q.toLowerCase(); // 1-Char Search
             let order = ['Channels', 'Movies', 'TV Shows', 'YouTube'];
             
             // Respect Toggles
@@ -826,11 +859,12 @@
                 if(!seen.has(h.name)) {
                     seen.add(h.name);
                     const isLive = h.type === 'live';
-                    // Filtering based on toggles
+                    // Toggles
                     if (!isLive && h.type === 'tv' && localStorage.getItem('toggle-tv')==='false') return;
                     if (!isLive && h.type === 'movies' && localStorage.getItem('toggle-movies')==='false') return;
 
                     const c = document.createElement('div');
+                    // FIX: Live channels ALWAYS Square, VOD ALWAYS Poster
                     c.className = isLive ? 'card c-square' : 'card c-poster';
                     
                     if(isLive) {
@@ -849,10 +883,9 @@
             cwScroller.onmouseleave = () => cwWrapper.querySelector('.row-details').classList.remove('visible');
             container.appendChild(cwWrapper);
             
-            // Watch Next (Combined Favs)
+            // Watch Next
             const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
             if(allFavs.length > 0) {
-                // Filter toggled off items
                 const visibleFavs = allFavs.filter(i => {
                     if (i.series_id && localStorage.getItem('toggle-tv')==='false') return false;
                     if (i.stream_id && localStorage.getItem('toggle-movies')==='false') return false;
@@ -861,20 +894,11 @@
                 if(visibleFavs.length > 0) addVODRow(container, "Watch Next", visibleFavs, false);
             }
 
-            // Featured Rows (Respect Toggles)
+            // Featured
             const showMovies = localStorage.getItem('toggle-movies') !== 'false';
             const showTV = localStorage.getItem('toggle-tv') !== 'false';
-
             if(showMovies && vodMovies.length > 0) addVODRow(container, "Featured Movies", vodMovies.slice(0,10), false);
             if(showTV && vodSeries.length > 0) addVODRow(container, "Featured Shows", vodSeries.slice(0,10), false);
-
-            const utils = [ {t: 'Recordings & Reminders', i: 'fa-bell', type:'c-thumb', c: ['No Recordings']}, {t: 'Apps', i: 'fa-th', type:'c-app', c: ['N', 'P']}, {t: 'Inputs', i: 'fa-plug', type:'c-square', c: ['HDMI 1']} ];
-            utils.forEach(u => {
-                const w = document.createElement('div'); w.className = 'row-container';
-                let html = `<div class="section-header"><i class="fas ${u.i}"></i> ${u.t}</div><div class="scroller">`;
-                u.c.forEach(i => html += `<div class="card ${u.type}" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
-                html += `</div>`; w.innerHTML = html; container.appendChild(w);
-            });
 
             tab.appendChild(container);
         }
@@ -886,6 +910,10 @@
             prefixes.forEach(p => {
                 if(p.trim()) n = n.replace(new RegExp('^' + p.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '');
             });
+            const suffixes = (localStorage.getItem('suffixFilter') || "").split(',');
+            suffixes.forEach(s => {
+                if(s.trim()) n = n.replace(new RegExp(s.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i'), '');
+            });
             return n.trim();
         }
         
@@ -893,6 +921,12 @@
             const on = document.getElementById('toggle-'+feat).checked;
             localStorage.setItem('toggle-'+feat, on);
             applyToggles();
+        }
+        
+        function toggleWhiteLogo() {
+            const on = document.getElementById('toggle-whitelogo').checked;
+            localStorage.setItem('whiteLogo', on);
+            if(on) document.body.classList.add('white-logos'); else document.body.classList.remove('white-logos');
         }
 
         function applyToggles() {
@@ -908,6 +942,7 @@
         function showSettingsSection(id, el) {
             document.getElementById('set-user').style.display = id==='user'?'block':'none';
             document.getElementById('set-features').style.display = id==='features'?'block':'none';
+            document.getElementById('set-mytv').style.display = id==='mytv'?'block':'none';
             document.querySelectorAll('.vert-capsule .v-item').forEach(i=>i.classList.remove('active'));
             el.classList.add('active');
         }
@@ -928,22 +963,15 @@
         }
         function loadEPG() { alert("EPG Loading..."); }
         function playChannel(ch) { 
-            // 1. Swap Logic
             const oldLast = lastLiveChannel;
             if(oldLast && oldLast.name !== ch.name) {
-                // Remove old from history to avoid duplicates
                 watchHistory = watchHistory.filter(h => h.name !== oldLast.name);
-                // Add old to history
                 watchHistory.unshift({...oldLast, type: 'live', progress: 0});
             }
-            // 2. Set New
             lastLiveChannel = ch; 
             localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
-            
-            // 3. Remove new from history list (it becomes the square)
             watchHistory = watchHistory.filter(h => h.name !== ch.name);
             localStorage.setItem('watch_history', JSON.stringify(watchHistory));
-            
             const vid = document.getElementById('global-bg-video');
             let url = ch.url;
             if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
