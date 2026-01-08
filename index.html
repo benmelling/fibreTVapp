@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V93: RESCUE & FIX</title>
+    <title>FibreTV V94: The Nuclear Fix</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -45,7 +45,7 @@
             user-select: none;
         }
 
-        /* --- GLOBAL BACKGROUND --- */
+        /* --- GLOBAL LIVE BACKGROUND --- */
         #global-bg-video {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: -1;
@@ -57,11 +57,12 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- TOP NAV --- */
+        /* --- TOP NAV (FIXED) --- */
         .top-bar-container {
             position: fixed; top: 30px; left: 40px; 
             z-index: 1000; display: flex; align-items: flex-start;
             max-width: 85%;
+            /* Removed pointer-events: none; this was blocking clicks */
         }
 
         .nav-capsule {
@@ -76,7 +77,7 @@
             overflow-x: auto; 
             max-width: 100%;
             scrollbar-width: none;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .nav-capsule::-webkit-scrollbar { display: none; }
 
@@ -89,26 +90,31 @@
         }
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
 
-        /* ACTIVE STATE */
+        /* ACTIVE STATES - HIGH PRIORITY */
         .nav-item.active { background: white !important; color: black !important; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-        
-        /* EXPANDED MODES (Backgrounds) */
-        .nav-capsule.mode-live { background-color: var(--col-live-bg); border: 1px solid var(--col-live); }
-        .nav-capsule.mode-tv { background-color: var(--col-tv-bg); border: 1px solid var(--col-tv); }
-        .nav-capsule.mode-movies { background-color: var(--col-movie-bg); border: 1px solid var(--col-movie); }
-        .nav-capsule.mode-youtube { background-color: var(--col-yt-bg); border: 1px solid var(--col-yt); }
-        .nav-capsule.mode-music { background-color: var(--col-music-bg); border: 1px solid var(--col-music); }
+        .nav-item.active:hover { color: black !important; background: white !important; }
 
-        /* TEXT COLORS (Inactive) */
+        /* EXPANDED MODES COLORS */
+        .nav-capsule.mode-live { background-color: var(--col-live-bg); border-color: var(--col-live); }
+        .nav-capsule.mode-tv { background-color: var(--col-tv-bg); border-color: var(--col-tv); }
+        .nav-capsule.mode-movies { background-color: var(--col-movie-bg); border-color: var(--col-movie); }
+        .nav-capsule.mode-youtube { background-color: var(--col-yt-bg); border-color: var(--col-yt); }
+        .nav-capsule.mode-music { background-color: var(--col-music-bg); border-color: var(--col-music); }
+
+        /* EXPANDED SPECIFIC ACTIVE COLORS */
+        .mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
+        .mode-tv .nav-item.active { background: var(--col-tv) !important; color: white !important; }
+        .mode-movies .nav-item.active { background: var(--col-movie) !important; color: white !important; }
+        .mode-youtube .nav-item.active { background: var(--col-yt) !important; color: white !important; }
+        .mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
+
+        /* DEFAULT HOME COLORS */
         .mode-default #nav-live { color: var(--col-live-txt); }
         .mode-default #nav-tv { color: var(--col-tv-txt); }
         .mode-default #nav-movies { color: var(--col-movie-txt); }
         .mode-default #nav-youtube { color: var(--col-yt-txt); }
         .mode-default #nav-music { color: var(--col-music-txt); }
         
-        .mode-live .nav-item:not(.active), .mode-tv .nav-item:not(.active), .mode-movies .nav-item:not(.active) { color: #ccc; }
-
-        /* DEFAULT HOME ACTIVE COLORS */
         .mode-default #nav-live.active { background: var(--col-live) !important; color: white !important; }
         .mode-default #nav-tv.active { background: var(--col-tv) !important; color: white !important; }
         .mode-default #nav-movies.active { background: var(--col-movie) !important; color: white !important; }
@@ -118,12 +124,10 @@
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
 
-        /* NAV SEARCH BAR */
+        /* SEARCH BAR */
         .nav-search-container { display:flex; align-items:center; width:100%; min-width: 300px; }
-        .nav-search-input { 
-            background: transparent; border: none; color: white; font-size: 1.1rem; 
-            font-family: 'Outfit'; font-weight: 500; flex:1; outline: none; padding: 0 15px; 
-        }
+        .nav-search-input { background: transparent; border: none; color: white; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 500; flex:1; outline: none; padding: 0 15px; }
+        .nav-search-input::placeholder { color: rgba(255,255,255,0.5); }
 
         /* --- INFO CAPSULE --- */
         .info-capsule {
@@ -138,7 +142,7 @@
         .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
         .sys-date { opacity: 0.8; font-size: 0.8rem; display: flex; gap: 8px; }
 
-        /* --- MAIN LAYOUT & BG GRADIENTS --- */
+        /* --- MAIN LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
             padding-top: 130px; padding-bottom: 0; 
@@ -158,12 +162,12 @@
         .layout-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
         .split-inner { display: flex; gap: 40px; flex: 1; overflow: hidden; height: 100%; }
 
-        /* SIDEBAR */
+        /* SIDEBAR (VOD) */
         .vertical-filter-col { 
             width: var(--sidebar-width); flex-shrink: 0; 
             display: flex; flex-direction: column; justify-content: flex-start; 
             height: 100%; margin: 0; padding-left: 20px; 
-            margin-top: 10px; /* Tight to nav */
+            margin-top: 10px;
         }
         
         .vert-capsule { 
@@ -198,11 +202,10 @@
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         .preview-box-right { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
-        
         .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 150px; min-height: 0; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        /* --- EPG LAYOUT --- */
+        /* --- EPG ROW --- */
         .epg-row {
             display: flex; align-items: center; height: 70px; padding: 5px 15px; margin-bottom: 5px;
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
@@ -239,9 +242,8 @@
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; font-weight:700; color:#aaa; font-size:1.2rem; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
-        .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; font-weight:800; font-size:1.1rem; }
-
-        /* --- SETTINGS TAB --- */
+        
+        /* SETTINGS TAB */
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
         .setting-card { background: #222; padding: 20px; border-radius: 20px; }
         .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
@@ -254,9 +256,13 @@
         input:checked + .slider { background-color: #ffffff; }
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
 
+        /* SEARCH INPUT (Page) */
+        .search-input { width: 100%; background: #222; border: 2px solid #333; color: white; font-size: 1.5rem; padding: 15px 25px; border-radius: 50px; margin-bottom: 30px; outline: none; }
+        .search-input:focus { border-color: var(--col-live); }
+        .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+
         /* OVERLAYS & PLAYER */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; pointer-events: none; }
 
         /* CONTENT PAGE (Hidden by default, fixed position) */
@@ -277,7 +283,7 @@
         <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
 
-    <div class="info-capsule" onclick="switchTab('settings', null)">
+    <div class="info-capsule" onclick="switchTab('settings')">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
             <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
@@ -293,9 +299,8 @@
             </div>
     </div>
 
-    <div class="main-content" id="main-bg-target">
-        <div id="tab-home" class="tab-content active">
-            </div>
+    <div class="main-content" id="main-content">
+        <div id="tab-home" class="tab-content active"></div>
 
         <div id="tab-live" class="tab-content">
             <div class="layout-container">
@@ -428,10 +433,9 @@
             const nav = document.getElementById('main-nav');
             const bg = document.getElementById('main-content');
             
-            // Reset Page BG
             bg.className = 'main-content'; 
-            
             nav.className = 'nav-capsule mode-default';
+            
             if (tabId === 'home' || tabId === 'settings') {
                 nav.innerHTML = defaultNav;
                 if(tabId === 'home') document.getElementById('nav-home').classList.add('active');
@@ -495,7 +499,6 @@
             document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             
-            // Sports Drill Down
             if(cat === 'Sports') {
                 const nav = document.getElementById('main-nav');
                 nav.innerHTML = `
@@ -505,7 +508,7 @@
                     <div class="nav-item" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
                     <div class="nav-item" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
                 `;
-                renderLiveList('All Sports');
+                renderLiveList('All Sports'); 
             } else {
                 renderLiveList(cat);
             }
@@ -523,7 +526,6 @@
         function handleVODFilter(type, cat, el) {
              document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
              el.classList.add('active');
-             
              if (cat === 'Watch Next') loadStreamContent(type.toLowerCase(), 'Favs');
              else loadStreamContent(type.toLowerCase(), 'All');
         }
@@ -541,7 +543,7 @@
                 filtered = iptvChannels.filter(c => !c.cat.includes('Sports Extra') && !c.cat.includes('Extra'));
             }
             else if(cat === 'All Sports') {
-                filtered = iptvChannels.filter(c => c.cat.includes('Sport')); // Includes 'Sports' AND 'Sports Extra'
+                filtered = iptvChannels.filter(c => c.cat.includes('Sport'));
             }
             else if(cat === 'Favourites') filtered = iptvChannels.filter(c => favLive.has(c.id));
             else if(cat === 'Extra') {
@@ -570,7 +572,6 @@
                 const row = document.createElement('div');
                 row.className = 'epg-row';
                 
-                // Preview Update on Hover
                 row.onmouseover = () => {
                     document.getElementById('lh-title').innerText = ch.name;
                     document.getElementById('lh-desc').innerText = `Current Program Info for ${ch.name}`;
@@ -601,7 +602,7 @@
             
             sb.innerHTML += `<div class="v-item active" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">All ${type === 'tv' ? 'TV Shows' : 'Movies'}</div>`;
 
-            // Dynamic Categories
+            // Dynamic Categories (Sorted)
             const source = type === 'tv' ? vodSeries : vodMovies;
             const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean).sort();
             
@@ -625,7 +626,7 @@
             const source = type === 'tv' ? vodSeries : vodMovies;
 
             if (categoryOrMode === 'All' || categoryOrMode === 'Favs') {
-                // ROWS
+                // ROW MODE
                 const cwItems = watchHistory.filter(h => h.type === type && (h.progress||0) < 0.9);
                 if(cwItems.length > 0) {
                      const cwTitle = document.createElement('div'); cwTitle.className = 'section-header'; cwTitle.innerText = "Continue Watching"; container.appendChild(cwTitle);
@@ -697,7 +698,6 @@
         function enableSearchMode() {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
-            // Transform nav into search input
             nav.innerHTML = `
                 <div class="nav-search-container">
                     <div class="nav-item nav-back" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div>
@@ -705,7 +705,6 @@
                 </div>
             `;
             setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
-            
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-search').classList.add('active');
             document.getElementById('search-results').innerHTML = '';
