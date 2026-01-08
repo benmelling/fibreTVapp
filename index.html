@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V78: Home Content Overhaul</title>
+    <title>FibreTV V78: Settings & M3U Restored</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -25,11 +25,11 @@
             --radius-card: 16px;
             --sidebar-width: 280px;
 
-            /* THEME COLORS (Solid & BG) */
-            --col-live: #0047AB;   --col-live-bg: rgba(0, 71, 171, 0.3);   --col-live-txt: #6fa0ea;
-            --col-stream: #D35400; --col-stream-bg: rgba(211, 84, 0, 0.3); --col-stream-txt: #eec1a4;
-            --col-yt: #E50914;     --col-yt-bg: rgba(229, 9, 20, 0.2);     --col-yt-txt: #e59094;
-            --col-music: #C2185B;  --col-music-bg: rgba(194, 24, 91, 0.2); --col-music-txt: #e29bb6;
+            /* THEME COLORS */
+            --col-live: #0047AB;   --col-live-bg: rgba(0, 71, 171, 0.4);   --col-live-txt: #8FA4C8;
+            --col-stream: #D35400; --col-stream-bg: rgba(211, 84, 0, 0.4); --col-stream-txt: #C8A08F;
+            --col-yt: #E50914;     --col-yt-bg: rgba(229, 9, 20, 0.3);     --col-yt-txt: #C88F93;
+            --col-music: #C2185B;  --col-music-bg: rgba(194, 24, 91, 0.3); --col-music-txt: #C88FA8;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,11 +56,12 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- TOP NAV --- */
+        /* --- TOP HEADER AREA --- */
         .top-bar-container {
             position: fixed; top: 30px; left: 40px; 
             z-index: 1000; display: flex; align-items: flex-start;
             pointer-events: none;
+            max-width: 85%;
         }
 
         .nav-capsule {
@@ -72,18 +73,23 @@
             pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            overflow-x: auto; 
+            max-width: 100%;
+            scrollbar-width: none;
         }
+        .nav-capsule::-webkit-scrollbar { display: none; }
 
-        /* Nav Groups & Colors */
+        /* Nav Groups */
         .nav-group {
             display: flex; align-items: center; border-radius: var(--radius-capsule);
             transition: background-color 0.2s ease; padding: 0; margin: 0 2px;
         }
-        /* Group Backgrounds */
-        .nav-group.group-active-live { background-color: var(--col-live-bg); }
-        .nav-group.group-active-stream { background-color: var(--col-stream-bg); }
-        .nav-group.group-active-youtube { background-color: var(--col-yt-bg); }
-        .nav-group.group-active-music { background-color: var(--col-music-bg); }
+        
+        /* EXPANDED NAV BACKGROUND COLORS */
+        .nav-group.group-active-live { background-color: var(--col-live-bg) !important; }
+        .nav-group.group-active-stream { background-color: var(--col-stream-bg) !important; }
+        .nav-group.group-active-youtube { background-color: var(--col-yt-bg) !important; }
+        .nav-group.group-active-music { background-color: var(--col-music-bg) !important; }
 
         .nav-item {
             height: 44px; padding: 0 22px; 
@@ -109,25 +115,23 @@
 
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
-        .nav-sub { display: none; font-size: 0.85rem; padding: 0 16px; opacity: 0; animation: slideIn 0.2s forwards; }
-        .nav-sub.visible { display: flex; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* --- INFO CAPSULE (Settings Trigger) --- */
+        /* --- TIME CAPSULE (Top Right) --- */
         .info-capsule {
             position: fixed; top: 30px; right: 40px;
             background: var(--surface-translucent); backdrop-filter: blur(25px);
-            border-radius: var(--radius-capsule); /* Matches Nav Height Style */
-            height: 54px; /* Matches Nav Visual Height */
+            border-radius: var(--radius-capsule); height: 54px;
             padding: 0 25px;
-            display: flex; align-items: center; gap: 20px;
+            display: flex; align-items: center; gap: 15px;
             border: 1px solid rgba(255,255,255,0.15);
             z-index: 1000; cursor: pointer;
             box-shadow: 0 10px 50px rgba(0,0,0,0.5);
             transition: transform 0.2s;
         }
         .info-capsule:hover { transform: scale(1.02); background: rgba(50,50,50,0.9); }
-        .sys-time { font-size: 1.1rem; color: white; font-weight:800; }
+        .system-stack { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); line-height: 1.2; }
+        .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
+        .sys-date { opacity: 0.8; font-size: 0.8rem; display: flex; gap: 8px; }
 
         /* --- MAIN LAYOUT --- */
         .main-content {
@@ -181,7 +185,6 @@
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
-        .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         .preview-box-right { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
@@ -201,7 +204,6 @@
         .epg-logo img { max-height: 45px; max-width: 100%; object-fit: contain; }
         .epg-name { width: 200px; font-weight: 700; font-size: 1rem; color: #eee; }
         .epg-now { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; padding-left: 20px; }
-        .epg-next { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; opacity: 0.5; padding-left: 20px; }
         .prog-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
         .prog-time { font-size: 0.8rem; color: #aaa; font-weight: 500; }
         .mode-extra .epg-num { display: none !important; }
@@ -219,21 +221,15 @@
         .c-thumb { width: 260px; height: 146px; background-size: cover; background-color: #222; }
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; font-weight:700; color:#aaa; font-size:1.2rem; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
-        .c-app i { font-size:2rem; color:#555; }
+        .c-watch-tv { width: 260px; height: 146px; border-radius: var(--radius-card); background: linear-gradient(135deg, #E50914, #990000); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; font-weight:800; font-size:1.1rem; }
 
-        /* --- OVERLAYS --- */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .modal-box { background: var(--surface-color); width: 90%; max-width: 500px; padding: 30px; border-radius: 25px; border: 1px solid #333; }
-        
-        /* SETTINGS AS OVERLAY */
-        #overlay-settings { align-items: flex-start; padding-top: 100px; }
-        #overlay-settings .modal-box { width: 600px; max-width: 90%; }
-        
-        .settings-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .setting-card { background: #222; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 100%; margin-top: 5px; }
-        .btn-settings { background: var(--col-live); color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        /* --- SETTINGS TAB --- */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
+        .setting-card { background: #222; padding: 20px; border-radius: 20px; }
+        .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
+        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
+        .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
@@ -245,15 +241,18 @@
         .search-input:focus { border-color: var(--col-live); }
         .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* CONTENT PAGE */
+        /* OVERLAYS & PLAYER */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .btn-modal { width: 100%; padding: 14px; border-radius: 50px; margin-top: 10px; font-weight: 700; border: none; font-size: 0.95rem; cursor: pointer; }
+        .btn-pri { background: white; color: black; }
+        .btn-sec { background: rgba(255,255,255,0.2); color: white; }
+
         #content-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; display: none; overflow-y: auto; }
         .cp-hero { width: 100%; height: 60vh; background-size: cover; background-position: center; position: relative; }
         .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
         .cp-details { padding: 40px; margin-top: -100px; position: relative; z-index: 2; }
         .cp-title { font-size: 4rem; font-weight: 900; margin-bottom: 10px; line-height: 1; }
         .cp-desc { font-size: 1.1rem; color: #ccc; max-width: 700px; line-height: 1.5; margin-bottom: 30px; }
-        .btn-play { background: white; color: black; padding: 15px 40px; font-size: 1.2rem; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; margin-right: 15px; }
-        .btn-sec { background: rgba(255,255,255,0.2); color: white; padding: 15px 40px; font-size: 1.2rem; font-weight: 800; border: none; border-radius: 50px; cursor: pointer; }
 
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; pointer-events: none; }
     </style>
@@ -269,41 +268,10 @@
         <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
 
-    <div id="overlay-settings" class="overlay">
-        <div class="modal-box">
-            <h1 style="margin-top:0;">Settings</h1>
-            <div style="max-height: 60vh; overflow-y: auto; padding-right:10px;">
-                <h3>Visible Tabs</h3>
-                <div class="settings-grid">
-                    <div class="setting-card"><span>Live</span><label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                    <div class="setting-card"><span>Stream</span><label class="switch"><input type="checkbox" checked id="toggle-stream" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                    <div class="setting-card"><span>YouTube</span><label class="switch"><input type="checkbox" checked id="toggle-youtube" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                    <div class="setting-card"><span>Music</span><label class="switch"><input type="checkbox" checked id="toggle-music" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                </div>
-
-                <h3>Hide Categories</h3>
-                <div class="setting-card" style="display:block;">
-                    <select id="hide-cat-select" class="setting-input" style="margin-bottom:10px;">
-                        <option>Select Category...</option>
-                    </select>
-                    <button class="btn-settings" onclick="hideSelectedCategory()">Hide</button>
-                </div>
-
-                <h3>Xtream Login</h3>
-                <input id="xc-url" class="setting-input" placeholder="URL">
-                <input id="xc-user" class="setting-input" placeholder="User">
-                <input id="xc-pass" class="setting-input" type="password" placeholder="Pass">
-                <button class="btn-settings" onclick="loadXtream()">Login</button>
-            </div>
-            <button class="btn-settings" style="background:#333; margin-top:20px;" onclick="closeOverlays()">Close</button>
-        </div>
-    </div>
-
-    <div class="info-capsule" onclick="showSettings()">
-        <i class="fas fa-cog"></i>
+    <div class="info-capsule" onclick="switchTab('settings', null)">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
-            <div style="display:flex; gap:8px; opacity:0.8;">
+            <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem;">
                 <span id="date-el">Mon 5 Jan</span>
                 <span>•</span>
                 <span id="weather-el"><i class="fas fa-cloud-sun"></i> 12°C</span>
@@ -317,12 +285,13 @@
     </div>
 
     <div class="main-content">
-        <div id="tab-home" class="tab-content active"></div>
+        <div id="tab-home" class="tab-content active">
+            </div>
 
         <div id="tab-live" class="tab-content" style="padding:0;">
             <div class="layout-container">
                 <div class="split-inner">
-                    <div class="vertical-filter-col"><div class="vert-capsule" id="live-sidebar"></div></div>
+                    <div class="vertical-filter-col" id="live-sidebar-container" style="display:none;"><div class="vert-capsule" id="live-sidebar"></div></div>
                     <div class="linear-content-col">
                         <div id="live-preview-header" class="linear-header">
                             </div>
@@ -335,16 +304,60 @@
         <div id="tab-stream" class="tab-content" style="padding:0;">
              <div class="layout-container"><div class="split-inner"><div class="vertical-filter-col"><div class="vert-capsule" id="stream-sidebar"></div></div><div class="content-col"><div id="stream-content-area" style="display:flex; flex-wrap:wrap; gap:20px;"></div></div></div></div>
         </div>
+        
         <div id="tab-youtube" class="tab-content" style="padding:0;">
              <div class="split-view"><div class="vertical-filter-col"><div class="vert-capsule" id="yt-sidebar"></div></div><div class="content-col"><div id="yt-content-area" style="display:flex; flex-wrap:wrap; gap:20px;"></div></div></div>
         </div>
+        
         <div id="tab-music" class="tab-content" style="padding:0;">
              <div class="split-view"><div class="vertical-filter-col"><div class="vert-capsule" id="music-sidebar"></div></div><div class="content-col"><h1>Music</h1></div></div>
         </div>
+        
         <div id="tab-search" class="tab-content">
             <div style="padding: 20px 5%;">
-                <input type="text" id="search-input" class="search-input" placeholder="Search TV, Movies, Music..." oninput="performSearch(this.value)">
+                <input type="text" id="search-input" class="search-input" placeholder="Search..." oninput="performSearch(this.value)">
                 <div id="search-results"></div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <div style="max-width:800px; padding:20px;">
+                <h1>Settings</h1>
+                
+                <h3>1. Provider Login</h3>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <span class="setting-label">Option A: Xtream Codes</span>
+                        <input id="xc-url" class="setting-input" placeholder="http://url.com">
+                        <input id="xc-user" class="setting-input" placeholder="Username">
+                        <input id="xc-pass" class="setting-input" type="password" placeholder="Password">
+                        <button class="btn-settings" onclick="loadXtream()">Login</button>
+                    </div>
+                    <div class="setting-card">
+                        <span class="setting-label">Option B: M3U Playlist</span>
+                        <input id="m3u-url" class="setting-input" placeholder="http://example.com/playlist.m3u">
+                        <button class="btn-settings" onclick="loadM3U()">Load M3U</button>
+                    </div>
+                </div>
+
+                <h3>2. EPG</h3>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <span class="setting-label">XMLTV URL</span>
+                        <input id="epg-url" class="setting-input" placeholder="http://example.com/guide.xml">
+                        <button class="btn-settings" onclick="loadEPG()">Load EPG</button>
+                    </div>
+                </div>
+
+                <h3>3. Features</h3>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <div style="margin-bottom:10px;">Live Tab <label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature()"><span class="slider round"></span></label></div>
+                        <div style="margin-bottom:10px;">Stream Tab <label class="switch"><input type="checkbox" checked id="toggle-stream" onchange="toggleFeature()"><span class="slider round"></span></label></div>
+                        <div style="margin-bottom:10px;">YouTube <label class="switch"><input type="checkbox" checked id="toggle-youtube" onchange="toggleFeature()"><span class="slider round"></span></label></div>
+                        <div style="margin-bottom:10px;">Music <label class="switch"><input type="checkbox" checked id="toggle-music" onchange="toggleFeature()"><span class="slider round"></span></label></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -363,34 +376,7 @@
 
     <script>
         let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[], favLive=new Set(), favStream=new Set();
-        let hiddenCategories = new Set();
         let currentContext = 'Home';
-
-        // --- INIT ---
-        window.onload = () => {
-            document.body.classList.add('mode-home');
-            loadStoredCreds();
-            loadHistory();
-            
-            // Mock Data for Home Rows
-            if(!vodMovies.length) loadDemoData();
-            
-            renderHome();
-            updateClock(); setInterval(updateClock, 1000);
-            
-            // Init Nav
-            document.getElementById('main-nav').innerHTML = defaultNav;
-            
-            // Init Sidebars
-            renderSidebar('youtube', ['Recommended','Trending','Subscriptions','Playlists','History']);
-            renderSidebar('music', ['Recommended','Library','History']);
-        };
-
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock-el').innerText = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date-el').innerText = now.toLocaleDateString('en-GB');
-        }
 
         const defaultNav = `
             <div class="nav-item icon-only" onclick="switchTab('search', this)"><i class="fas fa-search"></i></div>
@@ -401,24 +387,65 @@
             <div id="nav-music-group" class="nav-group"><div id="nav-music" class="nav-item" onclick="switchTab('music', this)">Music</div></div>
         `;
 
+        window.onload = () => {
+            document.body.classList.add('mode-home');
+            document.getElementById('main-nav').innerHTML = defaultNav;
+            
+            // Load Saved Data
+            if(localStorage.getItem('xc_url')) {
+                document.getElementById('xc-url').value = localStorage.getItem('xc_url');
+                document.getElementById('xc-user').value = localStorage.getItem('xc_user');
+                document.getElementById('xc-pass').value = localStorage.getItem('xc_pass');
+            }
+            if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
+            if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
+            if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
+
+            renderHome();
+            
+            // Sidebars
+            renderSidebar('youtube', ['Recommended','Trending','Subscriptions','Playlists','History']);
+            renderSidebar('music', ['Recommended','Library','History']);
+            
+            // Time
+            updateClock(); setInterval(updateClock, 1000);
+            toggleFeature(); // Set initial visibility
+        };
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock-el').innerText = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date-el').innerText = now.toLocaleDateString('en-GB');
+        }
+
         // --- NAVIGATION ---
         function switchTab(tabId, el) {
             currentContext = tabId.charAt(0).toUpperCase() + tabId.slice(1);
             
-            // Restore default if Home
-            if(tabId === 'home') document.getElementById('main-nav').innerHTML = defaultNav;
+            // Remove Colors
+            document.querySelectorAll('.nav-group').forEach(g => g.className = 'nav-group'); // Reset bg
             
-            // Expanded Navs
-            else if(tabId === 'live') updateNavExpanded('Live', ['All Channels', 'Favourites', ...iptvCategories, 'Extra']);
+            // Go Home resets Nav
+            if(tabId === 'home' || tabId === 'settings') {
+                document.getElementById('main-nav').innerHTML = defaultNav;
+                // Highlight Home if settings is closed
+                if(tabId==='home') document.getElementById('nav-home').classList.add('active');
+            }
+            else if(tabId === 'live') {
+                // Expanded Live
+                updateNavExpanded('Live', ['All Channels', 'Favourites', ...iptvCategories, 'Extra']);
+                // Apply BG Color to parent container via JS logic or ensure the nav replacement handles it
+                // Actually the nav-group is replaced by the capsule content.
+                // We'll apply the class to the container logic if needed, but here we replace innerHTML
+            }
             else if(tabId === 'stream') updateNavExpanded('Stream', ['All Stream', 'Favourites', 'TV Shows', 'Movies']);
-            else if(tabId === 'youtube') updateNavExpanded('YouTube', ['Recommended', 'Trending', 'Subscriptions', 'Playlists', 'History']);
-            else if(tabId === 'music') updateNavExpanded('Music', ['Recommended', 'Library', 'History']);
+            else if(tabId === 'youtube') updateNavExpanded('YouTube', ['Recommended', 'Trending', 'Subscriptions']);
+            else if(tabId === 'music') updateNavExpanded('Music', ['Recommended', 'Library']);
 
-            // Tab Visibility
+            // Tab switching
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
 
-            // Render content
             if(tabId === 'home') renderHome();
             if(tabId === 'live') { renderLiveSidebar('Default'); renderLiveChannels('All Channels'); }
             if(tabId === 'stream') { renderStreamSidebar(); loadStreamContent('All'); }
@@ -426,11 +453,22 @@
         }
 
         function updateNavExpanded(type, items) {
+            // Apply BG Color Class to the Capsule Container ? No, apply to the Nav Group wrapper if it existed.
+            // Since we replace innerHTML of 'main-nav', we can wrap it. 
+            // Better: Just style buttons. But user wants dark background behind expanded nav.
+            // We can add a class to the nav-capsule itself.
+            const caps = document.getElementById('main-nav');
+            caps.className = 'nav-capsule'; // reset
+            if(type === 'Live') caps.style.backgroundColor = 'rgba(0, 71, 171, 0.4)';
+            else if(type === 'Stream') caps.style.backgroundColor = 'rgba(211, 84, 0, 0.4)';
+            else caps.style.backgroundColor = 'rgba(26,26,26,0.95)';
+
             let activeClass = '';
-            if(type === 'Live') activeClass = 'active-live';
-            if(type === 'Stream') activeClass = 'active-stream';
-            if(type === 'YouTube') activeClass = 'active-yt';
-            if(type === 'Music') activeClass = 'active-music';
+            if(type === 'Live') activeClass = 'active-live'; // CSS helper?
+            // Actually inline styles are safer for dynamic colors in this setup
+            let activeStyle = '';
+            if(type === 'Live') activeStyle = 'background:#0047AB; color:white;';
+            if(type === 'Stream') activeStyle = 'background:#D35400; color:white;';
 
             let html = `
                 <div class="nav-item icon-only" onclick="switchTab('search', null)"><i class="fas fa-search"></i></div>
@@ -438,27 +476,37 @@
             `;
             
             items.forEach((item, idx) => {
-                let isActive = idx === 0 ? `active ${activeClass}` : '';
+                let style = idx === 0 ? activeStyle + ' box-shadow:0 2px 10px rgba(0,0,0,0.3);' : '';
                 let clickFn = '';
                 if(type === 'Live') clickFn = `filterLiveContent('${item.replace(/'/g, "")}', this)`;
                 if(type === 'Stream') clickFn = `filterStreamContent('${item}', this)`;
                 
-                html += `<div class="nav-item ${isActive}" onclick="${clickFn}">${item}</div>`;
+                // Active class for shape
+                let cls = idx === 0 ? 'nav-item active' : 'nav-item';
+                
+                html += `<div class="${cls}" style="${style}" onclick="${clickFn}">${item}</div>`;
             });
-            document.getElementById('main-nav').innerHTML = html;
+            caps.innerHTML = html;
         }
 
         function filterLiveContent(cat, el) {
-            const container = document.getElementById('main-nav');
-            container.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active', 'active-live'));
-            if(el) el.classList.add('active', 'active-live');
+            // Reset siblings
+            const p = el.parentNode;
+            Array.from(p.children).forEach(c => {
+                c.style.background = ''; c.style.color = ''; c.classList.remove('active');
+            });
+            el.classList.add('active');
+            el.style.background = '#0047AB'; el.style.color = 'white';
             renderLiveChannels(cat);
         }
 
         function filterStreamContent(cat, el) {
-            const container = document.getElementById('main-nav');
-            container.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active', 'active-stream'));
-            if(el) el.classList.add('active', 'active-stream');
+            const p = el.parentNode;
+            Array.from(p.children).forEach(c => {
+                c.style.background = ''; c.style.color = ''; c.classList.remove('active');
+            });
+            el.classList.add('active');
+            el.style.background = '#D35400'; el.style.color = 'white';
             
             if(cat === 'Favourites') loadStreamContent('Favs');
             else if(cat === 'TV Shows') loadStreamContent('Series');
@@ -466,13 +514,13 @@
             else loadStreamContent('All');
         }
 
-        // --- HOME CONTENT RENDERER ---
+        // --- RENDER HOME ---
         function renderHome() {
             const tab = document.getElementById('tab-home');
             let html = '<div style="height:20px;"></div>';
 
             // 1. Continue Watching
-            const cwItems = watchHistory.filter(h => (h.progress||0) < 0.9); 
+            const cwItems = watchHistory.filter(h => (h.progress||0) < 0.9);
             if(cwItems.length > 0) {
                 html += `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller">`;
                 cwItems.forEach(h => {
@@ -481,48 +529,26 @@
                 html += `</div>`;
             }
 
-            // 2. Watch Next (Favourites)
-            if(favStream.size > 0) {
-                html += `<div class="section-header"><i class="fas fa-play-circle"></i> Watch Next</div><div class="scroller">`;
-                // Logic to get items from IDs... simplified here
-                html += `</div>`;
-            }
-
-            // 3. Featured Shows
-            if(vodSeries.length > 0) {
-                html += `<div class="section-header"><i class="fas fa-star"></i> Featured Shows</div><div class="scroller">`;
-                vodSeries.slice(0,10).forEach(s => {
-                    html += `<div class="card c-poster" style="background-image:url('${s.cover}')"></div>`;
-                });
-                html += `</div>`;
-            }
-
-            // 4. Featured Movies
+            // 2. Featured
             if(vodMovies.length > 0) {
                 html += `<div class="section-header"><i class="fas fa-film"></i> Featured Movies</div><div class="scroller">`;
                 vodMovies.slice(0,10).forEach(m => {
-                    html += `<div class="card c-poster" style="background-image:url('${m.stream_icon}')"></div>`;
+                    html += `<div class="card c-poster" style="background-image:url('${m.stream_icon}')" onclick="openContentPage({name:'${m.name.replace(/'/g,"")}', stream_icon:'${m.stream_icon}'})"></div>`;
                 });
                 html += `</div>`;
             }
 
-            // 5. Utility Rows (Placeholders)
+            // 3. Utils
             const utils = [
-                { title: 'Recordings', icon: 'fa-dot-circle', type: 'c-thumb', items: ['Recorded Show 1', 'Recorded Movie'] },
-                { title: 'YouTube Recommended', icon: 'fa-youtube', type: 'c-thumb', items: ['Video 1', 'Video 2'] },
-                { title: 'TV Inputs', icon: 'fa-plug', type: 'c-square', items: ['HDMI 1', 'HDMI 2', 'AV'] },
-                { title: 'Local Files', icon: 'fa-hdd', type: 'c-square', items: ['USB Drive', 'Network'] },
-                { title: 'TV Apps', icon: 'fa-th', type: 'c-app', items: [{n:'Netflix',i:'N'}, {n:'Prime',i:'P'}, {n:'Plex',i:'P'}] }
+                { title: 'Recordings', icon: 'fa-dot-circle', type: 'c-thumb', items: ['Show 1', 'Show 2'] },
+                { title: 'TV Inputs', icon: 'fa-plug', type: 'c-square', items: ['HDMI 1', 'HDMI 2'] },
+                { title: 'Apps', icon: 'fa-th', type: 'c-app', items: ['N', 'P', 'Y'] }
             ];
-
             utils.forEach(u => {
                 html += `<div class="section-header"><i class="fas ${u.icon}"></i> ${u.title}</div><div class="scroller">`;
                 u.items.forEach(i => {
-                    if(u.type === 'c-app') {
-                        html += `<div class="card c-app" style="background:#222;"><i class="fas fa-play"></i></div>`;
-                    } else {
-                        html += `<div class="card ${u.type}" style="background:#222; display:grid; place-items:center;">${i}</div>`;
-                    }
+                    if(u.type === 'c-app') html += `<div class="card c-app">${i}</div>`;
+                    else html += `<div class="card ${u.type}" style="background:#222; display:grid; place-items:center;">${i}</div>`;
                 });
                 html += `</div>`;
             });
@@ -533,14 +559,17 @@
         // --- RENDER LIVE ---
         function renderLiveChannels(cat) {
             const list = document.getElementById('linear-list');
+            const head = document.getElementById('live-preview-header');
             list.innerHTML = '';
             list.classList.remove('mode-extra'); 
+            head.style.display = 'block';
             
             let filtered = [];
             if(cat === 'All Channels') filtered = iptvChannels;
             else if(cat === 'Favourites') filtered = iptvChannels.filter(c => favLive.has(c.id));
             else if(cat === 'Extra') {
                 list.classList.add('mode-extra');
+                head.style.display = 'none'; // Optional: hide header for Extra grid/list?
                 filtered = iptvChannels.filter(c => c.cat.toLowerCase().includes('stream') || c.cat.toLowerCase().includes('extra'));
             }
             else filtered = iptvChannels.filter(c => c.cat === cat);
@@ -556,8 +585,8 @@
                     <div class="epg-cell epg-logo" onclick="toggleFav('${ch.id}', 'live', event)"><img src="${ch.logo || ''}" style="max-height:40px;"></div>
                     <div class="epg-cell epg-name" onclick="toggleFav('${ch.id}', 'live', event)">${ch.name}</div>
                     <div class="epg-cell epg-now" onclick="playChannel('${ch.url}')">
-                        <div class="prog-title">Current Program Info</div>
-                        <div class="prog-time">12:00 - 13:00</div>
+                        <div class="prog-title">No Info</div>
+                        <div class="prog-time">--:--</div>
                     </div>
                 `;
                 list.appendChild(row);
@@ -567,23 +596,19 @@
         function loadStreamContent(type) {
             const container = document.getElementById('stream-content-area');
             container.innerHTML = '';
-            
             let items = [];
             if(type === 'Movies') items = vodMovies;
             else if(type === 'Series') items = vodSeries;
             else if(type === 'Favs') items = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
             else items = [...vodMovies, ...vodSeries];
 
-            items.slice(0, 100).forEach(i => {
+            items.slice(0, 50).forEach(i => {
                 const card = document.createElement('div');
                 card.className = 'card c-poster';
-                const img = i.stream_icon || i.cover;
-                if(img) card.style.backgroundImage = `url('${img}')`;
-                
-                // Click to play
+                if(i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.stream_icon || i.cover}')`;
                 card.onclick = () => openContentPage(i);
                 
-                // Fav Toggle (Star Top Right)
+                // Star
                 const isFav = favStream.has(i.stream_id || i.series_id);
                 const star = document.createElement('div');
                 star.innerHTML = '★';
@@ -595,48 +620,108 @@
             });
         }
 
-        // --- FAVOURITES ---
-        function toggleFav(id, type) {
+        // --- DATA ENGINE ---
+        async function loadXtream() {
+            const url = document.getElementById('xc-url').value;
+            const user = document.getElementById('xc-user').value;
+            const pass = document.getElementById('xc-pass').value;
+            localStorage.setItem('xc_url', url); localStorage.setItem('xc_user', user); localStorage.setItem('xc_pass', pass);
+
+            try {
+                const catRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_live_categories`);
+                const cats = await catRes.json();
+                iptvCategories = cats.map(c => c.category_name);
+
+                const streamRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_live_streams`);
+                const streams = await streamRes.json();
+                iptvChannels = streams.map(s => ({
+                    id: s.num || s.stream_id, name: s.name, cat: (cats.find(c=>c.category_id==s.category_id)?.category_name) || "", logo: s.stream_icon, url: `${url}/live/${user}/${pass}/${s.stream_id}.m3u8`
+                }));
+
+                const vodRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_vod_streams`);
+                vodMovies = await vodRes.json();
+                const serRes = await fetch(`${url}/player_api.php?username=${user}&password=${pass}&action=get_series`);
+                vodSeries = await serRes.json();
+
+                alert(`Loaded!`);
+            } catch(e) { alert("Error: " + e); }
+        }
+
+        async function loadM3U() {
+            const url = document.getElementById('m3u-url').value;
+            if(!url) return;
+            try {
+                const res = await fetch(url);
+                const text = await res.text();
+                // Simple Parser
+                const lines = text.split('\n');
+                iptvChannels = [];
+                let currentItem = {};
+                lines.forEach(line => {
+                    if(line.startsWith('#EXTINF')) {
+                        const parts = line.split(',');
+                        currentItem.name = parts[1] || 'Unknown';
+                        // Extract Logo regex... simplified here
+                    } else if(line.startsWith('http')) {
+                        currentItem.url = line.trim();
+                        currentItem.id = iptvChannels.length + 1;
+                        currentItem.cat = 'Imported';
+                        iptvChannels.push(currentItem);
+                        currentItem = {};
+                    }
+                });
+                alert(`M3U Loaded: ${iptvChannels.length} Channels`);
+            } catch(e) { alert("M3U Error"); }
+        }
+
+        // --- HELPERS ---
+        function toggleFav(id, type, e) {
+            if(e) e.stopPropagation();
             const set = type === 'live' ? favLive : favStream;
             if(set.has(id)) set.delete(id); else set.add(id);
             localStorage.setItem(type === 'live' ? 'favLive' : 'favStream', JSON.stringify([...set]));
-            // Refresh view if needed
-            if(type === 'live' && document.querySelector('.active-live')?.innerText === 'Favourites') renderLiveChannels('Favourites');
-            if(type === 'stream' && document.querySelector('.active-stream')?.innerText === 'Favourites') loadStreamContent('Favs');
+            // Force refresh if viewing favs
+            if(type === 'live') {
+                // If current view is favourites, re-render
+                // Simple hack: re-click current active nav
+                const active = document.querySelector('#main-nav .active');
+                if(active && active.innerText === 'Favourites') renderLiveChannels('Favourites');
+            }
         }
 
-        // --- MOCK DATA FOR DEMO ---
-        function loadDemoData() {
-            iptvChannels = [
-                { id: 101, name: "BBC One", cat: "Entertainment", logo: "https://upload.wikimedia.org/wikipedia/commons/4/43/BBC_One_2021.svg", url: "" },
-                { id: 102, name: "BBC Two", cat: "Entertainment", logo: "", url: "" },
-                { id: 401, name: "Sky Sports", cat: "Sports", logo: "", url: "" }
-            ];
-            vodMovies = [{ name: "Demo Movie", stream_icon: "https://via.placeholder.com/150x225", stream_id: 'm1' }];
-            vodSeries = [{ name: "Demo Series", cover: "https://via.placeholder.com/150x225", series_id: 's1' }];
+        function playChannel(url) {
+            const vid = document.getElementById('global-bg-video');
+            if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
+            if(Hls.isSupported() && url.endsWith('.m3u8')) {
+                const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
+            } else { vid.src = url; vid.play(); }
+            document.body.classList.add('mode-fullscreen');
         }
 
-        // --- SETTINGS OVERLAY ---
-        function showSettings() { document.getElementById('overlay-settings').style.display = 'flex'; }
+        function openContentPage(item) {
+            document.getElementById('content-page').style.display = 'block';
+            document.getElementById('cp-title').innerText = item.name;
+            // Add history
+            watchHistory.unshift({name: item.name, img: item.stream_icon, progress:0});
+            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
+        }
+        function closeContentPage() { document.getElementById('content-page').style.display = 'none'; }
         function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-        function toggleFeature() {
-            const feats = ['live','stream','youtube','music'];
-            feats.forEach(f => {
-                const on = document.getElementById('toggle-'+f).checked;
-                const grp = document.getElementById('nav-'+f+'-group');
-                if(grp) grp.style.display = on ? 'flex' : 'none';
-            });
-        }
-        function loadStoredCreds() {
-             if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
-             if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
-        }
-        function loadHistory() {
-            if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
+
+        function toggleFeature(feat) {
+            if(!feat) { // Init check
+                ['live','stream','youtube','music'].forEach(f => {
+                    const el = document.getElementById('nav-'+f+'-group');
+                    if(el) el.style.display = document.getElementById('toggle-'+f).checked ? 'flex' : 'none';
+                });
+                return;
+            }
+            const el = document.getElementById('nav-'+feat+'-group');
+            if(el) el.style.display = document.getElementById('toggle-'+feat).checked ? 'flex' : 'none';
         }
 
-        // --- UTILS (Play, Search, etc.) ---
-        function performSearch(q) { /* Same as V76 */ }
+        // Sidebar render
         function renderSidebar(tab, items) {
             const el = document.getElementById(tab+'-sidebar');
             if(!el) return;
@@ -645,15 +730,43 @@
                 el.innerHTML += `<div class="v-item ${idx===0?'active':''}">${item}</div>`;
             });
         }
-        function openContentPage(item) {
-            document.getElementById('content-page').style.display='block';
-            document.getElementById('cp-title').innerText = item.name;
+        function renderLiveSidebar(mode) { /* Placeholder since nav is now top */ }
+        function renderStreamSidebar() { /* Placeholder */ }
+
+        // --- SEARCH ---
+        function performSearch(q) {
+            const res = document.getElementById('search-results');
+            res.innerHTML = '';
+            if(q.length < 2) return;
+            q = q.toLowerCase();
+
+            // Order Logic
+            let order = ['Channels', 'Movies', 'TV Shows', 'YouTube'];
+            if(currentContext === 'Stream') order = ['Movies', 'TV Shows', 'Channels', 'YouTube'];
+
+            order.forEach(cat => {
+                let hits = [];
+                let render = '';
+                if(cat === 'Channels') {
+                    hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
+                    render = (c) => `<div class="card c-thumb" onclick="playChannel('${c.url}')" style="display:grid; place-items:center;">${c.name}</div>`;
+                } else if(cat === 'Movies') {
+                    hits = vodMovies.filter(m => m.name.toLowerCase().includes(q));
+                    render = (m) => `<div class="card c-poster" style="background-image:url('${m.stream_icon}')"></div>`;
+                }
+                
+                if(hits.length) {
+                    res.innerHTML += `<div class="section-header">${cat}</div><div class="scroller">${hits.slice(0,10).map(render).join('')}</div>`;
+                }
+            });
         }
-        function closeContentPage() { document.getElementById('content-page').style.display='none'; }
 
-        // Mock Xtream Load
-        async function loadXtream() { alert("Use real creds in code to test fully."); }
-
+        document.addEventListener('keydown', e => {
+            if(e.key==='Escape') { 
+                if(document.body.classList.contains('mode-fullscreen')) document.body.classList.remove('mode-fullscreen');
+                else closeContentPage();
+            }
+        });
     </script>
 </body>
 </html>
