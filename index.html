@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V85: VOD & Highlight Fixed</title>
+    <title>FibreTV V86: Sports & VOD Fix</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -91,7 +91,7 @@
         
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
 
-        /* ACTIVE STATE (White Pill) - High Specificity to override Mode Colors */
+        /* ACTIVE STATE (White Pill) - High Specificity */
         .nav-capsule .nav-item.active { 
             background: white !important; 
             color: black !important; 
@@ -188,7 +188,6 @@
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
         .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
-        .lh-badge { background: #E50914; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
         .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         .preview-box-right { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
@@ -434,8 +433,8 @@
             // EXPANDED MODES
             if (tabId === 'live') {
                 nav.className = 'nav-capsule mode-live';
-                // Fixed Live Order: All, Favs, Cats..., Sports, News, Kids, Extra
-                // Note: Sports has a Drill Down, Extra is Grid.
+                // Strict Live Order
+                const cats = iptvCategories.filter(c => c !== 'Sports' && c !== 'Extra' && c !== 'Sports Extra');
                 renderExpandedNav('Live', ['All Channels', 'Favourites', 'Entertainment', 'Documentaries', '+1', 'Movies', 'Music', 'Sports', 'News', 'Kids', 'Extra']);
             }
             if (tabId === 'tv') {
@@ -477,6 +476,7 @@
                 let active = idx === 0 ? 'active' : '';
                 let clickFn = '';
                 if(type === 'Live') clickFn = `handleLiveFilter('${item.replace(/'/g, "")}', this)`;
+                if(type === 'TV' || type === 'Movies') clickFn = `handleVODFilter('${type}', '${item}', this)`;
                 
                 html += `<div class="nav-item ${active}" onclick="${clickFn}">${item}</div>`;
             });
@@ -487,29 +487,38 @@
             document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             
-            // Sports Drill Down
+            // Sports Drill Down Logic (Fixed to update active state)
             if(cat === 'Sports') {
                 const nav = document.getElementById('main-nav');
                 nav.innerHTML = `
                     <div class="nav-item icon-only" onclick="switchTab('search')"><i class="fas fa-search"></i></div>
                     <div class="nav-item nav-back" onclick="switchTab('live')"><i class="fas fa-arrow-left"></i></div>
                     <div class="nav-item active" style="background:#0047AB; color:white;">All Sports</div>
-                    <div class="nav-item" onclick="renderLiveList('Sports')">Sports</div>
-                    <div class="nav-item" onclick="renderLiveList('Sports Extra')">Sports Extra</div>
+                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
+                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
                 `;
-                renderLiveList('Sports');
+                renderLiveList('Sports'); // Default to all sports
             } else {
                 renderLiveList(cat);
             }
         }
 
-        function handleStreamFilter(cat, el) {
-            document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
+        function toggleSportsActive(el, cat) {
+            // Helper for Sports Drill Down
+            document.querySelectorAll('.nav-capsule .nav-item').forEach(i => {
+                i.classList.remove('active');
+                i.style.background = ''; i.style.color = '';
+            });
             el.classList.add('active');
-            if(cat === 'Favourites') loadStreamContent('Favs');
-            else if(cat === 'TV Shows') loadStreamContent('Series');
-            else if(cat === 'Movies') loadStreamContent('Movies');
-            else loadStreamContent('All');
+            renderLiveList(cat);
+        }
+
+        function handleVODFilter(type, cat, el) {
+             document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
+             el.classList.add('active');
+             
+             if (cat === 'Watch Next') loadStreamContent(type.toLowerCase(), 'Favs');
+             else loadStreamContent(type.toLowerCase(), 'All');
         }
 
         // --- RENDER LIVE ---
@@ -559,8 +568,6 @@
                         <div class="prog-time">12:00 - 13:00</div>
                     </div>
                 `;
-                // Capture channel object click to play
-                row.querySelector('.epg-now').onclick = () => playChannel(ch);
                 list.appendChild(row);
             });
         }
@@ -570,7 +577,6 @@
             const sb = document.getElementById(type + '-sidebar');
             sb.innerHTML = '';
             
-            // Static "All" button
             sb.innerHTML += `<div class="v-item active" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">All ${type === 'tv' ? 'TV Shows' : 'Movies'}</div>`;
 
             // Dynamic Categories
@@ -598,7 +604,6 @@
 
             if (categoryOrMode === 'All' || categoryOrMode === 'Favs') {
                 // ROW MODE
-                
                 // 1. Continue Watching
                 const cwItems = watchHistory.filter(h => h.type === type && (h.progress||0) < 0.9);
                 if(cwItems.length > 0) {
@@ -629,6 +634,20 @@
                 // 3. Category Rows
                 if (categoryOrMode === 'All') {
                     const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean).sort();
+                    
+                    // Fallback if no categories found
+                    if(cats.length === 0) {
+                        const rowTitle = document.createElement('div'); rowTitle.className = 'section-header'; rowTitle.innerText = "Uncategorized"; container.appendChild(rowTitle);
+                        const scroller = document.createElement('div'); scroller.className = 'scroller';
+                        source.slice(0, 50).forEach(i => {
+                            const card = document.createElement('div'); card.className = 'card c-poster';
+                            if(i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.stream_icon || i.cover}')`;
+                            card.onclick = () => openContentPage(i);
+                            scroller.appendChild(card);
+                        });
+                        container.appendChild(scroller);
+                    }
+
                     cats.forEach(cat => {
                         const rowTitle = document.createElement('div'); rowTitle.className = 'section-header'; rowTitle.innerText = cat; container.appendChild(rowTitle);
                         const scroller = document.createElement('div'); scroller.className = 'scroller';
@@ -636,13 +655,6 @@
                         items.forEach(i => {
                             const card = document.createElement('div'); card.className = 'card c-poster';
                             if(i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.stream_icon || i.cover}')`;
-                            
-                            const isFav = favStream.has(i.stream_id || i.series_id);
-                            const star = document.createElement('div'); star.innerHTML = '★';
-                            star.style.cssText = `position:absolute; top:5px; right:5px; font-size:1.5rem; color:${isFav?'gold':'rgba(255,255,255,0.3)'}; cursor:pointer; text-shadow:0 1px 2px black;`;
-                            star.onclick = (e) => { e.stopPropagation(); toggleFav(i.stream_id||i.series_id, 'stream'); };
-                            card.appendChild(star);
-                            
                             card.onclick = () => openContentPage(i);
                             scroller.appendChild(card);
                         });
@@ -683,7 +695,7 @@
             watchHistory.filter(h => (h.progress||0) < 0.9).forEach(h => {
                 html += `<div class="card c-thumb" style="background-image:url('${h.img}')"><div class="card-meta"><div class="card-title">${h.name}</div></div></div>`;
             });
-            html += `</div>`; // Close row
+            html += `</div>`; 
 
             // 2. Featured Movies
             if(vodMovies.length > 0) {
@@ -740,13 +752,21 @@
                 const sj = await sr.json();
                 iptvChannels = sj.map(x => ({id: x.num, name: x.name, logo: x.stream_icon, cat: (cj.find(c=>c.category_id==x.category_id)?.category_name) || "General", url: `${u}/live/${us}/${p}/${x.stream_id}.m3u8`}));
                 
-                // VOD - Movies
-                const vr = await fetch(`${u}/player_api.php?username=${us}&password=${p}&action=get_vod_streams`);
-                vodMovies = await vr.json();
+                // VOD - Categories First
+                const vcr = await fetch(`${u}/player_api.php?username=${us}&password=${p}&action=get_vod_categories`);
+                const vcj = await vcr.json(); // Movies Cats
                 
-                // VOD - Series
+                const scr = await fetch(`${u}/player_api.php?username=${us}&password=${p}&action=get_series_categories`);
+                const scj = await scr.json(); // Series Cats
+
+                // VOD - Streams (Map IDs to Names)
+                const vr = await fetch(`${u}/player_api.php?username=${us}&password=${p}&action=get_vod_streams`);
+                const vj = await vr.json();
+                vodMovies = vj.map(x => ({...x, category_name: (vcj.find(c => c.category_id == x.category_id)?.category_name) || "Uncategorized"}));
+                
                 const ser = await fetch(`${u}/player_api.php?username=${us}&password=${p}&action=get_series`);
-                vodSeries = await ser.json();
+                const sej = await ser.json();
+                vodSeries = sej.map(x => ({...x, category_name: (scj.find(c => c.category_id == x.category_id)?.category_name) || "Uncategorized"}));
                 
                 alert("Loaded");
             } catch(e) { alert("Error"); }
@@ -775,10 +795,8 @@
         }
 
         function playChannel(ch) {
-            // Save Last Watched
-            lastLiveChannel = ch;
+            lastLiveChannel = ch; // Store obj
             localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
-
             const vid = document.getElementById('global-bg-video');
             let url = ch.url;
             if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
@@ -839,6 +857,9 @@
                 } else if(cat === 'Movies') {
                     hits = vodMovies.filter(m => m.name.toLowerCase().includes(q));
                     render = (m) => `<div class="card c-poster" style="background-image:url('${m.stream_icon}')"></div>`;
+                } else if(cat === 'TV Shows') {
+                    hits = vodSeries.filter(s => s.name.toLowerCase().includes(q));
+                    render = (s) => `<div class="card c-poster" style="background-image:url('${s.cover}')"></div>`;
                 }
                 
                 if(hits.length) {
