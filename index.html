@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V94: The Nuclear Fix</title>
+    <title>FibreTV V95: Layout Perfected</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -24,6 +24,7 @@
             --radius-capsule: 50px;
             --radius-card: 16px;
             --sidebar-width: 260px;
+            --page-gutter: 40px; /* Standardized Left Margin */
 
             /* THEME COLORS */
             --col-live: #0047AB;   --col-live-bg: rgba(0, 71, 171, 0.4);   --col-live-txt: #8FA4C8;
@@ -40,12 +41,12 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
-            height: 100vh; overflow: hidden;
+            height: 100vh; width: 100vw; overflow: hidden;
             display: flex; flex-direction: column;
             user-select: none;
         }
 
-        /* --- GLOBAL LIVE BACKGROUND --- */
+        /* --- GLOBAL BACKGROUND --- */
         #global-bg-video {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: -1;
@@ -57,12 +58,11 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- TOP NAV (FIXED) --- */
+        /* --- TOP NAV --- */
         .top-bar-container {
-            position: fixed; top: 30px; left: 40px; 
+            position: fixed; top: 30px; left: var(--page-gutter); 
             z-index: 1000; display: flex; align-items: flex-start;
             max-width: 85%;
-            /* Removed pointer-events: none; this was blocking clicks */
         }
 
         .nav-capsule {
@@ -77,7 +77,7 @@
             overflow-x: auto; 
             max-width: 100%;
             scrollbar-width: none;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         .nav-capsule::-webkit-scrollbar { display: none; }
 
@@ -90,31 +90,25 @@
         }
         .nav-item:hover { color: white !important; background: rgba(255,255,255,0.1); }
 
-        /* ACTIVE STATES - HIGH PRIORITY */
+        /* ACTIVE STATE */
         .nav-item.active { background: white !important; color: black !important; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
-        .nav-item.active:hover { color: black !important; background: white !important; }
+        
+        /* THEME BACKGROUNDS FOR CAPSULE */
+        .nav-capsule.mode-live { background-color: var(--col-live-bg); border: 1px solid var(--col-live); }
+        .nav-capsule.mode-tv { background-color: var(--col-tv-bg); border: 1px solid var(--col-tv); }
+        .nav-capsule.mode-movies { background-color: var(--col-movie-bg); border: 1px solid var(--col-movie); }
+        .nav-capsule.mode-youtube { background-color: var(--col-yt-bg); border: 1px solid var(--col-yt); }
+        .nav-capsule.mode-music { background-color: var(--col-music-bg); border: 1px solid var(--col-music); }
 
-        /* EXPANDED MODES COLORS */
-        .nav-capsule.mode-live { background-color: var(--col-live-bg); border-color: var(--col-live); }
-        .nav-capsule.mode-tv { background-color: var(--col-tv-bg); border-color: var(--col-tv); }
-        .nav-capsule.mode-movies { background-color: var(--col-movie-bg); border-color: var(--col-movie); }
-        .nav-capsule.mode-youtube { background-color: var(--col-yt-bg); border-color: var(--col-yt); }
-        .nav-capsule.mode-music { background-color: var(--col-music-bg); border-color: var(--col-music); }
-
-        /* EXPANDED SPECIFIC ACTIVE COLORS */
+        /* ACTIVE BUTTON COLORS IN EXPANDED MODE */
         .mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
         .mode-tv .nav-item.active { background: var(--col-tv) !important; color: white !important; }
         .mode-movies .nav-item.active { background: var(--col-movie) !important; color: white !important; }
         .mode-youtube .nav-item.active { background: var(--col-yt) !important; color: white !important; }
         .mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
 
-        /* DEFAULT HOME COLORS */
-        .mode-default #nav-live { color: var(--col-live-txt); }
-        .mode-default #nav-tv { color: var(--col-tv-txt); }
-        .mode-default #nav-movies { color: var(--col-movie-txt); }
-        .mode-default #nav-youtube { color: var(--col-yt-txt); }
-        .mode-default #nav-music { color: var(--col-music-txt); }
-        
+        .mode-live .nav-item:not(.active), .mode-tv .nav-item:not(.active), .mode-movies .nav-item:not(.active) { color: #ccc; }
+
         .mode-default #nav-live.active { background: var(--col-live) !important; color: white !important; }
         .mode-default #nav-tv.active { background: var(--col-tv) !important; color: white !important; }
         .mode-default #nav-movies.active { background: var(--col-movie) !important; color: white !important; }
@@ -127,7 +121,6 @@
         /* SEARCH BAR */
         .nav-search-container { display:flex; align-items:center; width:100%; min-width: 300px; }
         .nav-search-input { background: transparent; border: none; color: white; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 500; flex:1; outline: none; padding: 0 15px; }
-        .nav-search-input::placeholder { color: rgba(255,255,255,0.5); }
 
         /* --- INFO CAPSULE --- */
         .info-capsule {
@@ -142,10 +135,10 @@
         .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
         .sys-date { opacity: 0.8; font-size: 0.8rem; display: flex; gap: 8px; }
 
-        /* --- MAIN LAYOUT --- */
+        /* --- MAIN CONTENT & FLEX LAYOUT --- */
         .main-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 130px; padding-bottom: 0; 
+            flex: 1; overflow: hidden; /* No double scrollbars */
+            padding-top: 110px; /* Space for Header */
             display: flex; flex-direction: column;
             background: linear-gradient(to bottom, #000000 0%, #111111 100%);
         }
@@ -154,33 +147,40 @@
         .page-tv-bg { background: linear-gradient(to bottom, #000000 0%, #401a00 100%) !important; }
         .page-movies-bg { background: linear-gradient(to bottom, #000000 0%, #00331a 100%) !important; }
 
-        .tab-content { display: none; padding: 0 0 50px 4%; height: 100%; flex-direction: column; }
+        .tab-content { 
+            display: none; 
+            flex: 1; /* Takes remaining height */
+            flex-direction: column; 
+            overflow: hidden; /* Internal scrolling */
+            padding: 0; /* Gutter handled by children */
+        }
         .tab-content.active { display: flex; animation: fadeIn 0.4s ease; }
-        #tab-home.active { display: block; overflow-y: auto; }
+        #tab-home.active { overflow-y: auto; display: block; padding: 0 var(--page-gutter) 50px var(--page-gutter); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .layout-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
-        .split-inner { display: flex; gap: 40px; flex: 1; overflow: hidden; height: 100%; }
+        .layout-container { display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; }
+        .split-inner { display: flex; flex: 1; overflow: hidden; height: 100%; }
 
-        /* SIDEBAR (VOD) */
+        /* SIDEBAR (Alignment Fix) */
         .vertical-filter-col { 
             width: var(--sidebar-width); flex-shrink: 0; 
             display: flex; flex-direction: column; justify-content: flex-start; 
-            height: 100%; margin: 0; padding-left: 20px; 
-            margin-top: 10px;
+            height: 100%; 
+            padding-left: var(--page-gutter); /* Match Top Nav Left */
+            padding-top: 10px;
         }
         
         .vert-capsule { 
-            background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px; 
+            background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 15px; 
+            display: flex; flex-direction: column; gap: 8px; 
             border: 1px solid rgba(255,255,255,0.1); 
-            height: calc(100vh - 160px); 
-            overflow-y: auto; z-index: 50; 
+            height: 100%; /* Fill column */
+            overflow-y: auto; margin-bottom: 20px;
         }
         .vert-capsule::-webkit-scrollbar { display:none; }
 
         .v-item { 
-            padding: 18px 20px; border-radius: 18px; color: #999; font-weight: 600; font-size: 1rem; 
+            padding: 16px 20px; border-radius: 18px; color: #999; font-weight: 600; font-size: 1rem; 
             cursor: pointer; transition: all 0.2s; text-align: left; 
             display: flex; align-items: center; gap: 15px; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
@@ -188,49 +188,69 @@
         .v-item:hover { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
 
-        .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; height: 100%; }
-        .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 10px; overflow: hidden; }
+        /* CONTENT COLUMNS (Scroll fix) */
+        .content-col { 
+            flex: 1; overflow-y: auto; 
+            padding: 10px var(--page-gutter) 100px 40px; 
+            height: 100%; 
+        }
+        .linear-content-col { 
+            flex: 1; display: flex; flex-direction: column; height: 100%; 
+            padding: 0 var(--page-gutter) 0 40px; /* Right gutter match */
+            overflow: hidden; 
+        }
 
-        /* --- LINEAR HEADER --- */
-        .linear-header { flex: 0 0 auto; width: 100%; border-radius: 24px; margin-bottom: 20px; overflow: hidden; background: var(--surface-color); border: 2px solid transparent; padding: 25px; display:block; }
+        /* --- PREVIEW HEADER --- */
+        .linear-header { 
+            flex: 0 0 auto; width: 100%; border-radius: 24px; margin-bottom: 20px; margin-top: 10px;
+            overflow: hidden; background: var(--surface-color); border: 2px solid transparent; padding: 25px; 
+            display: flex; height: 35vh; min-height: 250px;
+        }
         .header-content { height: 100%; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
-        .image-box-left { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .static-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s; }
+        .image-box-left { width: 300px; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+        .static-img { width: 100%; height: 100%; object-fit: contain; background: black; }
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .lh-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.1; }
-        .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 600; color: #ddd; }
-        .lh-desc { font-size: 1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-        .preview-box-right { width: 32%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .preview-video { width: 100%; height: 100%; object-fit: cover; }
-        .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 150px; min-height: 0; }
+        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; }
+        .lh-desc { font-size: 1.1rem; color: #ccc; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* EPG Controls */
+        .epg-controls { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-epg-time { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-epg-time:hover { background: white; color: black; }
+
+        /* SCROLLABLE LIST AREA */
+        .epg-scroll-area { 
+            flex: 1; overflow-y: auto; padding-bottom: 50px; 
+            /* Fix cutoff: Ensure it takes remaining height */
+        }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
         /* --- EPG ROW --- */
         .epg-row {
-            display: flex; align-items: center; height: 70px; padding: 5px 15px; margin-bottom: 5px;
+            display: flex; align-items: center; height: 80px; padding: 5px 15px; margin-bottom: 5px;
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
             border: 1px solid transparent; background: rgba(255,255,255,0.03);
         }
         .epg-row:hover { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-cell { padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; height: 100%; }
-        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.1rem; justify-content: center; }
+        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; }
         .epg-logo { width: 100px; justify-content: center; padding-right: 20px; } 
-        .epg-logo img { max-height: 45px; max-width: 100%; object-fit: contain; }
-        .epg-name { width: 220px; font-weight: 700; font-size: 1rem; color: #eee; }
-        .epg-now { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; padding-left: 20px; }
-        .prog-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
-        .prog-time { font-size: 0.8rem; color: #aaa; font-weight: 500; }
+        .epg-logo img { max-height: 50px; max-width: 100%; object-fit: contain; }
+        .epg-name { width: 250px; font-weight: 700; font-size: 1.1rem; color: #eee; }
+        .epg-now { flex: 1; border-left: 1px solid rgba(255,255,255,0.1); flex-direction: column; align-items: flex-start; justify-content: center; padding-left: 25px; }
+        .prog-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; color:white; }
+        .prog-time { font-size: 0.85rem; color: #aaa; font-weight: 500; }
         .mode-extra .epg-num { display: none !important; }
 
         /* --- GRID LAYOUT --- */
-        .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 20px; padding-bottom: 100px; }
+        .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding: 10px 0 100px 0; }
         .channel-card { background: #222; border-radius: 16px; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; padding: 15px; transition: transform 0.2s; }
         .channel-card:hover { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
         .cc-logo { width: 80%; height: 60%; object-fit: contain; margin-bottom: 10px; }
-        .cc-name { font-size: 0.9rem; font-weight: 700; text-align: center; }
+        .cc-name { font-size: 0.95rem; font-weight: 700; text-align: center; }
 
         /* --- CARDS & ROWS --- */
-        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
+        .section-header { font-size: 1.4rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; }
         ::-webkit-scrollbar { display: none; }
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
@@ -243,29 +263,23 @@
         .c-square { width: 146px; height: 146px; background-size: cover; background-color: #222; display: grid; place-items: center; font-weight:700; color:#aaa; font-size:1.2rem; } 
         .c-app { width: 90px; height: 90px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
         
+        /* SEARCH CHANNEL CARD */
+        .c-search-channel { width: 160px; height: 220px; background: #1a1a1a; display: flex; flex-direction: column; padding: 10px; align-items: center; justify-content: flex-start; text-align: center; }
+        .csc-logo-box { width: 100%; aspect-ratio: 1/1; background: black; border-radius: 12px; display: grid; place-items: center; margin-bottom: 10px; border: 1px solid #333; }
+        .csc-logo { width: 80%; height: 80%; object-fit: contain; }
+        .csc-name { font-weight: 700; font-size: 1rem; margin-bottom: 5px; line-height: 1.1; }
+        .csc-prog { font-size: 0.8rem; color: #888; font-weight: 500; }
+
         /* SETTINGS TAB */
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
         .setting-card { background: #222; padding: 20px; border-radius: 20px; }
         .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
         .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
         .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ffffff; }
-        input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-
-        /* SEARCH INPUT (Page) */
-        .search-input { width: 100%; background: #222; border: 2px solid #333; color: white; font-size: 1.5rem; padding: 15px 25px; border-radius: 50px; margin-bottom: 30px; outline: none; }
-        .search-input:focus { border-color: var(--col-live); }
-        .search-sec-title { font-size: 1.1rem; font-weight: 800; color: #888; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-
+        
         /* OVERLAYS & PLAYER */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; pointer-events: none; }
-
-        /* CONTENT PAGE (Hidden by default, fixed position) */
         #content-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 6000; overflow-y: auto; }
         .cp-hero { width: 100%; height: 60vh; background-size: cover; position: relative; }
         .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
@@ -283,7 +297,7 @@
         <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
 
-    <div class="info-capsule" onclick="switchTab('settings')">
+    <div class="info-capsule" onclick="switchTab('settings', null)">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
             <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
@@ -299,7 +313,7 @@
             </div>
     </div>
 
-    <div class="main-content" id="main-content">
+    <div class="main-content" id="main-bg-target">
         <div id="tab-home" class="tab-content active"></div>
 
         <div id="tab-live" class="tab-content">
@@ -312,9 +326,13 @@
                                 <div class="image-box-left"><img id="static-hero-img" class="static-img" src=""></div>
                                 <div class="header-info-mid">
                                     <h1 id="lh-title" class="lh-title">Select Channel</h1>
-                                    <p id="lh-desc" class="lh-desc">Info...</p>
+                                    <p id="lh-desc" class="lh-desc">Hover over a channel to see details.</p>
+                                    <div class="epg-controls">
+                                        <button class="btn-epg-time"><i class="fas fa-chevron-left"></i> Yesterday</button>
+                                        <button class="btn-epg-time" style="background:white; color:black;">Today</button>
+                                        <button class="btn-epg-time">Tomorrow <i class="fas fa-chevron-right"></i></button>
+                                    </div>
                                 </div>
-                                <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
                             </div>
                         </div>
                         <div class="epg-scroll-area" id="linear-list"></div>
@@ -340,13 +358,12 @@
         </div>
         
         <div id="tab-search" class="tab-content">
-            <div style="padding: 20px 5%;" id="search-results"></div>
+            <div style="padding: 20px 0;" id="search-results"></div>
         </div>
 
         <div id="tab-settings" class="tab-content">
-            <div style="max-width:800px; padding:20px;">
+            <div style="max-width:800px; padding:20px 0;">
                 <h1>Settings</h1>
-                
                 <h3>1. Provider Login</h3>
                 <div class="settings-grid">
                     <div class="setting-card">
@@ -355,17 +372,6 @@
                         <input id="xc-user" class="setting-input" placeholder="Username">
                         <input id="xc-pass" class="setting-input" type="password" placeholder="Password">
                         <button class="btn-settings" onclick="loadXtream()">Login</button>
-                    </div>
-                </div>
-
-                <h3>2. Features</h3>
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <div style="margin-bottom:10px;">Live Tab <label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                        <div style="margin-bottom:10px;">TV Shows <label class="switch"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                        <div style="margin-bottom:10px;">Movies <label class="switch"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                        <div style="margin-bottom:10px;">YouTube <label class="switch"><input type="checkbox" checked id="toggle-youtube" onchange="toggleFeature()"><span class="slider round"></span></label></div>
-                        <div style="margin-bottom:10px;">Music <label class="switch"><input type="checkbox" checked id="toggle-music" onchange="toggleFeature()"><span class="slider round"></span></label></div>
                     </div>
                 </div>
             </div>
@@ -418,7 +424,6 @@
 
             renderHome();
             updateClock(); setInterval(updateClock, 1000);
-            toggleFeature(); 
         };
 
         function updateClock() {
@@ -431,7 +436,7 @@
         function switchTab(tabId) {
             if (tabId !== 'search') currentContext = tabId.charAt(0).toUpperCase() + tabId.slice(1);
             const nav = document.getElementById('main-nav');
-            const bg = document.getElementById('main-content');
+            const bg = document.getElementById('main-bg-target');
             
             bg.className = 'main-content'; 
             nav.className = 'nav-capsule mode-default';
@@ -441,6 +446,7 @@
                 if(tabId === 'home') document.getElementById('nav-home').classList.add('active');
             }
             
+            // EXPANDED MODES
             if (tabId === 'live') {
                 nav.className = 'nav-capsule mode-live';
                 bg.classList.add('page-live-bg'); 
@@ -450,12 +456,12 @@
             if (tabId === 'tv') {
                 nav.className = 'nav-capsule mode-tv';
                 bg.classList.add('page-tv-bg'); 
-                renderExpandedNav('TV', ['All TV Shows', 'Watch Next']);
+                renderExpandedNav('TV', ['TV Shows', 'Watch Next']);
             }
             if (tabId === 'movies') {
                 nav.className = 'nav-capsule mode-movies';
                 bg.classList.add('page-movies-bg'); 
-                renderExpandedNav('Movies', ['All Movies', 'Watch Next']);
+                renderExpandedNav('Movies', ['Movies', 'Watch Next']);
             }
             if (tabId === 'youtube') {
                 nav.className = 'nav-capsule mode-youtube';
@@ -470,7 +476,7 @@
             document.getElementById('tab-' + tabId).classList.add('active');
 
             if(tabId === 'home') renderHome();
-            if(tabId === 'live') renderLiveList('All Channels');
+            if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0]); }
             if(tabId === 'tv') { renderVODSidebar('tv'); loadStreamContent('tv', 'All'); }
             if(tabId === 'movies') { renderVODSidebar('movies'); loadStreamContent('movies', 'All'); }
             if(tabId === 'youtube') renderSidebar('yt', ['Recommended','Trending','Subscriptions']);
@@ -489,7 +495,6 @@
                 let clickFn = '';
                 if(type === 'Live') clickFn = `handleLiveFilter('${item.replace(/'/g, "")}', this)`;
                 if(type === 'TV' || type === 'Movies') clickFn = `handleVODFilter('${type}', '${item}', this)`;
-                
                 html += `<div class="nav-item ${active}" onclick="${clickFn}">${item}</div>`;
             });
             nav.innerHTML = html;
@@ -508,17 +513,14 @@
                     <div class="nav-item" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
                     <div class="nav-item" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
                 `;
-                renderLiveList('All Sports'); 
+                renderLiveList('All Sports');
             } else {
                 renderLiveList(cat);
             }
         }
 
         function toggleSportsActive(el, cat) {
-            document.querySelectorAll('.nav-capsule .nav-item').forEach(i => {
-                i.classList.remove('active');
-                i.style.background = ''; i.style.color = '';
-            });
+            document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
             renderLiveList(cat);
         }
@@ -539,18 +541,13 @@
             head.style.display = 'block'; 
             
             let filtered = [];
-            if(cat === 'All Channels') {
-                filtered = iptvChannels.filter(c => !c.cat.includes('Sports Extra') && !c.cat.includes('Extra'));
-            }
-            else if(cat === 'All Sports') {
-                filtered = iptvChannels.filter(c => c.cat.includes('Sport'));
-            }
+            if(cat === 'All Channels') filtered = iptvChannels.filter(c => !c.cat.includes('Sports Extra') && !c.cat.includes('Extra'));
+            else if(cat === 'All Sports') filtered = iptvChannels.filter(c => c.cat.includes('Sport'));
             else if(cat === 'Favourites') filtered = iptvChannels.filter(c => favLive.has(c.id));
             else if(cat === 'Extra') {
                 list.classList.add('mode-extra');
                 head.style.display = 'none';
                 filtered = iptvChannels.filter(c => (c.cat === 'Extra' || c.cat.toLowerCase().includes('stream')) && !c.cat.includes('Sports'));
-                
                 const grid = document.createElement('div');
                 grid.className = 'channels-grid';
                 filtered.forEach(ch => {
@@ -572,11 +569,7 @@
                 const row = document.createElement('div');
                 row.className = 'epg-row';
                 
-                row.onmouseover = () => {
-                    document.getElementById('lh-title').innerText = ch.name;
-                    document.getElementById('lh-desc').innerText = `Current Program Info for ${ch.name}`;
-                    if(ch.logo) document.getElementById('static-hero-img').src = ch.logo;
-                };
+                row.onmouseover = () => updatePreview(ch);
 
                 row.innerHTML = `
                     <div class="epg-cell epg-num" onclick="toggleFav('${ch.id}', 'live', event)">${ch.id} ${isFav?'★':''}</div>
@@ -587,7 +580,6 @@
                         <div class="prog-time">12:00 - 13:00</div>
                     </div>
                 `;
-                // Play Click
                 row.onclick = (e) => {
                    if(!e.target.closest('.epg-num') && !e.target.closest('.epg-logo')) playChannel(ch);
                 };
@@ -595,16 +587,21 @@
             });
         }
 
+        function updatePreview(ch) {
+            document.getElementById('lh-title').innerText = ch.name;
+            document.getElementById('lh-desc').innerText = `Current Program Info for ${ch.name}`;
+            if(ch.logo) document.getElementById('static-hero-img').src = ch.logo;
+        }
+
         // --- VOD (TV & MOVIES) HYBRID ---
         function renderVODSidebar(type) {
             const sb = document.getElementById(type + '-sidebar');
             sb.innerHTML = '';
-            
             sb.innerHTML += `<div class="v-item active" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">All ${type === 'tv' ? 'TV Shows' : 'Movies'}</div>`;
 
-            // Dynamic Categories (Sorted)
+            // NO SORTING - Provider Order
             const source = type === 'tv' ? vodSeries : vodMovies;
-            const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean).sort();
+            const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean);
             
             cats.forEach(c => {
                 const item = document.createElement('div');
@@ -622,11 +619,9 @@
         function loadStreamContent(type, categoryOrMode) {
             const container = document.getElementById(type + '-content-area');
             container.innerHTML = '';
-            
             const source = type === 'tv' ? vodSeries : vodMovies;
 
             if (categoryOrMode === 'All' || categoryOrMode === 'Favs') {
-                // ROW MODE
                 const cwItems = watchHistory.filter(h => h.type === type && (h.progress||0) < 0.9);
                 if(cwItems.length > 0) {
                      const cwTitle = document.createElement('div'); cwTitle.className = 'section-header'; cwTitle.innerText = "Continue Watching"; container.appendChild(cwTitle);
@@ -653,8 +648,7 @@
                 }
 
                 if (categoryOrMode === 'All') {
-                    const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean).sort();
-                    
+                    const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean); // Provider Order
                     if(cats.length === 0) {
                         const rowTitle = document.createElement('div'); rowTitle.className = 'section-header'; rowTitle.innerText = "Uncategorized"; container.appendChild(rowTitle);
                         const scroller = document.createElement('div'); scroller.className = 'scroller';
@@ -666,7 +660,6 @@
                         });
                         container.appendChild(scroller);
                     }
-
                     cats.forEach(cat => {
                         const rowTitle = document.createElement('div'); rowTitle.className = 'section-header'; rowTitle.innerText = cat; container.appendChild(rowTitle);
                         const scroller = document.createElement('div'); scroller.className = 'scroller';
@@ -681,7 +674,6 @@
                     });
                 }
             } else {
-                // GRID MODE
                 container.innerHTML = `<h1>${categoryOrMode}</h1><div class="channels-grid" id="vod-filtered-grid"></div>`;
                 const grid = document.getElementById('vod-filtered-grid');
                 const items = source.filter(i => i.category_name === categoryOrMode);
@@ -701,7 +693,7 @@
             nav.innerHTML = `
                 <div class="nav-search-container">
                     <div class="nav-item nav-back" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div>
-                    <input type="text" class="nav-search-input" placeholder="Search..." oninput="performSearch(this.value)" autofocus>
+                    <input type="text" class="nav-search-input" placeholder="Search TV, Movies, Music..." oninput="performSearch(this.value)" autofocus>
                 </div>
             `;
             setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
@@ -721,7 +713,6 @@
             let html = '<div style="height:20px;"></div>';
 
             html += `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller">`;
-            // Last Live (Black Square Card)
             if(lastLiveChannel) {
                 html += `<div class="card c-square" onclick="playChannel({url:'${lastLiveChannel.url}'})" style="background:black; border:2px solid ${getComputedStyle(document.body).getPropertyValue('--col-live')};">
                             <img src="${lastLiveChannel.logo}" style="width:80%; height:80%; object-fit:contain;">
@@ -732,7 +723,6 @@
             });
             html += `</div>`; 
 
-            // Featured
             if(vodMovies.length > 0) {
                 html += `<div class="section-header"><i class="fas fa-film"></i> Featured Movies</div><div class="scroller">`;
                 vodMovies.slice(0,10).forEach(m => {
@@ -741,7 +731,6 @@
                 html += `</div>`;
             }
 
-            // Utils
             const utils = [
                 {t: 'Recordings', i: 'fa-dot-circle', type:'c-thumb', c: ['Rec 1']},
                 {t: 'YouTube Recommended', i: 'fa-youtube', type:'c-thumb', c: ['Vid 1']},
@@ -874,20 +863,24 @@
 
             order.forEach(cat => {
                 let hits = [];
-                let render = '';
                 if(cat === 'Channels') {
                     hits = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
-                    render = (c) => `<div class="card c-thumb" onclick="playChannel({url:'${c.url}', logo:'${c.logo}', name:'${c.name}'})" style="display:grid; place-items:center;">${c.name}</div>`;
+                    if(hits.length) {
+                        res.innerHTML += `<div class="section-header">${cat}</div><div class="scroller">` + 
+                        hits.slice(0,10).map(c => 
+                            `<div class="c-search-channel" onclick="playChannel({url:'${c.url}', logo:'${c.logo}', name:'${c.name}'})">
+                                <div class="csc-logo-box"><img src="${c.logo}" class="csc-logo"></div>
+                                <div class="csc-name">${c.name}</div>
+                                <div class="csc-prog">Live</div>
+                             </div>`
+                        ).join('') + `</div>`;
+                    }
                 } else if(cat === 'Movies') {
                     hits = vodMovies.filter(m => m.name.toLowerCase().includes(q));
-                    render = (m) => `<div class="card c-poster" style="background-image:url('${m.stream_icon}')"></div>`;
+                    if(hits.length) res.innerHTML += `<div class="section-header">${cat}</div><div class="scroller">` + hits.slice(0,10).map(m => `<div class="card c-poster" style="background-image:url('${m.stream_icon}')"></div>`).join('') + `</div>`;
                 } else if(cat === 'TV Shows') {
                     hits = vodSeries.filter(s => s.name.toLowerCase().includes(q));
-                    render = (s) => `<div class="card c-poster" style="background-image:url('${s.cover}')"></div>`;
-                }
-                
-                if(hits.length) {
-                    res.innerHTML += `<div class="section-header">${cat}</div><div class="scroller">${hits.slice(0,10).map(render).join('')}</div>`;
+                    if(hits.length) res.innerHTML += `<div class="section-header">${cat}</div><div class="scroller">` + hits.slice(0,10).map(s => `<div class="card c-poster" style="background-image:url('${s.cover}')"></div>`).join('') + `</div>`;
                 }
             });
         }
