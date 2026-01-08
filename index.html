@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FibreTV V102: Settings & EPG Polish</title>
+    <title>FibreTV V103: The Refined Experience</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -96,7 +96,7 @@
         .nav-capsule.mode-youtube { background-color: var(--col-yt-bg); border: 1px solid var(--col-yt); }
         .nav-capsule.mode-music { background-color: var(--col-music-bg); border: 1px solid var(--col-music); }
 
-        /* Inactive Text */
+        /* Colors */
         .mode-default #nav-live { color: var(--col-live-txt); }
         .mode-default #nav-tv { color: var(--col-tv-txt); }
         .mode-default #nav-movies { color: var(--col-movie-txt); }
@@ -105,7 +105,7 @@
         
         .mode-live .nav-item:not(.active), .mode-tv .nav-item:not(.active), .mode-movies .nav-item:not(.active) { color: #ccc; }
 
-        /* Active Colors */
+        /* Default Active */
         .mode-default #nav-live.active { background: var(--col-live) !important; color: white !important; }
         .mode-default #nav-tv.active { background: var(--col-tv) !important; color: white !important; }
         .mode-default #nav-movies.active { background: var(--col-movie) !important; color: white !important; }
@@ -140,7 +140,6 @@
             background: linear-gradient(to bottom, #000000 0%, #111111 100%);
         }
         
-        /* Gradients */
         .page-live-bg { background: linear-gradient(to bottom, #000000 0%, #001a40 100%) !important; }
         .page-tv-bg { background: linear-gradient(to bottom, #000000 0%, #401a00 100%) !important; }
         .page-movies-bg { background: linear-gradient(to bottom, #000000 0%, #00331a 100%) !important; }
@@ -202,6 +201,7 @@
             display: flex; align-items: center; justify-content: space-between; 
             padding: 30px; gap: 30px;
         }
+        /* No Border on Logo Box as requested */
         .lh-logo-box {
             width: 200px; aspect-ratio: 1/1; background: black; border-radius: 16px;
             display: grid; place-items: center; 
@@ -231,21 +231,21 @@
         }
         .epg-row:hover { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-channel-col {
-            width: 300px; display: flex; align-items: center; padding: 0 15px;
+            width: 350px; /* Increased Width */
+            display: flex; align-items: center; padding: 0 15px;
             border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0;
         }
         .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
-        .epg-logo { width: 90px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
+        .epg-logo { width: 100px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
         .epg-logo img { max-height: 55px; max-width: 100%; object-fit: contain; }
-        .epg-name { width: 160px; font-weight: 700; font-size: 1.1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .epg-name { width: 180px; font-weight: 700; font-size: 1.1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         
         /* Timeline Blocks */
         .epg-timeline {
             flex: 1; display: flex; align-items: center; height: 100%; overflow: hidden; position: relative;
         }
         .epg-block {
-            height: 100%; /* Full height */
-            background: rgba(255,255,255,0.1); margin-right: 4px; border-radius: 4px;
+            height: 100%; background: rgba(255,255,255,0.1); margin-right: 4px; border-radius: 4px;
             padding: 0 12px; display: flex; flex-direction: column; justify-content: center;
             border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
         }
@@ -262,7 +262,7 @@
         .cc-name { font-size: 0.95rem; font-weight: 700; text-align: center; }
 
         /* --- CARDS & ROWS --- */
-        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
+        .section-header { font-size: 1.4rem; font-weight: 800; margin: 30px 0 15px 0; color: #eee; display: flex; align-items: center; gap: 12px; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; align-items: flex-end; }
         ::-webkit-scrollbar { display: none; }
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
@@ -272,6 +272,7 @@
         
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
+        /* Uniform Square */
         .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: grid; place-items: center; font-weight:700; color:#aaa; font-size:1.2rem; } 
         .c-app { width: 100px; height: 100px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
         
@@ -291,6 +292,7 @@
         .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
         .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
         .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
@@ -324,7 +326,7 @@
             <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
                 <span id="date-el">01 Jan</span>
                 <span>•</span>
-                <span id="weather-el"><i class="fas fa-cloud-sun"></i> Huddersfield 12°C</span>
+                <span id="weather-el"><i class="fas fa-cloud-sun"></i> 12°C</span>
             </div>
         </div>
     </div>
@@ -349,7 +351,7 @@
                                 <div class="header-info-mid">
                                     <h1 id="lh-title" class="lh-title">Select Channel</h1>
                                     <div class="lh-meta"><span id="lh-time">--:--</span></div>
-                                    <p id="lh-desc" class="lh-desc">Hover over a channel to see details.</p>
+                                    <p id="lh-desc" class="lh-desc">Hover over a program to see details.</p>
                                 </div>
                                 <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
                             </div>
@@ -385,8 +387,9 @@
                 <div class="split-inner">
                     <div class="vertical-filter-col">
                         <div class="vert-capsule">
-                            <div class="v-item active" onclick="showSettingsSection('user')">User Details</div>
-                            <div class="v-item" onclick="showSettingsSection('features')">App Features</div>
+                            <div class="v-item active" onclick="showSettingsSection('user', this)">User Details</div>
+                            <div class="v-item" onclick="showSettingsSection('features', this)">App Features</div>
+                            <div class="v-item" onclick="alert('Opening Android Settings...')">OS Settings</div>
                         </div>
                     </div>
                     <div class="content-col settings-content">
@@ -403,6 +406,11 @@
                                 <div class="setting-card">
                                     <span class="setting-label">EPG URL</span>
                                     <input id="epg-url" class="setting-input" placeholder="http://example.com/guide.xml">
+                                    <button class="btn-settings" onclick="loadEPG()">Load EPG</button>
+                                </div>
+                                <div class="setting-card">
+                                    <span class="setting-label">Prefix Filter (Comma Separated)</span>
+                                    <input id="prefix-filter" class="setting-input" placeholder="EN -, UK -" oninput="localStorage.setItem('prefixFilter', this.value)">
                                 </div>
                             </div>
                         </div>
@@ -424,24 +432,11 @@
         </div>
     </div>
 
-    <div id="content-page">
-        <div class="cp-hero" id="cp-hero"><div class="cp-grad"></div></div>
-        <div class="cp-details">
-            <h1 class="cp-title" id="cp-title">Title</h1>
-            <p class="cp-desc" id="cp-desc">Description...</p>
-            <div style="display:flex;">
-                <button class="btn-settings" style="background:white; color:black; width:auto; padding:15px 40px; margin-right:15px;" id="btn-play-content">Play</button>
-                <button class="btn-settings" style="background:rgba(255,255,255,0.2); color:white; width:auto; padding:15px 40px;" onclick="closeContentPage()">Back</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[], favLive=new Set(), favStream=new Set(), lastLiveChannel = null;
         let currentContext = 'Home';
         let previousNavState = null;
 
-        // --- INIT ---
         const defaultNav = `
             <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
             <div id="nav-home" class="nav-item active" onclick="switchTab('home')">Home</div>
@@ -462,6 +457,7 @@
                 document.getElementById('xc-user').value = localStorage.getItem('xc_user');
                 document.getElementById('xc-pass').value = localStorage.getItem('xc_pass');
             }
+            if(localStorage.getItem('prefixFilter')) document.getElementById('prefix-filter').value = localStorage.getItem('prefixFilter');
             if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
             if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
             if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
@@ -497,7 +493,7 @@
             const nav = document.getElementById('main-nav');
             const bg = document.getElementById('main-bg-target');
             
-            bg.className = 'main-content'; 
+            bg.className = 'main-content'; // reset bg
             nav.className = 'nav-capsule mode-default';
             
             if (tabId === 'home' || tabId === 'settings') {
@@ -505,21 +501,20 @@
                 if(tabId === 'home') document.getElementById('nav-home').classList.add('active');
             }
             
-            // EXPANDED MODES
             if (tabId === 'live') {
                 nav.className = 'nav-capsule mode-live';
-                bg.classList.add('page-live-bg'); 
+                bg.classList.add('page-live-bg');
                 const cats = ['All Channels', 'Favourites', 'Entertainment', 'Documentaries', '+1', 'Movies', 'Music', 'Sports', 'News', 'Kids', 'Extra'];
                 renderExpandedNav('Live', cats);
             }
             if (tabId === 'tv') {
                 nav.className = 'nav-capsule mode-tv';
-                bg.classList.add('page-tv-bg'); 
+                bg.classList.add('page-tv-bg');
                 renderExpandedNav('TV', ['TV Shows', 'Watch Next']);
             }
             if (tabId === 'movies') {
                 nav.className = 'nav-capsule mode-movies';
-                bg.classList.add('page-movies-bg'); 
+                bg.classList.add('page-movies-bg');
                 renderExpandedNav('Movies', ['Movies', 'Watch Next']);
             }
             if (tabId === 'youtube') {
@@ -538,14 +533,13 @@
 
             // Explicit renders
             if(tabId === 'home') renderHome();
-            if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0]); }
+            if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0], "Current Program Info"); }
             if(tabId === 'tv') { renderVODSidebar('tv'); loadStreamContent('tv', 'All'); }
             if(tabId === 'movies') { renderVODSidebar('movies'); loadStreamContent('movies', 'All'); }
             if(tabId === 'youtube') renderSidebar('yt', ['Recommended','Trending','Subscriptions']);
             if(tabId === 'music') renderSidebar('music', ['Recommended','Library']);
             if(tabId === 'search') setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
             
-            // Re-apply toggles to nav just in case
             applyToggles();
         }
 
@@ -600,9 +594,10 @@
         // --- RENDER LIVE (TIMELINE EPG) ---
         function renderLiveList(cat) {
             const list = document.getElementById('linear-list');
+            const head = document.getElementById('live-preview-header');
             list.innerHTML = '';
             list.classList.remove('mode-extra'); 
-            document.getElementById('live-preview-header').style.display = 'flex'; 
+            head.style.display = 'flex'; 
             
             let filtered = [];
             if(cat === 'All Channels') filtered = iptvChannels.filter(c => !c.cat.includes('Sports Extra') && !c.cat.includes('Extra'));
@@ -610,7 +605,7 @@
             else if(cat === 'Favourites') filtered = iptvChannels.filter(c => favLive.has(c.id));
             else if(cat === 'Extra') {
                 list.classList.add('mode-extra');
-                document.getElementById('live-preview-header').style.display = 'none';
+                head.style.display = 'none';
                 filtered = iptvChannels.filter(c => (c.cat === 'Extra' || c.cat.toLowerCase().includes('stream')) && !c.cat.includes('Sports'));
                 const grid = document.createElement('div');
                 grid.className = 'channels-grid';
@@ -631,14 +626,14 @@
             const container = document.createElement('div');
             container.className = 'epg-container';
             const now = new Date();
-            const min = now.getMinutes();
-            let startMin = min < 30 ? 0 : 30;
             
             filtered.forEach(ch => {
                 const isFav = favLive.has(ch.id);
                 const row = document.createElement('div');
                 row.className = 'epg-row';
-                row.onmouseover = () => updatePreview(ch);
+                
+                // Row hover updates preview with channel info
+                row.onmouseenter = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
 
                 const left = document.createElement('div');
                 left.className = 'epg-channel-col';
@@ -658,6 +653,13 @@
                     block.style.width = p.width;
                     block.innerHTML = `<div class="prog-t">${p.title}</div><div class="prog-d">${p.time}</div>`;
                     block.onclick = (e) => { e.stopPropagation(); playChannel(ch); };
+                    
+                    // Hover block updates preview with PROGRAM info
+                    block.onmouseenter = (e) => {
+                        e.stopPropagation();
+                        updatePreview(ch, p.title, p.time);
+                    };
+
                     timeline.appendChild(block);
                 });
 
@@ -669,9 +671,10 @@
             list.appendChild(container);
         }
 
-        function updatePreview(ch) {
-            document.getElementById('lh-title').innerText = ch.name;
-            document.getElementById('lh-desc').innerText = `Current Program Info for ${ch.name}...`;
+        function updatePreview(ch, title, time) {
+            document.getElementById('lh-title').innerText = cleanName(ch.name);
+            document.getElementById('lh-desc').innerText = title;
+            document.getElementById('lh-time').innerText = time || "";
             if(ch.logo) document.getElementById('static-hero-img').src = ch.logo;
             document.getElementById('lh-blur-bg').style.backgroundImage = `url('${ch.logo}')`;
         }
@@ -694,9 +697,8 @@
             const container = document.getElementById(type + '-content-area'); container.innerHTML = '';
             const source = type === 'tv' ? vodSeries : vodMovies;
             if (mode === 'All' || mode === 'Favs') {
-                // ROWS
                 const cwItems = watchHistory.filter(h => h.type === type && (h.progress||0) < 0.9);
-                if(cwItems.length > 0) addVODRow(container, "Continue Watching", cwItems, true);
+                if(cwItems.length > 0) addVODRow(container, "Continue Watching", cwItems, true); // True = History
 
                 const favItems = source.filter(i => favStream.has(i.stream_id || i.series_id));
                 if(favItems.length > 0) addVODRow(container, "Watch Next", favItems, false);
@@ -710,7 +712,6 @@
                     });
                 }
             } else {
-                // GRID
                 container.innerHTML = `<h1>${mode}</h1><div class="channels-grid" id="vod-filtered-grid"></div>`;
                 const grid = document.getElementById('vod-filtered-grid');
                 const items = source.filter(i => i.category_name === mode);
@@ -726,28 +727,22 @@
         function addVODRow(container, title, items, isHistory) {
             const wrapper = document.createElement('div');
             wrapper.className = 'row-container';
-            const header = document.createElement('div'); header.className = 'section-header'; header.innerText = title;
+            const icon = title==="Continue Watching"?'<i class="fas fa-history"></i> ': title==="Watch Next"?'<i class="fas fa-play-circle"></i> ': '<i class="fas fa-star"></i> ';
+            const header = document.createElement('div'); header.className = 'section-header'; header.innerHTML = icon + title;
             const scroller = document.createElement('div'); scroller.className = 'scroller';
             const details = document.createElement('div'); details.className = 'row-details';
             details.innerHTML = `<h3 class="rd-title"></h3><p class="rd-desc"></p>`;
 
             items.forEach(i => {
                 const card = document.createElement('div'); 
-                // VOD is Poster. But in Continue Watching, we want "Square Card" for Channels consistency.
-                // Wait, user asked: "make recently watched channels look like the main channel... but TV Shows/Movies full thing".
-                // So if it's VOD history, it should stay poster.
-                // But in Continue Watching on Home, channels are square.
+                // Fix for VOD History: Always square if it was live channel, else poster.
+                // Wait, request said: "make recently watched channels look like the main channel... but TV Shows/Movies full thing"
+                // So VOD history = Poster. Channel history = Square.
+                // This logic is handled in renderHome mainly, but if we have VOD history inside VOD tab, it should be Poster.
                 
-                // For VOD Tab Continue Watching:
-                card.className = (isHistory && i.type==='live') ? 'card c-square' : 'card c-poster';
-                if(isHistory && i.type === 'live') {
-                     // Should act like channel card
-                     card.style.background = '#222';
-                     card.innerHTML = `<img src="${i.img}" style="width:80%; height:80%; object-fit:contain;">`;
-                } else {
-                    if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
-                }
-
+                card.className = 'card c-poster'; 
+                if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
+                
                 card.onmouseenter = () => {
                     details.querySelector('.rd-title').innerText = cleanName(i.name);
                     details.querySelector('.rd-desc').innerText = "Hovering over content...";
@@ -760,8 +755,7 @@
                     card.appendChild(star);
                     card.onclick = () => openContentPage(i);
                 } else {
-                    // History click
-                    card.onclick = () => i.type==='live' ? playChannel({url:'mock', ...i}) : openContentPage(i); 
+                    card.onclick = () => openContentPage(i); 
                 }
                 scroller.appendChild(card);
             });
@@ -770,7 +764,7 @@
             container.appendChild(wrapper);
         }
 
-        // --- SEARCH MODE ---
+        // --- SEARCH ---
         function enableSearchMode() {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
@@ -787,9 +781,9 @@
             if(q.length < 2) return; q = q.toLowerCase();
             let order = ['Channels', 'Movies', 'TV Shows', 'YouTube'];
             
-            // Filter disabled
-            if(!document.getElementById('toggle-tv').checked) order = order.filter(x=>x!=='TV Shows');
-            if(!document.getElementById('toggle-movies').checked) order = order.filter(x=>x!=='Movies');
+            // Respect Toggles
+            if(!localStorage.getItem('toggle-tv') || localStorage.getItem('toggle-tv')==='false') order = order.filter(x=>x!=='TV Shows');
+            if(!localStorage.getItem('toggle-movies') || localStorage.getItem('toggle-movies')==='false') order = order.filter(x=>x!=='Movies');
 
             order.forEach(cat => {
                 let hits = [];
@@ -817,24 +811,25 @@
             cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const cwScroller = cwWrapper.querySelector('.scroller');
             
-            // Deduplicate Logic
             const seen = new Set();
-
             if(lastLiveChannel) {
                 seen.add(lastLiveChannel.name);
                 const c = document.createElement('div'); c.className = 'card c-square'; 
                 c.style.background = '#222'; c.style.border = 'none';
                 c.innerHTML = `<img src="${lastLiveChannel.logo}" style="width:80%; height:80%; object-fit:contain;">`;
                 c.onclick = () => playChannel(lastLiveChannel);
-                c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = lastLiveChannel.name; cwWrapper.querySelector('.rd-desc').innerText = "Last Watched Channel"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
+                c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = cleanName(lastLiveChannel.name); cwWrapper.querySelector('.rd-desc').innerText = "Last Watched Channel"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
                 cwScroller.appendChild(c);
             }
             
             watchHistory.filter(h => (h.progress||0) < 0.9).forEach(h => {
                 if(!seen.has(h.name)) {
                     seen.add(h.name);
-                    // Live channels = Square, VOD = Poster
                     const isLive = h.type === 'live';
+                    // Filtering based on toggles
+                    if (!isLive && h.type === 'tv' && localStorage.getItem('toggle-tv')==='false') return;
+                    if (!isLive && h.type === 'movies' && localStorage.getItem('toggle-movies')==='false') return;
+
                     const c = document.createElement('div');
                     c.className = isLive ? 'card c-square' : 'card c-poster';
                     
@@ -847,11 +842,7 @@
                         c.onclick = () => openContentPage(h);
                     }
                     
-                    c.onmouseenter = () => {
-                        cwWrapper.querySelector('.rd-title').innerText = h.name;
-                        cwWrapper.querySelector('.rd-desc').innerText = "Resume";
-                        cwWrapper.querySelector('.row-details').classList.add('visible');
-                    };
+                    c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = cleanName(h.name); cwWrapper.querySelector('.rd-desc').innerText = "Resume"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
                     cwScroller.appendChild(c);
                 }
             });
@@ -860,26 +851,45 @@
             
             // Watch Next (Combined Favs)
             const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
-            if(allFavs.length > 0) addVODRow(container, "Watch Next", allFavs, false);
+            if(allFavs.length > 0) {
+                // Filter toggled off items
+                const visibleFavs = allFavs.filter(i => {
+                    if (i.series_id && localStorage.getItem('toggle-tv')==='false') return false;
+                    if (i.stream_id && localStorage.getItem('toggle-movies')==='false') return false;
+                    return true;
+                });
+                if(visibleFavs.length > 0) addVODRow(container, "Watch Next", visibleFavs, false);
+            }
 
-            if(document.getElementById('toggle-movies').checked && vodMovies.length > 0) addVODRow(container, "Featured Movies", vodMovies.slice(0,10), false);
-            if(document.getElementById('toggle-tv').checked && vodSeries.length > 0) addVODRow(container, "Featured Shows", vodSeries.slice(0,10), false);
+            // Featured Rows (Respect Toggles)
+            const showMovies = localStorage.getItem('toggle-movies') !== 'false';
+            const showTV = localStorage.getItem('toggle-tv') !== 'false';
 
-            const utils = [ {t: 'Recordings', i: 'fa-dot-circle', type:'c-thumb', c: ['Rec 1']}, {t: 'Apps', i: 'fa-th', type:'c-app', c: ['N', 'P']} ];
+            if(showMovies && vodMovies.length > 0) addVODRow(container, "Featured Movies", vodMovies.slice(0,10), false);
+            if(showTV && vodSeries.length > 0) addVODRow(container, "Featured Shows", vodSeries.slice(0,10), false);
+
+            const utils = [ {t: 'Recordings & Reminders', i: 'fa-bell', type:'c-thumb', c: ['No Recordings']}, {t: 'Apps', i: 'fa-th', type:'c-app', c: ['N', 'P']}, {t: 'Inputs', i: 'fa-plug', type:'c-square', c: ['HDMI 1']} ];
             utils.forEach(u => {
                 const w = document.createElement('div'); w.className = 'row-container';
                 let html = `<div class="section-header"><i class="fas ${u.i}"></i> ${u.t}</div><div class="scroller">`;
                 u.c.forEach(i => html += `<div class="card ${u.type}" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
                 html += `</div>`; w.innerHTML = html; container.appendChild(w);
             });
+
             tab.appendChild(container);
         }
 
         // --- UTILS ---
-        function cleanName(name) { return name.replace(/^EN\s?-\s?/, '').replace(/^UK\s?-\s?/, ''); }
+        function cleanName(name) {
+            let n = name;
+            const prefixes = (localStorage.getItem('prefixFilter') || "EN -, UK -").split(',');
+            prefixes.forEach(p => {
+                if(p.trim()) n = n.replace(new RegExp('^' + p.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '');
+            });
+            return n.trim();
+        }
         
         function toggleFeature(feat) { 
-            const el = document.getElementById('nav-'+feat);
             const on = document.getElementById('toggle-'+feat).checked;
             localStorage.setItem('toggle-'+feat, on);
             applyToggles();
@@ -888,20 +898,20 @@
         function applyToggles() {
              ['live','tv','movies','youtube','music'].forEach(f=>{ 
                 const el=document.getElementById('nav-'+f); 
-                const on = document.getElementById('toggle-'+f).checked;
+                const saved = localStorage.getItem('toggle-'+f);
+                const on = saved !== null ? saved === 'true' : true;
                 if(el) el.style.display=on?'flex':'none'; 
             }); 
             if(currentContext === 'Home') renderHome();
         }
 
-        function showSettingsSection(id) {
+        function showSettingsSection(id, el) {
             document.getElementById('set-user').style.display = id==='user'?'block':'none';
             document.getElementById('set-features').style.display = id==='features'?'block':'none';
             document.querySelectorAll('.vert-capsule .v-item').forEach(i=>i.classList.remove('active'));
-            event.target.classList.add('active');
+            el.classList.add('active');
         }
 
-        // Data & Playback same as previous...
         async function loadXtream() { 
             const u = document.getElementById('xc-url').value; const us = document.getElementById('xc-user').value; const p = document.getElementById('xc-pass').value;
             localStorage.setItem('xc_url', u); localStorage.setItem('xc_user', us); localStorage.setItem('xc_pass', p);
@@ -916,9 +926,33 @@
                 renderHome();
             } catch(e) { alert("Error"); }
         }
-        function loadM3U() { alert("M3U Placeholder"); }
         function loadEPG() { alert("EPG Loading..."); }
-        function playChannel(ch) { lastLiveChannel = ch; localStorage.setItem('lastLiveChannel', JSON.stringify(ch)); watchHistory = watchHistory.filter(h => h.name !== ch.name); watchHistory.unshift({name:ch.name, img:ch.logo, type:'live'}); localStorage.setItem('watch_history', JSON.stringify(watchHistory)); document.body.classList.add('mode-fullscreen'); }
+        function playChannel(ch) { 
+            // 1. Swap Logic
+            const oldLast = lastLiveChannel;
+            if(oldLast && oldLast.name !== ch.name) {
+                // Remove old from history to avoid duplicates
+                watchHistory = watchHistory.filter(h => h.name !== oldLast.name);
+                // Add old to history
+                watchHistory.unshift({...oldLast, type: 'live', progress: 0});
+            }
+            // 2. Set New
+            lastLiveChannel = ch; 
+            localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
+            
+            // 3. Remove new from history list (it becomes the square)
+            watchHistory = watchHistory.filter(h => h.name !== ch.name);
+            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
+            
+            const vid = document.getElementById('global-bg-video');
+            let url = ch.url;
+            if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
+            if(Hls.isSupported() && url.endsWith('.m3u8')) {
+                const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
+            } else { vid.src = url; vid.play(); }
+            document.body.classList.add('mode-fullscreen');
+        }
         function openContentPage(i) { document.getElementById('content-page').style.display='block'; document.getElementById('cp-title').innerText=i.name; }
         function closeContentPage() { document.getElementById('content-page').style.display='none'; }
         function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); }
