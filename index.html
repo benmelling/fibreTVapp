@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V127 (Stable)</title>
+    <title>StreamTV OS V128 (Restored)</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -66,7 +66,7 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION (FLOATING) --- */
         .top-bar-container {
             position: fixed; top: 30px; left: var(--page-gutter); 
             z-index: 6000; display: flex; align-items: flex-start;
@@ -110,6 +110,7 @@
         .nav-capsule.mode-music { border-color: var(--col-music); background: rgba(60, 0, 40, 0.9); }
         .nav-capsule.mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
 
+        /* RECORDINGS THEME (YELLOW) */
         .nav-capsule.mode-recordings { border-color: var(--col-rec); background: rgba(60, 50, 0, 0.9); }
         .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
         
@@ -474,6 +475,19 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="content-page">
+        <div class="cp-hero" id="cp-hero"><div class="cp-grad"></div></div>
+        <div class="cp-content-box">
+            <div class="cp-poster" id="cp-poster"></div>
+            <div class="cp-details">
+                <h1 class="cp-title" id="cp-title">Title</h1>
+                <div class="cp-meta"><span id="cp-cat">Category</span></div>
+                <p class="cp-desc" id="cp-desc">Description...</p>
+                <div class="cp-buttons" id="cp-action-buttons"></div>
             </div>
         </div>
     </div>
@@ -946,31 +960,50 @@
             b.innerHTML += `<button class="p-btn" onclick="enableSearchMode('${i.name||i.title}')">Search</button>`;
             b.innerHTML += `<button class="p-btn" onclick="document.getElementById('content-page').style.display='none'">Back</button>`;
         }
-        
-        function toggleRec(remove) {
-            if(remove) { cloudRecordings = cloudRecordings.filter(r => r.id !== selectedContent.id); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings)); document.getElementById('content-page').style.display='none'; renderHome(); }
+
+        function playCh(i) {
+            lastLiveChannel = i; localStorage.setItem('lastLiveChannel', JSON.stringify(i));
+            history = history.filter(x=>x.id!==i.id); history.unshift({...i, type:'ch'});
+            localStorage.setItem('hist', JSON.stringify(history));
+            
+            const v = document.getElementById('bg-vid');
+            v.src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
+            document.body.classList.add('mode-fullscreen');
+            document.getElementById('pb-ui').classList.add('vis');
+            document.getElementById('pb-title').innerText = i.name;
+            document.getElementById('pb-logo').src = i.logo;
+            v.play();
         }
-        
-        function addToWatchlist() {
-            const id = selectedContent.stream_id || selectedContent.series_id;
-            if(favStream.has(id)) favStream.delete(id); else favStream.add(id);
-            localStorage.setItem('favStream', JSON.stringify([...favStream]));
-            openContentPage(selectedContent);
+
+        function renderRecs() {
+            const c = document.getElementById('t-rec'); c.innerHTML='<h1>My Recordings</h1>';
+            const rList = recs.filter(r => r.type === 'rec');
+            if(rList.length) {
+                const r = mkRow('Recorded','fa-dot-circle'); rList.forEach(i=>r.scroller.appendChild(mkCard(i,'rec',openPop)));
+                c.appendChild(r.wrap);
+            }
         }
-        
-        function toggleFavLive(id) { if(favLive.has(id)) favLive.delete(id); else favLive.add(id); localStorage.setItem('favLive', JSON.stringify([...favLive])); renderHome(); }
-        function loadXtream() { 
-            iptvChannels=[{id:1,name:"BBC One",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",cat:"Entertainment"},{id:2,name:"BBC Two",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BBC_Two_logo_2021.svg/512px-BBC_Two_logo_2021.svg.png",cat:"Entertainment"}];
-            vodMovies=[{stream_id:10,name:"Inception",stream_icon:"https://image.tmdb.org/t/p/w500/9gk7admal4ZLcnwnCSALLQU3rjD.jpg",category_name:"Sci-Fi"}];
-            vodSeries=[{series_id:20,name:"Breaking Bad",cover:"https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",category_name:"Drama"}];
-            renderHome();
+        function renderCats(id, list) {
+            const m = document.getElementById(id+'-cat'); m.innerHTML='';
+            list.forEach(c => {
+                const d=document.createElement('div'); d.className='v-btn'; d.innerText=c;
+                d.onclick=()=>loadStreamContent(id, c);
+                m.appendChild(d);
+            });
         }
-        function applyToggles() { switchTab('home'); }
-        function toggleFeature(f) { localStorage.setItem('toggle-'+f, document.getElementById('toggle-'+f).checked); applyToggles(); }
-        function toggleWhiteLogo() { localStorage.setItem('whiteLogo', document.getElementById('toggle-whitelogo').checked); document.body.classList.toggle('white-logos'); }
-        function showSettingsSection(id, el) { document.querySelectorAll('[id^="set-"]').forEach(x=>x.style.display='none'); document.getElementById('set-'+id).style.display='block'; }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.body.classList.remove('mode-fullscreen'); document.getElementById('global-bg-video').pause(); }
-        function clearHistory() { watchHistory=[]; localStorage.setItem('watch_history', JSON.stringify(watchHistory)); renderHome(); }
+        function renderVod(id, mode) {
+            const c = document.getElementById(id+'-list'); c.innerHTML='';
+            const src = id==='mov'?movies:series;
+            if(mode==='All') { addVODRow(c, "Recommended", src, 'fa-star'); }
+        }
+        function addRec() { recs.push({...selectedContent, type:'rec', status:'recording', logo:selectedContent.logo, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
+        function addRem() { recs.push({...selectedContent, type:'remind', status:'reminder', logo:selectedContent.logo, start:Date.now()+1800000, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
+        function modRec(id) { recs = recs.filter(r=>r.id!=id && r.id!=selectedContent.id); localStorage.setItem('recs',JSON.stringify(recs)); document.getElementById('content-page').style.display='none'; if(currTab==='home') renderHome(); }
+        function togFav() { if(favs.has(selectedContent.id)) favs.delete(selectedContent.id); else favs.add(selectedContent.id); localStorage.setItem('favs',JSON.stringify([...favs])); }
+        function updSet() { ['live','tv','mov','yt','mus'].forEach(t=>localStorage.setItem('tg-'+t, document.getElementById('tg-'+t).checked)); switchTab('home'); }
+        function togWhite() { document.body.classList.toggle('white-logos'); localStorage.setItem('white', document.body.classList.contains('white-logos')); }
+        function clearData() { localStorage.clear(); location.reload(); }
+        function closePlayer() { document.body.classList.remove('mode-fullscreen'); document.getElementById('pb-ui').classList.remove('vis'); document.getElementById('bg-vid').pause(); }
         
         function setupKeyboard() {
             document.addEventListener('keydown', (e) => {
@@ -981,12 +1014,6 @@
                 }
             });
         }
-
-        // --- MOCK HELPERS ---
-        function addRec() { recs.push({...selectedContent, type:'rec', status:'recording', logo:selectedContent.logo, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
-        function addRem() { recs.push({...selectedContent, type:'remind', status:'reminder', logo:selectedContent.logo, start:Date.now()+1800000, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
-        function modRec(id) { recs = recs.filter(r=>r.id!=id && r.id!=selectedContent.id); localStorage.setItem('recs',JSON.stringify(recs)); document.getElementById('content-page').style.display='none'; if(currTab==='home') renderHome(); }
-        function togFav() { if(favs.has(selectedContent.id)) favs.delete(selectedContent.id); else favs.add(selectedContent.id); localStorage.setItem('favs',JSON.stringify([...favs])); }
     </script>
 </body>
 </html>
