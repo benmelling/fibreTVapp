@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V113</title>
+    <title>StreamTV OS V114</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -59,6 +59,46 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
+        /* --- PLAYBACK UI (NEW FIX) --- */
+        #playback-ui {
+            display: none; /* Hidden by default */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2100; pointer-events: none;
+            flex-direction: column; justify-content: space-between;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        
+        body.mode-fullscreen #playback-ui { display: flex; }
+        body.mode-fullscreen #playback-ui.visible { opacity: 1; pointer-events: auto; }
+
+        .pb-top-bar {
+            width: 100%; padding: 30px; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            display: flex; align-items: center; gap: 20px;
+        }
+        .pb-back-btn {
+            background: rgba(255,255,255,0.2); border: none; color: white; 
+            width: 50px; height: 50px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 1.2rem; pointer-events: auto;
+            transition: background 0.2s;
+        }
+        .pb-back-btn:hover, .pb-back-btn:focus { background: white; color: black; }
+        
+        .pb-channel-name { font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+
+        .pb-bottom-bar {
+            width: 100%; padding: 40px; 
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .pb-meta { display: flex; align-items: center; gap: 15px; }
+        .pb-logo { height: 60px; width: auto; max-width: 120px; object-fit: contain; }
+        .pb-live-badge { 
+            background: #cc0000; color: white; padding: 5px 10px; 
+            border-radius: 4px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;
+        }
+
         /* --- TOP NAV --- */
         .top-bar-container {
             position: fixed; top: 30px; left: var(--page-gutter); 
@@ -87,7 +127,7 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover, .nav-item:focus { color: white !important; background: rgba(255,255,255,0.1); }
+        .nav-item:hover, .nav-item.focused { color: white !important; background: rgba(255,255,255,0.1); }
         .nav-item.active { background: white !important; color: black !important; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
 
         .nav-capsule.mode-live { background-color: var(--col-live-bg); border: 1px solid var(--col-live); }
@@ -171,7 +211,7 @@
             display: flex; align-items: center; gap: 15px; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
         }
-        .v-item:hover, .v-item:focus { color: white; background: rgba(255,255,255,0.08); }
+        .v-item:hover, .v-item.focused { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
 
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; height: 100%; }
@@ -219,7 +259,7 @@
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
             border: 1px solid transparent; background: rgba(255,255,255,0.03); overflow:hidden;
         }
-        .epg-row:hover, .epg-row:focus { background: #333; border-color: rgba(255,255,255,0.2); }
+        .epg-row:hover, .epg-row.focused { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-channel-col {
             width: 350px; display: flex; align-items: center; padding: 0 15px;
             border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0;
@@ -249,7 +289,7 @@
 
         .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; padding-bottom: 100px; padding-right: 40px; }
         .channel-card { background: #222; border-radius: 16px; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; padding: 15px; transition: transform 0.2s; position: relative; }
-        .channel-card:hover, .channel-card:focus { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
+        .channel-card:hover, .channel-card.focused { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
         .cc-logo { width: 80%; height: 60%; object-fit: contain; margin-bottom: 10px; }
         .cc-name { font-size: 0.95rem; font-weight: 700; text-align: center; }
 
@@ -258,7 +298,7 @@
         ::-webkit-scrollbar { display: none; }
         
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: none; }
-        .card:hover, .card:focus { transform: scale(1.03); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
+        .card:hover, .card.focused { transform: scale(1.03); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
         
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
@@ -270,7 +310,6 @@
         } 
         .c-square img { margin: 0 !important; }
 
-        /* FIX 1: New Recording Card Style */
         .c-recording { 
             width: 280px; height: 158px; background-size: cover; background-color: #222; 
             position: relative; overflow: hidden; 
@@ -299,7 +338,7 @@
             display: flex; flex-direction: column; justify-content: flex-end;
             height: 100%;
         }
-        .card:hover .card-overlay, .card:focus .card-overlay { opacity: 1; }
+        .card:hover .card-overlay, .card.focused .card-overlay { opacity: 1; }
         .co-title { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 5px; margin-top: auto; }
         .co-desc { font-size: 0.85rem; color: #ccc; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -309,7 +348,7 @@
         .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
         .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
         .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-settings:focus { background: white; color: black; }
+        .btn-settings.focused { background: white; color: black; }
         .btn-more { background: #333; border: 1px solid #555; width: auto; padding: 10px 25px; margin-left: 10px; }
         
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
@@ -318,7 +357,7 @@
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #ffffff; }
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-        .switch:focus .slider { outline: 2px solid var(--col-live); }
+        .switch.focused .slider { outline: 2px solid var(--col-live); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; pointer-events: none; }
@@ -327,7 +366,6 @@
         .cp-hero { width: 100%; height: 70vh; background-size: cover; background-position: center; position: relative; }
         .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
         .cp-content-box { display: flex; gap: 40px; padding: 0 var(--page-gutter); margin-top: -150px; position: relative; z-index: 2; align-items: flex-end; }
-        /* FIX 2: Updated CP Poster to handle Channels better */
         .cp-poster { width: 220px; aspect-ratio: 2/3; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; display:flex; align-items:center; justify-content:center; }
         .cp-poster img { max-width:80%; max-height:80%; object-fit:contain; }
         
@@ -353,6 +391,19 @@
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
         <h1>Now Playing</h1>
         <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
+    </div>
+    
+    <div id="playback-ui">
+        <div class="pb-top-bar">
+            <button class="pb-back-btn focusable" onclick="closeOverlays()"><i class="fas fa-arrow-left"></i></button>
+            <div class="pb-channel-name" id="pb-channel-name">Channel Name</div>
+        </div>
+        <div class="pb-bottom-bar">
+            <div class="pb-meta">
+                <img src="" id="pb-logo" class="pb-logo" />
+                <div class="pb-live-badge">LIVE</div>
+            </div>
+        </div>
     </div>
     
     <div id="delete-modal">
@@ -529,7 +580,6 @@
         let currentContext = 'Home';
         let selectedContent = null; 
         
-        // MOCK DATA UPDATE (Fix 5)
         let cloudRecordings = [
             { 
                 id: "mock_f1", 
@@ -587,6 +637,7 @@
             renderHome(); 
             updateClock(); 
             setInterval(updateClock, 1000);
+            setTimeout(setupKeyboard, 500);
         };
 
         function updateClock() {
@@ -1094,6 +1145,23 @@
             if(window.location.protocol === 'https:' && url.startsWith('http:')) url = url.replace('http:', 'https:');
             if(Hls.isSupported() && url.endsWith('.m3u8')) { const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid); hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play()); } else { vid.src = url; vid.play(); }
             document.body.classList.add('mode-fullscreen');
+            
+            // FIX 3: Update Playback UI
+            const ui = document.getElementById('playback-ui');
+            document.getElementById('pb-channel-name').innerText = cleanName(ch.name);
+            document.getElementById('pb-logo').src = ch.logo;
+            ui.classList.add('visible');
+            
+            // Auto hide UI logic
+            let uiTimeout;
+            const resetUiTimer = () => {
+                ui.classList.add('visible');
+                clearTimeout(uiTimeout);
+                uiTimeout = setTimeout(() => ui.classList.remove('visible'), 4000);
+            };
+            document.onmousemove = resetUiTimer;
+            document.onkeydown = resetUiTimer;
+            resetUiTimer();
         }
 
         function openContentPage(i) { 
@@ -1104,17 +1172,14 @@
             
             const bg = i.stream_icon || i.cover || i.img || i.logo;
             
-            // FIX 2: Handle Channels in Details Page (Center logo in square)
             const posterDiv = document.getElementById('cp-poster');
             const heroDiv = document.getElementById('cp-hero');
             heroDiv.style.backgroundImage = `url('${bg}')`;
             
             if(!i.stream_id && !i.series_id) {
-                // Is Channel: Clear BG image, use img tag inside to center
                 posterDiv.style.backgroundImage = 'none';
                 posterDiv.innerHTML = `<img src="${bg}" style="max-width:80%; max-height:80%; object-fit:contain;">`;
             } else {
-                // Is VOD: Use BG cover
                 posterDiv.innerHTML = '';
                 posterDiv.style.backgroundImage = `url('${bg}')`;
             }
@@ -1194,9 +1259,27 @@
         }
 
         function closeContentPage() { document.getElementById('content-page').style.display='none'; selectedContent=null; }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.body.classList.remove('mode-fullscreen'); }
+        function closeOverlays() { 
+            document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); 
+            document.body.classList.remove('mode-fullscreen'); 
+            const vid = document.getElementById('global-bg-video');
+            vid.pause(); // Stop video when leaving fullscreen
+            vid.src = ""; // Clear src to ensure it stops buffering
+        }
         function renderSidebar(id, items) { const el = document.getElementById(id+'-sidebar'); if(el) { el.innerHTML=''; items.forEach(i=>el.innerHTML+=`<div class="v-item">${i}</div>`); } }
 
+        function setupKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                // FIX 2: Re-reinforced Escape Listener
+                if (e.key === 'Escape' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    if(document.body.classList.contains('mode-fullscreen')) closeOverlays();
+                    else if (document.getElementById('content-page').style.display === 'block') closeContentPage();
+                    else if (document.getElementById('tab-search').classList.contains('active')) exitSearchMode();
+                    else switchTab('home');
+                }
+            });
+        }
     </script>
 </body>
 </html>
