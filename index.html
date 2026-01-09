@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V112</title>
+    <title>StreamTV OS V113</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -87,7 +87,7 @@
             cursor: pointer; transition: all 0.2s; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
         }
-        .nav-item:hover, .nav-item.focused { color: white !important; background: rgba(255,255,255,0.1); }
+        .nav-item:hover, .nav-item:focus { color: white !important; background: rgba(255,255,255,0.1); }
         .nav-item.active { background: white !important; color: black !important; box-shadow: 0 2px 15px rgba(255,255,255,0.25); }
 
         .nav-capsule.mode-live { background-color: var(--col-live-bg); border: 1px solid var(--col-live); }
@@ -171,7 +171,7 @@
             display: flex; align-items: center; gap: 15px; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
         }
-        .v-item:hover, .v-item.focused { color: white; background: rgba(255,255,255,0.08); }
+        .v-item:hover, .v-item:focus { color: white; background: rgba(255,255,255,0.08); }
         .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
 
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; height: 100%; }
@@ -219,7 +219,7 @@
             border-radius: 10px; cursor: pointer; transition: background 0.2s;
             border: 1px solid transparent; background: rgba(255,255,255,0.03); overflow:hidden;
         }
-        .epg-row:hover, .epg-row.focused { background: #333; border-color: rgba(255,255,255,0.2); }
+        .epg-row:hover, .epg-row:focus { background: #333; border-color: rgba(255,255,255,0.2); }
         .epg-channel-col {
             width: 350px; display: flex; align-items: center; padding: 0 15px;
             border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0;
@@ -249,7 +249,7 @@
 
         .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; padding-bottom: 100px; padding-right: 40px; }
         .channel-card { background: #222; border-radius: 16px; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; padding: 15px; transition: transform 0.2s; position: relative; }
-        .channel-card:hover, .channel-card.focused { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
+        .channel-card:hover, .channel-card:focus { transform: scale(1.05); border-color: white; background: #333; z-index: 5; }
         .cc-logo { width: 80%; height: 60%; object-fit: contain; margin-bottom: 10px; }
         .cc-name { font-size: 0.95rem; font-weight: 700; text-align: center; }
 
@@ -258,19 +258,29 @@
         ::-webkit-scrollbar { display: none; }
         
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: none; }
-        .card:hover, .card.focused { transform: scale(1.03); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
+        .card:hover, .card:focus { transform: scale(1.03); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
         
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
         
-        /* FIX 4: Perfect Centering for Square Logos */
         .c-square { 
             width: 160px; height: 160px; background-size: cover; background-color: #222; 
-            display: flex !important; align-items: center; justify-content: center; /* Enforced Centering */
+            display: flex !important; align-items: center; justify-content: center; 
             font-weight: 700; color: #aaa; font-size: 1.2rem; 
         } 
-        /* Reset margin on images inside squares */
         .c-square img { margin: 0 !important; }
+
+        /* FIX 1: New Recording Card Style */
+        .c-recording { 
+            width: 280px; height: 158px; background-size: cover; background-color: #222; 
+            position: relative; overflow: hidden; 
+        }
+        .rec-logo-overlay {
+            position: absolute; bottom: 8px; right: 8px; 
+            width: 40px; height: 40px; 
+            background: rgba(0,0,0,0.8); border-radius: 4px; padding: 4px; 
+            object-fit: contain; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
 
         .c-app { width: 100px; height: 100px; border-radius: 24px; display: grid; place-items: center; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
         
@@ -289,7 +299,7 @@
             display: flex; flex-direction: column; justify-content: flex-end;
             height: 100%;
         }
-        .card:hover .card-overlay, .card.focused .card-overlay { opacity: 1; }
+        .card:hover .card-overlay, .card:focus .card-overlay { opacity: 1; }
         .co-title { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 5px; margin-top: auto; }
         .co-desc { font-size: 0.85rem; color: #ccc; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -299,7 +309,7 @@
         .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
         .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
         .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-settings.focused { background: white; color: black; }
+        .btn-settings:focus { background: white; color: black; }
         .btn-more { background: #333; border: 1px solid #555; width: auto; padding: 10px 25px; margin-left: 10px; }
         
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
@@ -308,7 +318,7 @@
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #ffffff; }
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-        .switch.focused .slider { outline: 2px solid var(--col-live); }
+        .switch:focus .slider { outline: 2px solid var(--col-live); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         #player-error { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(200, 0, 0, 0.8); padding: 20px; border-radius: 10px; display: none; pointer-events: none; }
@@ -317,7 +327,10 @@
         .cp-hero { width: 100%; height: 70vh; background-size: cover; background-position: center; position: relative; }
         .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
         .cp-content-box { display: flex; gap: 40px; padding: 0 var(--page-gutter); margin-top: -150px; position: relative; z-index: 2; align-items: flex-end; }
-        .cp-poster { width: 220px; aspect-ratio: 2/3; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; }
+        /* FIX 2: Updated CP Poster to handle Channels better */
+        .cp-poster { width: 220px; aspect-ratio: 2/3; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; display:flex; align-items:center; justify-content:center; }
+        .cp-poster img { max-width:80%; max-height:80%; object-fit:contain; }
+        
         .cp-details { flex: 1; padding-bottom: 20px; }
         .cp-title { font-size: 3.5rem; font-weight: 800; margin: 0; line-height: 1.1; margin-bottom: 15px; }
         .cp-meta { font-size: 1.1rem; color: #ccc; display: flex; gap: 15px; margin-bottom: 20px; font-weight: 600; }
@@ -339,20 +352,20 @@
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
         <h1>Now Playing</h1>
-        <button class="btn-settings focusable" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
+        <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
     
     <div id="delete-modal">
         <div class="del-box">
             <h2 style="margin-top:0;">Delete Recording</h2>
             <p>Where do you want to delete this from?</p>
-            <button class="del-btn focusable" onclick="executeDelete('my')">Remove from My Library</button>
-            <button class="del-btn danger focusable" onclick="executeDelete('pool')">Delete File for Everyone</button>
-            <button class="del-btn focusable" style="text-align:center; margin-top:25px; background:transparent;" onclick="closeDeleteModal()">Cancel</button>
+            <button class="del-btn" onclick="executeDelete('my')">Remove from My Library</button>
+            <button class="del-btn danger" onclick="executeDelete('pool')">Delete File for Everyone</button>
+            <button class="del-btn" style="text-align:center; margin-top:25px; background:transparent;" onclick="closeDeleteModal()">Cancel</button>
         </div>
     </div>
 
-    <div class="info-capsule focusable" onclick="switchTab('settings', null)">
+    <div class="info-capsule" onclick="switchTab('settings', null)">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
             <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
@@ -368,7 +381,9 @@
 
     <div class="main-content" id="main-bg-target">
         <div id="tab-home" class="tab-content active"></div>
-        <div id="tab-recordings" class="tab-content"></div> <div id="tab-live" class="tab-content" style="padding:0;">
+        <div id="tab-recordings" class="tab-content"></div>
+
+        <div id="tab-live" class="tab-content" style="padding:0;">
             <div class="layout-container">
                 <div class="split-inner">
                     <div class="vertical-filter-col" id="live-sidebar-container" style="display:none;"><div class="vert-capsule" id="live-sidebar"></div></div>
@@ -416,9 +431,9 @@
                 <div class="split-inner">
                     <div class="vertical-filter-col">
                         <div class="vert-capsule">
-                            <div class="v-item active focusable" onclick="showSettingsSection('mytv', this)">My TV</div>
-                            <div class="v-item focusable" onclick="showSettingsSection('features', this)">App Features</div>
-                            <div class="v-item focusable" onclick="showSettingsSection('user', this)">User Details</div>
+                            <div class="v-item active" onclick="showSettingsSection('mytv', this)">My TV</div>
+                            <div class="v-item" onclick="showSettingsSection('features', this)">App Features</div>
+                            <div class="v-item" onclick="showSettingsSection('user', this)">User Details</div>
                         </div>
                     </div>
                     <div class="content-col settings-content">
@@ -426,19 +441,19 @@
                         <div id="set-mytv" style="display:block;">
                              <div class="section-header">Inputs</div>
                              <div class="scroller" style="margin-bottom:30px;">
-                                <div class="card c-square focusable" style="background:#222;" onclick="alert('HDMI 1')"><i class="fas fa-plug fa-2x"></i><br>HDMI 1</div>
-                                <div class="card c-square focusable" style="background:#222;" onclick="alert('HDMI 2')"><i class="fas fa-plug fa-2x"></i><br>HDMI 2</div>
+                                <div class="card c-square" style="background:#222;" onclick="alert('HDMI 1')"><i class="fas fa-plug fa-2x"></i><br>HDMI 1</div>
+                                <div class="card c-square" style="background:#222;" onclick="alert('HDMI 2')"><i class="fas fa-plug fa-2x"></i><br>HDMI 2</div>
                              </div>
                              
                              <div class="section-header">Apps</div>
                              <div class="scroller" style="margin-bottom:30px;">
-                                <div class="card c-app focusable" style="background:#333;">Netflix</div>
-                                <div class="card c-app focusable" style="background:#333;">Prime</div>
+                                <div class="card c-app" style="background:#333;">Netflix</div>
+                                <div class="card c-app" style="background:#333;">Prime</div>
                              </div>
 
                              <div class="section-header">System</div>
                              <div class="settings-grid">
-                                <div class="setting-card focusable" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
+                                <div class="setting-card" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
                              </div>
                         </div>
 
@@ -448,17 +463,17 @@
                                 <div class="setting-card">
                                     <span class="setting-label">Clear History</span>
                                     <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">Clears all Continue Watching items except the last watched channel.</p>
-                                    <button class="btn-settings focusable" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
+                                    <button class="btn-settings" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Visible Tabs</span>
-                                    <div style="margin-bottom:10px;">Live Tab <label class="switch focusable"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:10px;">TV Shows <label class="switch focusable"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:10px;">Movies <label class="switch focusable"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">Live Tab <label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">TV Shows <label class="switch"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">Movies <label class="switch"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Display</span>
-                                    <div style="margin-top:15px;">White Channel Logos <label class="switch focusable"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
+                                    <div style="margin-top:15px;">White Channel Logos <label class="switch"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
                                 </div>
                             </div>
                         </div>
@@ -468,19 +483,19 @@
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <span class="setting-label">Xtream Codes Login</span>
-                                    <input id="xc-url" class="setting-input focusable" placeholder="http://url.com">
-                                    <input id="xc-user" class="setting-input focusable" placeholder="Username">
-                                    <input id="xc-pass" class="setting-input focusable" type="password" placeholder="Password">
-                                    <button class="btn-settings focusable" onclick="loadXtream()">Login</button>
+                                    <input id="xc-url" class="setting-input" placeholder="http://url.com">
+                                    <input id="xc-user" class="setting-input" placeholder="Username">
+                                    <input id="xc-pass" class="setting-input" type="password" placeholder="Password">
+                                    <button class="btn-settings" onclick="loadXtream()">Login</button>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Filters</span>
-                                    <input id="prefix-filter" class="setting-input focusable" placeholder="Prefixes (comma separated)" oninput="localStorage.setItem('prefixFilter', this.value)">
-                                    <input id="suffix-filter" class="setting-input focusable" style="margin-top:10px;" placeholder="Suffixes (comma separated)" oninput="localStorage.setItem('suffixFilter', this.value)">
+                                    <input id="prefix-filter" class="setting-input" placeholder="Prefixes (comma separated)" oninput="localStorage.setItem('prefixFilter', this.value)">
+                                    <input id="suffix-filter" class="setting-input" style="margin-top:10px;" placeholder="Suffixes (comma separated)" oninput="localStorage.setItem('suffixFilter', this.value)">
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Recording API</span>
-                                    <input id="rec-api" class="setting-input focusable" placeholder="http://server-address:port" oninput="localStorage.setItem('recApi', this.value)">
+                                    <input id="rec-api" class="setting-input" placeholder="http://server-address:port" oninput="localStorage.setItem('recApi', this.value)">
                                 </div>
                             </div>
                         </div>
@@ -504,7 +519,7 @@
                 </div>
                 <p class="cp-desc" id="cp-desc">Description...</p>
                 <div class="cp-buttons" id="cp-action-buttons">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -514,18 +529,26 @@
         let currentContext = 'Home';
         let selectedContent = null; 
         
+        // MOCK DATA UPDATE (Fix 5)
         let cloudRecordings = [
-            { id: "mock_f1", title: "Formula 1: Silverstone", owners: ["user_b"], status: "recording", img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" }
+            { 
+                id: "mock_f1", 
+                title: "Formula 1: Silverstone", 
+                owners: ["user_b"], 
+                status: "recording", 
+                img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg",
+                channel_logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Sky_Sports_Main_Event.svg/1200px-Sky_Sports_Main_Event.svg.png"
+            }
         ];
 
         const defaultNav = `
-            <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-            <div id="nav-home" class="nav-item active focusable" onclick="switchTab('home')">Home</div>
-            <div id="nav-live" class="nav-item focusable" onclick="switchTab('live')">Live</div>
-            <div id="nav-tv" class="nav-item focusable" onclick="switchTab('tv')">TV Shows</div>
-            <div id="nav-movies" class="nav-item focusable" onclick="switchTab('movies')">Movies</div>
-            <div id="nav-youtube" class="nav-item focusable" onclick="switchTab('youtube')">YouTube</div>
-            <div id="nav-music" class="nav-item focusable" onclick="switchTab('music')">Music</div>
+            <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+            <div id="nav-home" class="nav-item active" onclick="switchTab('home')">Home</div>
+            <div id="nav-live" class="nav-item" onclick="switchTab('live')">Live</div>
+            <div id="nav-tv" class="nav-item" onclick="switchTab('tv')">TV Shows</div>
+            <div id="nav-movies" class="nav-item" onclick="switchTab('movies')">Movies</div>
+            <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube')">YouTube</div>
+            <div id="nav-music" class="nav-item" onclick="switchTab('music')">Music</div>
         `;
 
         window.onload = () => {
@@ -564,7 +587,6 @@
             renderHome(); 
             updateClock(); 
             setInterval(updateClock, 1000);
-            setTimeout(setupKeyboard, 500);
         };
 
         function updateClock() {
@@ -612,7 +634,7 @@
             document.getElementById('tab-' + tabId).classList.add('active');
 
             if(tabId === 'home') renderHome();
-            if(tabId === 'recordings') renderRecordingsPage(); // FIX 3: Render Cloud Page
+            if(tabId === 'recordings') renderRecordingsPage();
             if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0], "Current Program Info"); }
             if(tabId === 'tv') { renderVODSidebar('tv'); loadStreamContent('tv', 'All'); }
             if(tabId === 'movies') { renderVODSidebar('movies'); loadStreamContent('movies', 'All'); }
@@ -626,18 +648,18 @@
         function renderExpandedNav(type, items) {
             const nav = document.getElementById('main-nav');
             let html = `
-                <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                <div class="nav-item nav-back focusable" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>
+                <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+                <div class="nav-item nav-back" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>
             `;
             if (items.length === 0) {
-                 html += `<div class="nav-item active focusable" onclick="void(0)">${type === 'TV' ? 'TV Shows' : type}</div>`;
+                 html += `<div class="nav-item active" onclick="void(0)">${type === 'TV' ? 'TV Shows' : type}</div>`;
             } else {
                 items.forEach((item, idx) => {
                     let active = idx === 0 ? 'active' : ''; 
                     let clickFn = '';
                     if(type === 'Live') clickFn = `handleLiveFilter('${item.replace(/'/g, "")}', this)`;
                     if(type === 'TV' || type === 'Movies') clickFn = `handleVODFilter('${type}', '${item}', this)`;
-                    html += `<div class="nav-item ${active} focusable" onclick="${clickFn}">${item}</div>`;
+                    html += `<div class="nav-item ${active}" onclick="${clickFn}">${item}</div>`;
                 });
             }
             nav.innerHTML = html;
@@ -649,11 +671,11 @@
             if(cat === 'Sports') {
                 const nav = document.getElementById('main-nav');
                 nav.innerHTML = `
-                    <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                    <div class="nav-item nav-back focusable" onclick="switchTab('live')"><i class="fas fa-arrow-left"></i></div>
-                    <div class="nav-item active focusable" onclick="toggleSportsActive(this, 'All Sports')">All Sports</div>
-                    <div class="nav-item focusable" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
-                    <div class="nav-item focusable" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
+                    <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+                    <div class="nav-item nav-back" onclick="switchTab('live')"><i class="fas fa-arrow-left"></i></div>
+                    <div class="nav-item active" onclick="toggleSportsActive(this, 'All Sports')">All Sports</div>
+                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
+                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
                 `;
                 renderLiveList('All Sports');
             } else { renderLiveList(cat); }
@@ -693,7 +715,7 @@
                 grid.className = 'channels-grid';
                 filtered.forEach(ch => {
                     const card = document.createElement('div');
-                    card.className = 'channel-card focusable'; card.tabIndex=0;
+                    card.className = 'channel-card'; card.tabIndex=0;
                     card.onclick = () => openContentPage(ch); 
                     card.innerHTML = `<img src="${ch.logo}" class="cc-logo"><div class="cc-name">${cleanName(ch.name)}</div>`;
                     grid.appendChild(card);
@@ -710,7 +732,7 @@
             filtered.forEach(ch => {
                 const isFav = favLive.has(ch.id);
                 const row = document.createElement('div');
-                row.className = 'epg-row focusable'; row.tabIndex = 0;
+                row.className = 'epg-row'; row.tabIndex = 0;
                 
                 row.onmouseover = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
                 row.onfocus = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
@@ -745,14 +767,14 @@
         function renderVODSidebar(type) {
             const sb = document.getElementById(type + '-sidebar');
             sb.innerHTML = '';
-            sb.innerHTML += `<div class="v-item active focusable" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Browse All</div>`;
-            sb.innerHTML += `<div class="v-item focusable" onclick="loadStreamContent('${type}', 'Continue'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Continue Watching</div>`;
-            sb.innerHTML += `<div class="v-item focusable" onclick="loadStreamContent('${type}', 'Watchlist'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Watchlist</div>`;
+            sb.innerHTML += `<div class="v-item active" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Browse All</div>`;
+            sb.innerHTML += `<div class="v-item" onclick="loadStreamContent('${type}', 'Continue'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Continue Watching</div>`;
+            sb.innerHTML += `<div class="v-item" onclick="loadStreamContent('${type}', 'Watchlist'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Watchlist</div>`;
 
             const source = type === 'tv' ? vodSeries : vodMovies;
             const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean);
             cats.forEach(c => {
-                const item = document.createElement('div'); item.className = 'v-item focusable'; item.innerText = c;
+                const item = document.createElement('div'); item.className = 'v-item'; item.innerText = c;
                 item.onclick = () => { document.querySelectorAll(`#${type}-sidebar .v-item`).forEach(i=>i.classList.remove('active')); item.classList.add('active'); loadStreamContent(type, c); };
                 sb.appendChild(item);
             });
@@ -795,7 +817,7 @@
         function renderGridItems(grid, items) {
             if(items.length === 0) grid.innerHTML = '<p>No content found.</p>';
             items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster focusable';
+                const card = document.createElement('div'); card.className = 'card c-poster';
                 card.tabIndex = 0;
                 if(i.stream_icon || i.cover || i.img) card.style.backgroundImage = `url('${i.stream_icon || i.cover || i.img}')`;
                 card.onclick = () => openContentPage(i);
@@ -812,7 +834,7 @@
             details.innerHTML = `<h3 class="rd-title"></h3><p class="rd-desc"></p>`;
 
             items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster focusable'; card.tabIndex = 0;
+                const card = document.createElement('div'); card.className = 'card c-poster'; card.tabIndex = 0;
                 if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
                 const showDetails = () => { details.querySelector('.rd-title').innerText = cleanName(i.name); details.querySelector('.rd-desc').innerText = "Description unavailable in this demo."; details.classList.add('visible'); };
                 card.onmouseenter = showDetails; card.onfocus = showDetails;
@@ -826,7 +848,7 @@
         function enableSearchMode() {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
-            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back focusable" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input focusable" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
+            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
             setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-search').classList.add('active');
@@ -838,18 +860,20 @@
             const res = document.getElementById('search-results'); res.innerHTML = '';
             if(q.length < 1) return; q = q.toLowerCase();
             
-            let order = ['Channels', 'Movies', 'TV Shows'];
-            if(currentContext === 'Movies') order = ['Movies', 'TV Shows', 'Channels'];
-            if(currentContext === 'Tv') order = ['TV Shows', 'Movies', 'Channels'];
+            let order = ['Channels', 'Recordings', 'Movies', 'TV Shows'];
+            if(currentContext === 'Movies') order = ['Movies', 'TV Shows', 'Channels', 'Recordings'];
+            if(currentContext === 'Tv') order = ['TV Shows', 'Movies', 'Channels', 'Recordings'];
             
             const channels = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
             const movies = vodMovies.filter(m => m.name.toLowerCase().includes(q));
             const tv = vodSeries.filter(s => s.name.toLowerCase().includes(q));
-            const resultsMap = { 'Channels': channels, 'Movies': movies, 'TV Shows': tv };
+            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q)); // Fix 3: Recordings in Search
+
+            const resultsMap = { 'Channels': channels, 'Recordings': recs, 'Movies': movies, 'TV Shows': tv };
 
             order.forEach(type => {
                 const items = resultsMap[type];
-                if(items.length > 0) {
+                if(items && items.length > 0) {
                     const wrapper = document.createElement('div'); wrapper.className = 'row-container';
                     wrapper.innerHTML = `<div class="section-header">${type}</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
                     const scroller = wrapper.querySelector('.scroller');
@@ -859,18 +883,23 @@
                     toShow.forEach(i => {
                         const card = document.createElement('div');
                         if(type === 'Channels') {
-                            card.className = 'card c-square focusable'; card.style.background='#222';
+                            card.className = 'card c-square'; card.style.background='#222';
                             card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
-                            card.onclick = () => openContentPage(i);
+                            card.onclick = () => playChannel(i);
+                        } else if(type === 'Recordings') {
+                            card.className = 'card c-recording'; // Fix 1: New Recording Card Style
+                            card.style.backgroundImage = `url('${i.img}')`;
+                            card.innerHTML = `<img src="${i.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(i.title)}</div></div>`;
+                            card.onclick = () => alert("Playing Recording");
                         } else {
-                            card.className = 'card c-poster focusable'; 
+                            card.className = 'card c-poster'; 
                             const img = i.stream_icon || i.cover;
                             if(img) card.style.backgroundImage=`url('${img}')`;
                             card.innerHTML = `<div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
                             card.onclick = () => openContentPage({...i, type: type === 'TV Shows' ? 'tv' : 'movies'});
                         }
                         card.tabIndex=0;
-                        card.onmouseenter = () => { details.querySelector('.rd-title').innerText = cleanName(i.name); details.querySelector('.rd-desc').innerText = type; details.classList.add('visible'); };
+                        card.onmouseenter = () => { details.querySelector('.rd-title').innerText = cleanName(i.name || i.title); details.querySelector('.rd-desc').innerText = type; details.classList.add('visible'); };
                         card.onfocus = card.onmouseenter;
                         scroller.appendChild(card);
                     });
@@ -878,23 +907,28 @@
                     scroller.onmouseleave = () => details.classList.remove('visible');
                     
                     if(items.length > 10) {
-                        const moreBtn = document.createElement('button'); moreBtn.className = 'btn-more focusable'; moreBtn.innerText = "Show More";
+                        const moreBtn = document.createElement('button'); moreBtn.className = 'btn-more'; moreBtn.innerText = "Show More";
                         moreBtn.onclick = () => {
                              items.slice(10).forEach(i => {
                                 const card = document.createElement('div');
                                 if(type === 'Channels') {
-                                    card.className = 'card c-square focusable'; card.style.background='#222';
+                                    card.className = 'card c-square'; card.style.background='#222';
                                     card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
-                                    card.onclick = () => openContentPage(i);
+                                    card.onclick = () => playChannel(i);
+                                } else if(type === 'Recordings') {
+                                    card.className = 'card c-recording';
+                                    card.style.backgroundImage = `url('${i.img}')`;
+                                    card.innerHTML = `<img src="${i.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(i.title)}</div></div>`;
+                                    card.onclick = () => alert("Playing Recording");
                                 } else {
-                                    card.className = 'card c-poster focusable'; 
+                                    card.className = 'card c-poster'; 
                                     const img = i.stream_icon || i.cover;
                                     if(img) card.style.backgroundImage=`url('${img}')`;
                                     card.innerHTML = `<div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
                                     card.onclick = () => openContentPage({...i, type: type === 'TV Shows' ? 'tv' : 'movies'});
                                 }
                                 card.tabIndex=0;
-                                card.onmouseenter = () => { details.querySelector('.rd-title').innerText = cleanName(i.name); details.querySelector('.rd-desc').innerText = type; details.classList.add('visible'); };
+                                card.onmouseenter = () => { details.querySelector('.rd-title').innerText = cleanName(i.name || i.title); details.querySelector('.rd-desc').innerText = type; details.classList.add('visible'); };
                                 scroller.insertBefore(card, moreBtn); 
                              });
                              moreBtn.remove(); 
@@ -910,13 +944,12 @@
             const tab = document.getElementById('tab-home'); tab.innerHTML = '';
             const container = document.createElement('div'); container.style.marginTop = "20px";
 
-            // Continue Watching
             const cwWrapper = document.createElement('div'); cwWrapper.className = 'row-container';
             cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const cwScroller = cwWrapper.querySelector('.scroller');
             
             if(lastLiveChannel) {
-                const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0;
+                const c = document.createElement('div'); c.className = 'card c-square'; c.tabIndex=0;
                 c.style.background = '#222'; 
                 c.innerHTML = `<img src="${lastLiveChannel.logo}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;">`;
                 c.onclick = () => playChannel(lastLiveChannel);
@@ -926,7 +959,7 @@
             }
             
             watchHistory.filter(h => h.type !== 'live').forEach(h => {
-                const c = document.createElement('div'); c.className = 'card c-poster focusable'; c.tabIndex=0;
+                const c = document.createElement('div'); c.className = 'card c-poster'; c.tabIndex=0;
                 if(h.img) c.style.backgroundImage = `url('${h.img}')`;
                 c.onclick = () => openContentPage(h);
                 c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = cleanName(h.name); cwWrapper.querySelector('.rd-desc').innerText = "Resume"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
@@ -936,25 +969,27 @@
             cwScroller.onmouseleave = () => cwWrapper.querySelector('.row-details').classList.remove('visible');
             container.appendChild(cwWrapper);
 
-            // FIX 2: Recordings & Reminders Row
             const recWrapper = document.createElement('div'); recWrapper.className = 'row-container';
             recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div>`;
             const recScroller = recWrapper.querySelector('.scroller');
             
-            // Cloud Recordings Button
-            const btnRec = document.createElement('div'); btnRec.className='card c-square focusable'; btnRec.tabIndex=0; btnRec.style.background='#333';
+            const btnRec = document.createElement('div'); btnRec.className='card c-square'; btnRec.tabIndex=0; btnRec.style.background='#333';
             btnRec.innerHTML = '<i class="fas fa-cloud fa-3x" style="color:#aaa;"></i><div style="font-size:0.9rem; color:#fff; font-weight:700;">Cloud<br>Recordings</div>';
             btnRec.onclick = () => switchTab('recordings');
             recScroller.appendChild(btnRec);
 
-            // Personal Recordings
             cloudRecordings.filter(r => r.owners.includes('me')).forEach(r => {
-                const c = document.createElement('div'); c.className='card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                c.innerHTML = `<img src="${r.img || ''}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
+                // Fix 1: New Recording Card Style
+                const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
+                c.style.backgroundImage = `url('${r.img}')`;
+                c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
                 c.onclick = () => alert("Playing Recording (Mock)");
                 recScroller.appendChild(c);
             });
             container.appendChild(recWrapper);
+
+            const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
+            if(allFavs.length > 0) { addVODRow(container, "Watchlist", allFavs); }
 
             if(vodMovies.length > 0) addVODRow(container, "Featured Movies", vodMovies.slice(0,10));
             if(vodSeries.length > 0) addVODRow(container, "Featured Shows", vodSeries.slice(0,10));
@@ -963,36 +998,35 @@
             utils.forEach(u => {
                 const w = document.createElement('div'); w.className = 'row-container';
                 let html = `<div class="section-header"><i class="fas ${u.i}"></i> ${u.t}</div><div class="scroller">`;
-                u.c.forEach(i => html += `<div class="card ${u.type} focusable" tabindex="0" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
+                u.c.forEach(i => html += `<div class="card ${u.type}" tabindex="0" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
                 html += `</div>`; w.innerHTML = html; container.appendChild(w);
             });
             tab.appendChild(container);
         }
 
-        // FIX 3: Cloud Recordings Page
         function renderRecordingsPage() {
             const tab = document.getElementById('tab-recordings'); tab.innerHTML = '<h1>Cloud Recordings</h1>';
             
-            // My Recordings
             const myRecs = cloudRecordings.filter(r => r.owners.includes('me'));
             if(myRecs.length > 0) {
                 const w = document.createElement('div'); w.className='row-container'; w.innerHTML=`<div class="section-header">My Recordings</div><div class="scroller"></div>`;
                 myRecs.forEach(r => {
-                    const c = document.createElement('div'); c.className='card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                    c.innerHTML = `<img src="${r.img || ''}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
+                    const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
+                    c.style.backgroundImage = `url('${r.img}')`;
+                    c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
                     c.onclick = () => alert("Playing Recording");
                     w.querySelector('.scroller').appendChild(c);
                 });
                 tab.appendChild(w);
             }
 
-            // Pooled Recordings
             const pooled = cloudRecordings.filter(r => !r.owners.includes('me'));
             if(pooled.length > 0) {
                 const w = document.createElement('div'); w.className='row-container'; w.innerHTML=`<div class="section-header">Pooled Recordings</div><div class="scroller"></div>`;
                 pooled.forEach(r => {
-                    const c = document.createElement('div'); c.className='card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                    c.innerHTML = `<img src="${r.img || ''}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
+                    const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
+                    c.style.backgroundImage = `url('${r.img}')`;
+                    c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
                     c.onclick = () => alert("Playing Pooled Recording");
                     w.querySelector('.scroller').appendChild(c);
                 });
@@ -1062,48 +1096,56 @@
             document.body.classList.add('mode-fullscreen');
         }
 
-        // FIX 1: Open Content Page (Separation of Logic)
         function openContentPage(i) { 
             selectedContent = i; 
             document.getElementById('content-page').style.display='block'; 
             document.getElementById('cp-title').innerText = cleanName(i.name); 
             document.getElementById('cp-desc').innerText = "Full description available in premium API.";
-            const bg = i.stream_icon || i.cover || i.img || i.logo;
-            document.getElementById('cp-poster').style.backgroundImage = `url('${bg}')`;
-            document.getElementById('cp-hero').style.backgroundImage = `url('${bg}')`;
             
-            // Logic for Buttons
+            const bg = i.stream_icon || i.cover || i.img || i.logo;
+            
+            // FIX 2: Handle Channels in Details Page (Center logo in square)
+            const posterDiv = document.getElementById('cp-poster');
+            const heroDiv = document.getElementById('cp-hero');
+            heroDiv.style.backgroundImage = `url('${bg}')`;
+            
+            if(!i.stream_id && !i.series_id) {
+                // Is Channel: Clear BG image, use img tag inside to center
+                posterDiv.style.backgroundImage = 'none';
+                posterDiv.innerHTML = `<img src="${bg}" style="max-width:80%; max-height:80%; object-fit:contain;">`;
+            } else {
+                // Is VOD: Use BG cover
+                posterDiv.innerHTML = '';
+                posterDiv.style.backgroundImage = `url('${bg}')`;
+            }
+            
             const btnContainer = document.getElementById('cp-action-buttons');
             btnContainer.innerHTML = '';
             
-            // Play Button (Universal)
             const btnPlay = document.createElement('button');
-            btnPlay.className = 'btn-settings focusable'; btnPlay.style = "background:white; color:black; width:auto; padding:15px 40px;";
+            btnPlay.className = 'btn-settings'; btnPlay.style = "background:white; color:black; width:auto; padding:15px 40px;";
             btnPlay.innerHTML = '<i class="fas fa-play"></i> Play';
             btnPlay.onclick = () => playCurrentContent();
             btnContainer.appendChild(btnPlay);
 
-            // Is it Live or VOD?
             if(!i.stream_id && !i.series_id) {
-                // LIVE CHANNEL -> Show RECORD
                 const btnRec = document.createElement('button');
-                btnRec.className = 'btn-settings focusable'; btnRec.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+                btnRec.className = 'btn-settings'; btnRec.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
                 btnRec.innerHTML = '<i class="fas fa-circle" style="color:red;"></i> Record';
                 btnRec.onclick = () => smartRecord();
                 btnContainer.appendChild(btnRec);
             } else {
-                // VOD -> Show WATCHLIST
                 const id = i.stream_id || i.series_id;
                 const inWatchlist = favStream.has(id);
                 const btnWatch = document.createElement('button');
-                btnWatch.className = 'btn-settings focusable'; btnWatch.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+                btnWatch.className = 'btn-settings'; btnWatch.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
                 btnWatch.innerHTML = inWatchlist ? '<i class="fas fa-minus"></i> Remove from Watchlist' : '<i class="fas fa-plus"></i> Add to Watchlist';
-                btnWatch.onclick = () => { addToWatchlist(); openContentPage(i); }; // Re-render to update state
+                btnWatch.onclick = () => { addToWatchlist(); openContentPage(i); }; 
                 btnContainer.appendChild(btnWatch);
             }
             
             const btnBack = document.createElement('button');
-            btnBack.className = 'btn-settings focusable'; btnBack.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+            btnBack.className = 'btn-settings'; btnBack.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
             btnBack.innerText = "Back";
             btnBack.onclick = () => closeContentPage();
             btnContainer.appendChild(btnBack);
@@ -1137,7 +1179,7 @@
                 if(existing.owners.includes('me')) { alert("You are already recording this."); } 
                 else { existing.owners.push('me'); alert("Added to Library (Shared Recording)"); }
             } else {
-                cloudRecordings.push({ id: id, title: selectedContent.name, img: selectedContent.logo || selectedContent.stream_icon || selectedContent.cover, owners: ['me'], status: 'recording' });
+                cloudRecordings.push({ id: id, title: selectedContent.name, img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg", channel_logo: selectedContent.logo, owners: ['me'], status: 'recording' });
                 alert("Recording Started");
             }
             localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
@@ -1148,42 +1190,13 @@
         function closeDeleteModal() { document.getElementById('delete-modal').style.display='none'; }
         function executeDelete(type) {
             if(!selectedContent) return;
-            // Simulated Delete
             alert("Deleted successfully."); closeDeleteModal(); closeContentPage(); renderHome();
         }
 
         function closeContentPage() { document.getElementById('content-page').style.display='none'; selectedContent=null; }
         function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.body.classList.remove('mode-fullscreen'); }
-        function renderSidebar(id, items) { const el = document.getElementById(id+'-sidebar'); if(el) { el.innerHTML=''; items.forEach(i=>el.innerHTML+=`<div class="v-item focusable">${i}</div>`); } }
+        function renderSidebar(id, items) { const el = document.getElementById(id+'-sidebar'); if(el) { el.innerHTML=''; items.forEach(i=>el.innerHTML+=`<div class="v-item">${i}</div>`); } }
 
-        function setupKeyboard() {
-            document.addEventListener('keydown', (e) => {
-                const active = document.activeElement;
-                if (e.key === 'Enter') { if (active && active.classList.contains('focusable')) active.click(); } 
-                else if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); if(document.body.classList.contains('mode-fullscreen')) closeOverlays(); else if (document.getElementById('content-page').style.display === 'block') closeContentPage(); else if (document.getElementById('tab-search').classList.contains('active')) exitSearchMode(); else switchTab('home'); } 
-                else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(e.key); }
-            });
-        }
-
-        function navigate(direction) {
-            const focusables = Array.from(document.querySelectorAll('.focusable, input, button')).filter(el => { return el.offsetParent !== null && !el.disabled; });
-            if (focusables.length === 0) return;
-            const current = document.activeElement;
-            if (!focusables.includes(current)) { focusables[0].focus(); return; }
-            const currentRect = current.getBoundingClientRect();
-            let bestCandidate = null; let minDistance = Infinity;
-            focusables.forEach(el => {
-                if (el === current) return;
-                const rect = el.getBoundingClientRect();
-                let dist = Infinity;
-                if (direction === 'ArrowRight' && rect.left >= currentRect.right && Math.abs(rect.top - currentRect.top) < 100) dist = Math.sqrt(Math.pow(rect.left - currentRect.right, 2) + Math.pow(rect.top - currentRect.top, 2));
-                else if (direction === 'ArrowLeft' && rect.right <= currentRect.left && Math.abs(rect.top - currentRect.top) < 100) dist = Math.sqrt(Math.pow(currentRect.left - rect.right, 2) + Math.pow(rect.top - currentRect.top, 2));
-                else if (direction === 'ArrowDown' && rect.top >= currentRect.bottom) dist = Math.sqrt(Math.pow(rect.left - currentRect.left, 2) + Math.pow(rect.top - currentRect.bottom, 2));
-                else if (direction === 'ArrowUp' && rect.bottom <= currentRect.top) dist = Math.sqrt(Math.pow(rect.left - currentRect.left, 2) + Math.pow(currentRect.top - rect.bottom, 2));
-                if (dist < minDistance) { minDistance = dist; bestCandidate = el; }
-            });
-            if (bestCandidate) { bestCandidate.focus(); bestCandidate.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-        }
     </script>
 </body>
 </html>
