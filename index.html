@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V110</title>
+    <title>StreamTV OS V111</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -324,7 +324,6 @@
         .cp-desc { font-size: 1.1rem; color: #bbb; max-width: 800px; margin-bottom: 30px; line-height: 1.6; }
         .cp-buttons { display: flex; gap: 15px; }
         
-        /* New Delete Modal */
         #delete-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:7000; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
         .del-box { background:#222; padding:30px; border-radius:20px; text-align:center; max-width:500px; border:1px solid #444; }
         .del-btn { margin-top:15px; width:100%; text-align:left; background:#333; padding:15px; border:none; color:white; font-size:1.1rem; border-radius:10px; cursor:pointer; }
@@ -505,6 +504,9 @@
                     <button class="btn-settings focusable" style="background:white; color:black; width:auto; padding:15px 40px;" id="btn-play-content" onclick="playCurrentContent()">
                         <i class="fas fa-play"></i> Play
                     </button>
+                    <button class="btn-settings focusable" style="background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;" onclick="smartRecord()">
+                        <i class="fas fa-circle" style="color:red;"></i> Record
+                    </button>
                     <button class="btn-settings focusable" style="background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;" onclick="addToWatchlist()">
                         <i class="fas fa-plus"></i> Add to Watchlist
                     </button>
@@ -523,6 +525,11 @@
         let iptvChannels=[], iptvCategories=[], vodMovies=[], vodSeries=[], watchHistory=[], favLive=new Set(), favStream=new Set(), lastLiveChannel = null;
         let currentContext = 'Home';
         let selectedContent = null; 
+        
+        // MOCK BACKEND DATA FOR RECORDINGS
+        let cloudRecordings = [
+            { id: "mock_f1", title: "Formula 1: Silverstone", owners: ["user_b"], status: "recording", img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" }
+        ];
 
         const defaultNav = `
             <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
@@ -550,6 +557,8 @@
             if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
             if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
             if(localStorage.getItem('lastLiveChannel')) lastLiveChannel = JSON.parse(localStorage.getItem('lastLiveChannel'));
+            
+            if(localStorage.getItem('cloudRecordings')) cloudRecordings = JSON.parse(localStorage.getItem('cloudRecordings'));
 
             ['live','tv','movies','youtube','music'].forEach(f => {
                 const saved = localStorage.getItem('toggle-'+f);
@@ -697,7 +706,7 @@
                 filtered.forEach(ch => {
                     const card = document.createElement('div');
                     card.className = 'channel-card focusable'; card.tabIndex=0;
-                    card.onclick = () => playChannel(ch);
+                    card.onclick = () => openContentPage(ch); // MODIFIED: Open Details, don't just play
                     card.innerHTML = `<img src="${ch.logo}" class="cc-logo"><div class="cc-name">${cleanName(ch.name)}</div>`;
                     grid.appendChild(card);
                 });
@@ -717,7 +726,8 @@
                 
                 row.onmouseover = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
                 row.onfocus = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
-                row.onclick = () => playChannel(ch);
+                // MODIFIED: Open Details
+                row.onclick = () => openContentPage(ch); 
 
                 const left = document.createElement('div');
                 left.className = 'epg-channel-col';
@@ -864,7 +874,7 @@
                         if(type === 'Channels') {
                             card.className = 'card c-square focusable'; card.style.background='#222';
                             card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
-                            card.onclick = () => playChannel(i);
+                            card.onclick = () => openContentPage(i); // MODIFIED: Open Details
                         } else {
                             card.className = 'card c-poster focusable'; 
                             const img = i.stream_icon || i.cover;
@@ -888,7 +898,7 @@
                                 if(type === 'Channels') {
                                     card.className = 'card c-square focusable'; card.style.background='#222';
                                     card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
-                                    card.onclick = () => playChannel(i);
+                                    card.onclick = () => openContentPage(i);
                                 } else {
                                     card.className = 'card c-poster focusable'; 
                                     const img = i.stream_icon || i.cover;
@@ -913,6 +923,25 @@
             const tab = document.getElementById('tab-home'); tab.innerHTML = '';
             const container = document.createElement('div'); container.style.marginTop = "20px";
 
+            // RECORDINGS ROW
+            const myRecordings = cloudRecordings.filter(r => r.owners.includes('me'));
+            if(myRecordings.length > 0) {
+                const w = document.createElement('div'); w.className = 'row-container';
+                w.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
+                const scroller = w.querySelector('.scroller');
+                const details = w.querySelector('.row-details');
+                
+                myRecordings.forEach(r => {
+                    const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0; c.style.background='#222';
+                    c.innerHTML = `<img src="${r.img || ''}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
+                    c.onclick = () => alert("Playing Recording (Mock)");
+                    c.onmouseenter = () => { details.querySelector('.rd-title').innerText = r.title; details.querySelector('.rd-desc').innerText = "Recorded"; details.classList.add('visible'); };
+                    scroller.appendChild(c);
+                });
+                w.onmouseleave = () => details.classList.remove('visible');
+                container.appendChild(w);
+            }
+
             const cwWrapper = document.createElement('div'); cwWrapper.className = 'row-container';
             cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const cwScroller = cwWrapper.querySelector('.scroller');
@@ -923,7 +952,7 @@
                     const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0;
                     c.style.background = '#222'; 
                     c.innerHTML = `<img src="${ch.logo}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;">`;
-                    c.onclick = () => playChannel(ch);
+                    c.onclick = () => openContentPage(ch);
                     c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = cleanName(ch.name); cwWrapper.querySelector('.rd-desc').innerText = "Channel"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
                     c.onfocus = c.onmouseenter;
                     cwScroller.appendChild(c);
@@ -1024,13 +1053,19 @@
             document.getElementById('content-page').style.display='block'; 
             document.getElementById('cp-title').innerText = cleanName(i.name); 
             document.getElementById('cp-desc').innerText = "Full description available in premium API.";
-            const bg = i.stream_icon || i.cover || i.img;
+            const bg = i.stream_icon || i.cover || i.img || i.logo;
             document.getElementById('cp-poster').style.backgroundImage = `url('${bg}')`;
             document.getElementById('cp-hero').style.backgroundImage = `url('${bg}')`;
         }
 
         function playCurrentContent() {
             if(!selectedContent) return;
+            if(!selectedContent.stream_id && !selectedContent.series_id) {
+                // It is a live channel
+                playChannel(selectedContent);
+                closeContentPage();
+                return;
+            }
             const type = selectedContent.stream_id ? 'movies' : 'tv';
             watchHistory = watchHistory.filter(h => h.name !== selectedContent.name);
             watchHistory.unshift({ ...selectedContent, type: type, progress: 0.1, img: selectedContent.stream_icon || selectedContent.cover });
@@ -1041,29 +1076,46 @@
 
         function addToWatchlist() {
             if(!selectedContent) return;
-            const id = selectedContent.stream_id || selectedContent.series_id;
+            const id = selectedContent.stream_id || selectedContent.series_id || selectedContent.id;
             if(favStream.has(id)) { favStream.delete(id); alert("Removed from Watchlist"); } else { favStream.add(id); alert("Added to Watchlist"); }
             localStorage.setItem('favStream', JSON.stringify([...favStream]));
         }
 
-        // New Delete Functions
+        // SMART RECORDING LOGIC (Simulated Backend)
+        function smartRecord() {
+            if(!selectedContent) return;
+            const id = selectedContent.id || selectedContent.stream_id || selectedContent.series_id;
+            
+            // Check existence
+            let existing = cloudRecordings.find(r => r.id === id);
+            
+            if (existing) {
+                if(existing.owners.includes('me')) {
+                    alert("You are already recording this.");
+                } else {
+                    existing.owners.push('me');
+                    alert("Added to Library (Shared Recording)");
+                }
+            } else {
+                cloudRecordings.push({
+                    id: id,
+                    title: selectedContent.name,
+                    img: selectedContent.logo || selectedContent.stream_icon || selectedContent.cover,
+                    owners: ['me'],
+                    status: 'recording'
+                });
+                alert("Recording Started");
+            }
+            localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
+            renderHome();
+        }
+
         function showDeleteModal() { document.getElementById('delete-modal').style.display='flex'; }
         function closeDeleteModal() { document.getElementById('delete-modal').style.display='none'; }
         function executeDelete(type) {
             if(!selectedContent) return;
-            if(type === 'my') {
-                // Simulating removing from "My" list by removing from Watchlist/History locally
-                const id = selectedContent.stream_id || selectedContent.series_id;
-                favStream.delete(id);
-                watchHistory = watchHistory.filter(h => h.name !== selectedContent.name);
-                localStorage.setItem('favStream', JSON.stringify([...favStream]));
-                localStorage.setItem('watch_history', JSON.stringify(watchHistory));
-                alert("Removed from your library.");
-            } else {
-                if(confirm("Are you sure? This will delete the file for ALL users.")) {
-                    alert("File deleted from server.");
-                }
-            }
+            // Simulated Delete
+            alert("Deleted successfully.");
             closeDeleteModal();
             closeContentPage();
             renderHome();
