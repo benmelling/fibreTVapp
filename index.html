@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V120</title>
+    <title>StreamTV OS V121</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -137,22 +137,22 @@
         .nav-capsule.mode-music { background-color: var(--col-music-bg); border: 1px solid var(--col-music); }
         .nav-capsule.mode-recordings { background-color: var(--col-rec-bg); border: 1px solid var(--col-rec); }
 
-        /* FIX 5: Selected Tab has Main Color */
         .mode-default .nav-item { color: #888; }
         .mode-default #nav-live:not(.active) { color: var(--col-live-txt); }
+        .mode-default #nav-recordings:not(.active) { color: var(--col-rec-txt); } /* FIX */
         .mode-default #nav-tv:not(.active) { color: var(--col-tv-txt); }
         .mode-default #nav-movies:not(.active) { color: var(--col-movie-txt); }
         .mode-default #nav-youtube:not(.active) { color: var(--col-yt-txt); }
         .mode-default #nav-music:not(.active) { color: var(--col-music-txt); }
 
-        /* Active State = Main Color + White Text */
+        /* Active State Colors */
         .nav-capsule.mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
         .nav-capsule.mode-tv .nav-item.active { background: var(--col-tv) !important; color: white !important; }
         .nav-capsule.mode-movies .nav-item.active { background: var(--col-movie) !important; color: white !important; }
         .nav-capsule.mode-youtube .nav-item.active { background: var(--col-yt) !important; color: white !important; }
         .nav-capsule.mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
         .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
-        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } /* Default Home */
+        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } 
 
         .nav-item.icon-only { padding: 0; width: 44px; }
         .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
@@ -224,7 +224,7 @@
 
         .linear-header { 
             flex: 0 0 auto; width: 100%; height: 35vh; min-height: 280px;
-            border-radius: 24px; margin-bottom: 20px; margin-top: 10px;
+            border-radius: 24px; margin-bottom: 20px; margin-top: 0; /* FIX: Moved up */
             overflow: hidden; background: #111; position: relative;
             padding: 0; display: flex; 
         }
@@ -270,6 +270,7 @@
             width: 400px; 
             display: flex; align-items: center; padding: 0 15px;
             border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0;
+            background: #0f0f0f; z-index: 10;
         }
         .epg-num { 
             width: 70px; 
@@ -288,11 +289,9 @@
             margin-right: 10px;
         }
         
-        /* FIX 10: White Logos apply to Recording overlays too */
         .white-logos .epg-logo img, 
         .white-logos .cc-logo,
-        .white-logos .search-logo,
-        .white-logos .rec-logo-overlay { filter: grayscale(100%) brightness(200%) contrast(100%); }
+        .white-logos .search-logo { filter: grayscale(100%) brightness(200%) contrast(100%); }
 
         .epg-timeline {
             flex: 1; display: flex; align-items: center; height: 100%; overflow-x: auto; 
@@ -304,6 +303,12 @@
             position: absolute; top: 0; bottom: 0; width: 2px; background: #5DADE2; z-index: 10;
             pointer-events: none;
         }
+        
+        /* FIX: EPG Header */
+        .epg-header { display:flex; height: 40px; align-items:center; border-bottom:1px solid #333; }
+        .epg-header-empty { width: 430px; flex-shrink:0; background:#0f0f0f; z-index:10; }
+        .epg-header-time { display:flex; flex:1; overflow:hidden; position:relative; }
+        .time-marker { position:absolute; font-size:0.8rem; color:#888; top:10px; }
 
         .epg-block {
             height: 90%; 
@@ -488,6 +493,13 @@
                                 <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
                             </div>
                         </div>
+                        
+                        <div class="epg-header" id="epg-time-header">
+                            <div class="epg-header-empty"></div>
+                            <div class="epg-header-time" id="epg-header-time-row">
+                                </div>
+                        </div>
+                        
                         <div class="epg-scroll-area" id="linear-list"></div>
                     </div>
                 </div>
@@ -634,8 +646,7 @@
                 owners: ["me"],
                 status: "reminder",
                 time_str: "Tonight 7:30pm",
-                // Mock timestamp for < 60 mins logic
-                start_timestamp: new Date().getTime() + 30 * 60000, 
+                start_timestamp: new Date().getTime() + 1800000, 
                 program_image: "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/EastEnders_logo_2021.svg/1200px-EastEnders_logo_2021.svg.png",
                 channel_logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",
                 type: "reminder",
@@ -643,6 +654,7 @@
             }
         ];
 
+        // FIX 1: Recordings Added to Main Nav + Yellow Theme
         function getNavHtml(isCloudPage) {
             const recordingsClass = isCloudPage ? 'mode-recordings' : '';
             return `
@@ -650,6 +662,7 @@
                 ${isCloudPage ? '<div class="nav-item nav-back focusable" onclick="switchTab(\'home\')"><i class="fas fa-arrow-left"></i></div>' : ''}
                 <div id="nav-home" class="nav-item ${!isCloudPage ? 'active' : ''} focusable" onclick="switchTab('home')">${isCloudPage ? 'Recordings' : 'Home'}</div>
                 <div id="nav-live" class="nav-item focusable" onclick="switchTab('live')">Live</div>
+                <div id="nav-recordings" class="nav-item ${recordingsClass} focusable" onclick="switchTab('recordings')">Recordings</div>
                 <div id="nav-tv" class="nav-item focusable" onclick="switchTab('tv')">TV Shows</div>
                 <div id="nav-movies" class="nav-item focusable" onclick="switchTab('movies')">Movies</div>
                 <div id="nav-youtube" class="nav-item focusable" onclick="switchTab('youtube')">YouTube</div>
@@ -722,6 +735,7 @@
             bg.className = 'main-content'; 
             nav.className = 'nav-capsule mode-default';
             
+            // FIX 5: Yellow Theme Application
             if (tabId === 'recordings') {
                 nav.innerHTML = getNavHtml(true);
                 nav.classList.add('mode-recordings'); 
@@ -730,8 +744,15 @@
                 nav.classList.remove('mode-recordings');
             }
 
-            if (tabId === 'home') document.getElementById('nav-home').classList.add('active');
-            
+            // Manually set active class for persistent nav
+            if(tabId !== 'recordings') {
+                const el = document.getElementById('nav-'+tabId);
+                if(el) {
+                    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+                    el.classList.add('active');
+                }
+            }
+
             if (tabId === 'live') {
                 nav.className = 'nav-capsule mode-live'; bg.classList.add('page-live-bg'); 
                 const cats = ['All Channels', 'Favourites', 'Entertainment', 'Documentaries', '+1', 'Movies', 'Music', 'Sports', 'News', 'Kids', 'Extra'];
@@ -842,9 +863,22 @@
             
             const now = new Date();
             const currentHour = now.getHours();
-            const currentMin = now.getMinutes();
-            const currentTimeRatio = currentMin / 60; 
             
+            // FIX 3: EPG Header & Scrolling Sync
+            const headerRow = document.getElementById('epg-header-time-row');
+            headerRow.innerHTML = '';
+            // Generate Time Markers matching the blocks logic (2 days past, 7 days future)
+            // Note: This logic must match the block generation below
+            let timeHTML = "";
+            for(let i=48; i>0; i--) timeHTML += `<div class="time-marker" style="left:${300*i}px; position:relative;">Past</div>`; 
+            timeHTML += `<div class="time-marker" style="width:400px;">Now</div>`;
+            for(let i=0; i<168; i++) timeHTML += `<div class="time-marker" style="width:300px;">Future</div>`; // Simplified for display
+            headerRow.innerHTML = timeHTML;
+
+            // Sync Logic: When timeline scrolls, sync the header
+            // Since we create multiple timelines, we pick one to drive the header, or sync all on scroll.
+            // Simplified: Sync first timeline found to header.
+
             filtered.forEach(ch => {
                 const isFav = favLive.has(ch.id);
                 const row = document.createElement('div');
@@ -858,20 +892,18 @@
                 const timeline = document.createElement('div');
                 timeline.className = 'epg-timeline';
                 
-                const timeLine = document.createElement('div');
-                timeLine.className = 'time-line';
-                const offset = 300 + (400 * currentTimeRatio);
-                timeLine.style.left = `${offset}px`;
-                timeline.appendChild(timeLine);
+                // Add Scroll Listener to sync
+                timeline.onscroll = (e) => {
+                     // Sync header
+                     document.querySelectorAll('.epg-timeline').forEach(t => t.scrollLeft = e.target.scrollLeft);
+                     document.getElementById('epg-header-time-row').style.transform = `translateX(-${e.target.scrollLeft}px)`;
+                };
 
-                // FIX 8: Scrollable EPG Timeline (2 Days Past, 7 Days Future)
+                // FIX 5: Scrollable EPG Timeline (2 Days Past = 48 blocks, 7 Days Future = 168 blocks)
                 const progs = [];
-                // Generate 20 Past Blocks
-                for(let i=20; i>0; i--) progs.push({title: "Past Program", time: "Past", width: "300px", past: true});
-                // Current
-                progs.push({title: "Current Program", time: `${currentHour}:00 - ${currentHour+1}:00`, width: "400px", current: true});
-                // Generate 50 Future Blocks (approx 7 days)
-                for(let i=0; i<50; i++) progs.push({title: "Future Program", time: "Future", width: "300px", future: true});
+                for(let i=0; i<48; i++) progs.push({title: "Past Program", time: "Past", width: "150px", past: true});
+                progs.push({title: "Current Program", time: "Now", width: "400px", current: true});
+                for(let i=0; i<168; i++) progs.push({title: "Future Program", time: "Future", width: "150px", future: true});
                 
                 progs.forEach(p => {
                     const block = document.createElement('div');
@@ -887,8 +919,8 @@
                 });
                 row.appendChild(left); row.appendChild(timeline); container.appendChild(row);
                 
-                // Scroll to Current Time
-                setTimeout(() => timeline.scrollLeft = 200, 100);
+                // Scroll to Current Time (Approx center)
+                setTimeout(() => timeline.scrollLeft = (48 * 150), 100);
             });
             list.appendChild(container);
         }
@@ -982,14 +1014,16 @@
             wrapper.appendChild(header); wrapper.appendChild(scroller); wrapper.appendChild(details); container.appendChild(wrapper);
         }
 
-        function enableSearchMode() {
+        function enableSearchMode(query) {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
-            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back focusable" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input focusable" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
-            setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
+            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back focusable" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input focusable" id="search-input" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
+            const input = document.getElementById('search-input');
+            if(query) { input.value = query; performSearch(query); }
+            setTimeout(() => input.focus(), 100);
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-search').classList.add('active');
-            document.getElementById('search-results').innerHTML = '';
+            if(!query) document.getElementById('search-results').innerHTML = '';
         }
         function exitSearchMode() { if(!previousNavState || previousNavState==='home') switchTab('home'); else switchTab(previousNavState); }
 
@@ -997,17 +1031,16 @@
             const res = document.getElementById('search-results'); res.innerHTML = '';
             if(q.length < 1) return; q = q.toLowerCase();
             
+            // FIX 2: Search Priority Logic - Recordings First if from Recordings Page
             let order = ['Channels', 'Recordings', 'Movies', 'TV Shows'];
-            if(currentContext === 'Movies') order = ['Movies', 'TV Shows', 'Channels', 'Recordings'];
-            if(currentContext === 'Tv') order = ['TV Shows', 'Movies', 'Channels', 'Recordings'];
             if(currentContext === 'Recordings') order = ['Recordings', 'Channels', 'Movies', 'TV Shows']; 
             
             const channels = iptvChannels.filter(c => c.name.toLowerCase().includes(q)).sort((a,b) => parseInt(a.id) - parseInt(b.id)); 
             const movies = vodMovies.filter(m => m.name.toLowerCase().includes(q));
             const tv = vodSeries.filter(s => s.name.toLowerCase().includes(q));
             
-            // FIX 1: Filter Reminders AND Recordings
-            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q) || r.channel_name.toLowerCase().includes(q)); 
+            // FIX 2: Include Reminders in Search
+            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q)); 
 
             const resultsMap = { 'Channels': channels, 'Recordings': recs, 'Movies': movies, 'TV Shows': tv };
             const iconMap = { 'Channels': 'fa-tv', 'Recordings': 'fa-dot-circle', 'Movies': 'fa-film', 'TV Shows': 'fa-tv' };
@@ -1032,7 +1065,7 @@
                             card.style.backgroundImage = `url('${i.program_image}')`;
                             const icon = i.type === 'reminder' ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-circle" style="color:red"></i>';
                             card.innerHTML = `<div class="rec-type-icon">${icon}</div><img src="${i.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(i.title)}</div></div>`;
-                            // FIX 3: Click Recording/Reminder -> Program Page
+                            // FIX 2: Open Program Page for Search Result Recording
                             card.onclick = () => openContentPage({ ...i, name: i.title, logo: i.channel_logo });
                         } else {
                             card.className = 'card c-poster focusable'; 
@@ -1057,11 +1090,11 @@
             });
         }
 
+        // FIX 3: Continue Watching Priority Logic
         function renderHome() {
             const tab = document.getElementById('tab-home'); tab.innerHTML = '';
             const container = document.createElement('div'); container.style.marginTop = "20px";
 
-            // Continue Watching
             const cwWrapper = document.createElement('div'); cwWrapper.className = 'row-container';
             cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const cwScroller = cwWrapper.querySelector('.scroller');
@@ -1077,7 +1110,7 @@
                 cwScroller.appendChild(c);
             }
 
-            // FIX 2: High Priority Reminders (< 60 mins)
+            // FIX 3: Priority Reminder (< 60 mins)
             const now = new Date().getTime();
             const urgentReminders = cloudRecordings.filter(r => r.type === 'reminder' && r.start_timestamp && (r.start_timestamp - now) < 3600000 && (r.start_timestamp > now));
             
@@ -1116,22 +1149,20 @@
             const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
             if(allFavs.length > 0) { addVODRow(container, "Watchlist", allFavs, "fa-list"); }
 
+            // FIX 1: Removed Cloud Recording Button from this row
             const recWrapper = document.createElement('div'); recWrapper.className = 'row-container';
             recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const recScroller = recWrapper.querySelector('.scroller');
             const recDetails = recWrapper.querySelector('.row-details');
             
-            const btnRec = document.createElement('div'); btnRec.className='card c-square focusable'; btnRec.tabIndex=0; btnRec.style.background='#333';
-            btnRec.innerHTML = '<i class="fas fa-cloud fa-3x" style="color:#aaa;"></i><div style="font-size:0.9rem; color:#fff; font-weight:700;">Cloud<br>Recordings</div>';
-            btnRec.onclick = () => switchTab('recordings');
-            recScroller.appendChild(btnRec);
-
             cloudRecordings.filter(r => r.owners.includes('me')).forEach(r => {
                 const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
                 c.style.backgroundImage = `url('${r.program_image}')`;
                 const icon = r.type === 'reminder' ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-circle" style="color:red"></i>';
                 c.innerHTML = `<div class="rec-type-icon">${icon}</div><img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title"></div></div>`;
-                c.onclick = () => openContentPage({ ...r, name: r.title, logo: r.channel_logo }); // Fix 3
+                
+                // FIX 2: Functional Click on Reminder
+                c.onclick = () => openContentPage({ ...r, name: r.title, logo: r.channel_logo }); 
                 
                 c.onmouseenter = () => { 
                     recDetails.querySelector('.rd-title').innerText = cleanName(r.title); 
@@ -1302,23 +1333,21 @@
             const btnContainer = document.getElementById('cp-action-buttons');
             btnContainer.innerHTML = '';
             
-            // FIX 3: Handling Active Recordings/Reminders
+            // FIX 2: Context Aware Buttons (Stop/Cancel)
             if(i.status === 'recording' || i.type === 'recording') {
                 const btnStop = document.createElement('button');
                 btnStop.className = 'btn-settings focusable'; btnStop.style = "background:red; color:white; width:auto; padding:15px 40px;";
                 btnStop.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
-                btnStop.onclick = () => alert("Stopping Recording...");
+                btnStop.onclick = () => toggleRecordingState(i);
                 btnContainer.appendChild(btnStop);
-            } else if(i.type === 'reminder') {
+            } else if(i.type === 'reminder' || i.status === 'reminder') {
                 const btnCancel = document.createElement('button');
                 btnCancel.className = 'btn-settings focusable'; btnCancel.style = "background:red; color:white; width:auto; padding:15px 40px;";
                 btnCancel.innerHTML = '<i class="fas fa-bell-slash"></i> Cancel Reminder';
-                btnCancel.onclick = () => alert("Reminder Cancelled");
+                btnCancel.onclick = () => toggleRecordingState(i);
                 btnContainer.appendChild(btnCancel);
             } else {
-                // Normal Logic
                 const isLive = !i.stream_id && !i.series_id;
-                
                 if(isLive) {
                     if(i.is_current) {
                         const btnWatchLive = document.createElement('button');
@@ -1395,8 +1424,7 @@
             const id = selectedContent.stream_id || selectedContent.series_id || selectedContent.id;
             if(favStream.has(id)) { favStream.delete(id); alert("Removed from Watchlist"); } else { favStream.add(id); alert("Added to Watchlist"); }
             localStorage.setItem('favStream', JSON.stringify([...favStream]));
-            // FIX 9: Re-render Content Page buttons immediately
-            openContentPage(selectedContent);
+            openContentPage(selectedContent); // FIX 6: Re-render UI
         }
         
         function toggleFavLive(id) {
@@ -1445,6 +1473,15 @@
             });
             localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
             alert("Reminder Set");
+            renderHome();
+        }
+
+        // FIX 2: Toggle Logic
+        function toggleRecordingState(item) {
+            cloudRecordings = cloudRecordings.filter(r => r.id !== item.id);
+            localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
+            alert(item.type === 'reminder' ? "Reminder Cancelled" : "Recording Stopped & Removed");
+            closeContentPage();
             renderHome();
         }
 
