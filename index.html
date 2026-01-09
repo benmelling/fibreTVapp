@@ -3,896 +3,675 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V130</title>
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    
+    <title>StreamTV OS V129</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --bg-color: #000000;
-            --surface-translucent: rgba(20, 20, 20, 0.95);
-            --text-primary: #ffffff;
-            --radius-capsule: 50px;
-            --radius-card: 12px;
-            --page-gutter: 50px;
-
-            /* THEME COLORS */
-            --col-live: #0047AB;   
-            --col-tv: #D35400;     
-            --col-movie: #27AE60;  
-            --col-yt: #E50914;     
-            --col-music: #C2185B;  
-            --col-rec: #F1C40F;    
+            --bg: #050505;
+            --glass: rgba(20, 20, 20, 0.90);
+            --text: #fff;
+            --blue: #0047AB; --orange: #D35400; --green: #27AE60; --red: #E50914; --pink: #C2185B; --yellow: #F1C40F;
+            --pad: 50px;
         }
-
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
 
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Outfit', sans-serif;
-            height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column;
-            user-select: none;
-        }
+        /* VIDEO BACKGROUND */
+        #bg-vid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; filter: blur(40px) brightness(0.4); transition: 0.5s; pointer-events: none; }
+        body.fullscreen #bg-vid { filter: none; z-index: 10; }
+        body.fullscreen .interface { display: none !important; }
 
-        /* GLOBAL BACKGROUND */
-        #global-bg-video {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: -1;
-            opacity: 1; transition: opacity 0.5s ease;
-            pointer-events: none;
-            filter: blur(30px) brightness(0.4);
-        }
-        body.mode-fullscreen #global-bg-video { filter: blur(0); z-index: 0; pointer-events: auto; }
-        body.mode-fullscreen .top-bar-container, 
-        body.mode-fullscreen .main-content,
-        body.mode-fullscreen .info-capsule { display: none !important; }
-
-        /* NAVIGATION */
-        .top-bar-container {
-            position: fixed; top: 30px; left: var(--page-gutter); 
-            z-index: 6000; display: flex; align-items: flex-start;
-            max-width: 85%; pointer-events: auto;
-        }
-
-        .nav-capsule {
-            background: var(--surface-translucent);
-            backdrop-filter: blur(30px);
-            border-radius: var(--radius-capsule);
-            padding: 5px;
-            display: flex; align-items: center; gap: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
+        /* FLOATING UI ELEMENTS */
+        .interface { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        
+        /* TOP NAV */
+        .nav-wrap { position: fixed; top: 30px; left: var(--pad); z-index: 100; display: flex; pointer-events: auto; }
+        .nav-bar { 
+            background: var(--glass); backdrop-filter: blur(20px); 
+            border-radius: 50px; padding: 5px; display: flex; gap: 5px; 
+            border: 1px solid rgba(255,255,255,0.1); 
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transition: 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-
-        .nav-item {
-            height: 44px; padding: 0 24px; 
-            border-radius: var(--radius-capsule);
-            color: #888; font-weight: 700; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s; white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
+        .nav-btn { 
+            height: 44px; padding: 0 24px; border-radius: 40px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 700; color: #888; cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
-        .nav-item:hover, .nav-item.focused { color: white !important; background: rgba(255,255,255,0.1); }
-        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } 
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-btn.icon { width: 44px; padding: 0; font-size: 1.1rem; }
         
-        /* Theme Specific Active States */
-        .nav-capsule.mode-live { border-color: var(--col-live); background: rgba(0, 0, 40, 0.9); }
-        .nav-capsule.mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
+        /* THEMES */
+        .theme-live .nav-bar { border-color: var(--blue); box-shadow: 0 0 30px rgba(0,71,171,0.3); }
+        .theme-live .nav-btn.active { background: var(--blue); color: white; }
+        
+        .theme-tv .nav-bar { border-color: var(--orange); box-shadow: 0 0 30px rgba(211,84,0,0.3); }
+        .theme-tv .nav-btn.active { background: var(--orange); color: white; }
+        
+        .theme-movies .nav-bar { border-color: var(--green); box-shadow: 0 0 30px rgba(39,174,96,0.3); }
+        .theme-movies .nav-btn.active { background: var(--green); color: white; }
+        
+        .theme-rec .nav-bar { border-color: var(--yellow); box-shadow: 0 0 30px rgba(241,196,15,0.2); }
+        .theme-rec .nav-btn.active { background: var(--yellow); color: black; }
 
-        .nav-capsule.mode-tv { border-color: var(--col-tv); background: rgba(60, 20, 0, 0.9); }
-        .nav-capsule.mode-tv .nav-item.active { background: var(--col-tv) !important; color: white !important; }
+        .theme-default .nav-btn.active { background: white; color: black; }
 
-        .nav-capsule.mode-movies { border-color: var(--col-movie); background: rgba(0, 40, 10, 0.9); }
-        .nav-capsule.mode-movies .nav-item.active { background: var(--col-movie) !important; color: white !important; }
+        .search-input { background: transparent; border: none; color: white; font-family: inherit; font-size: 1.1rem; width: 250px; margin-left: 10px; font-weight: 600; }
 
-        .nav-capsule.mode-recordings { border-color: var(--col-rec); background: rgba(60, 50, 0, 0.9); }
-        .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
+        /* CLOCK */
+        .clock-cap { position: fixed; top: 30px; right: 40px; background: var(--glass); border-radius: 50px; height: 54px; padding: 0 25px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1); z-index: 100; pointer-events: auto; font-weight: 800; font-size: 1.1rem; }
 
-        .nav-item.icon-only { padding: 0; width: 44px; }
-        .nav-back { padding: 0; width: 54px; }
-        .nav-search-container { display:flex; align-items:center; width:350px; padding-left:10px; }
-        .nav-search-input { background: transparent; border: none; color: white; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 600; flex:1; outline: none; padding: 0 15px; }
-
-        .info-capsule {
-            position: fixed; top: 30px; right: 40px;
-            background: var(--surface-translucent); backdrop-filter: blur(25px);
-            border-radius: var(--radius-capsule); height: 54px; padding: 0 25px;
-            display: flex; align-items: center; gap: 15px;
-            border: 1px solid rgba(255,255,255,0.15); z-index: 6000;
+        /* CONTENT AREA */
+        .content { 
+            height: 100%; width: 100%; overflow-y: auto; overflow-x: hidden; 
+            padding-top: 130px; pointer-events: auto; 
+            scrollbar-width: none;
         }
-        .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
+        .page { display: none; padding-bottom: 100px; }
+        .page.active { display: block; animation: fade 0.3s; }
+        @keyframes fade { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* MAIN CONTENT - Removed top padding from container, applied to tabs */
-        .main-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
-            display: flex; flex-direction: column;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, #111 100%);
+        /* HOME ROWS */
+        .row-wrap { margin-bottom: 30px; padding-left: var(--pad); }
+        .row-head { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; }
+        .row-scroll { display: flex; gap: 20px; overflow-x: auto; padding: 10px 0; scroll-behavior: smooth; }
+        .row-scroll::-webkit-scrollbar { display: none; }
+        
+        .card { flex: 0 0 auto; background: #222; border-radius: 12px; position: relative; overflow: hidden; transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
+        .card:hover, .card:focus { transform: scale(1.05); border-color: white; z-index: 10; }
+        .card-sq { width: 160px; height: 160px; display: grid; place-items: center; }
+        .card-poster { width: 170px; height: 255px; background-size: cover; }
+        .card-rec { width: 280px; height: 158px; background-size: cover; }
+        
+        .card-img { max-width: 80%; max-height: 80%; object-fit: contain; }
+        .rec-badge { position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; background: rgba(0,0,0,0.8); border-radius: 50%; display: grid; place-items: center; color: white; font-size: 0.8rem; }
+        .rec-ch-logo { position: absolute; bottom: 10px; right: 10px; height: 30px; }
+        
+        .row-meta { height: 0; overflow: hidden; transition: 0.2s; opacity: 0; padding-left: 5px; }
+        .row-meta.show { height: auto; opacity: 1; margin-top: 5px; }
+        .meta-title { font-size: 1.6rem; font-weight: 800; }
+        .meta-desc { font-size: 1.1rem; color: #aaa; margin-top: 4px; }
+
+        /* LIVE TAB (FLUSH TOP) */
+        #page-live { padding: 0; height: 100%; display: flex; flex-direction: column; }
+        
+        .preview-area { 
+            flex: 0 0 45vh; width: 100%; position: relative; 
+            display: flex; align-items: flex-end; justify-content: space-between;
+            padding: 40px var(--pad); z-index: 0; background: #000;
+        }
+        .prev-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; opacity: 0.4; z-index: 0; mask-image: linear-gradient(to bottom, black 50%, transparent 100%); }
+        .prev-info { position: relative; z-index: 2; width: 40%; }
+        .ch-logo-lg { height: 80px; object-fit: contain; margin-bottom: 20px; }
+        .prev-title { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 10px; }
+        .prev-meta { font-size: 1.2rem; color: #ccc; font-weight: 600; margin-bottom: 15px; }
+        .prev-desc { font-size: 1rem; color: #999; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .prev-video-box { 
+            position: relative; z-index: 2; width: 500px; aspect-ratio: 16/9; 
+            background: #000; border-radius: 16px; border: 1px solid #333; overflow: hidden; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin-bottom: 20px;
         }
         
-        .tab-content { display: none; padding: 130px var(--page-gutter) 50px var(--page-gutter); height: 100%; flex-direction: column; }
-        .tab-content.active { display: flex; animation: fadeIn 0.4s ease; }
+        /* EPG TABLE */
+        .epg-wrapper { flex: 1; display: flex; flex-direction: column; background: #050505; position: relative; }
+        .epg-header { display: flex; height: 40px; border-bottom: 1px solid #222; background: #080808; align-items: center; }
+        .epg-corner { width: 380px; flex-shrink: 0; border-right: 1px solid #222; height: 100%; background: #080808; z-index: 20; }
+        .epg-times { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .time-mark { position: absolute; font-size: 0.85rem; color: #888; font-weight: 700; border-left: 1px solid #333; padding-left: 8px; height: 20px; line-height: 20px; }
+
+        .epg-list { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .ch-row { display: flex; height: 80px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .ch-row:hover, .ch-row:focus { background: #1a1a1a; }
         
-        /* LIVE TAB SPECIAL: No Padding so preview hits top */
-        #tab-live.active { padding: 0; overflow: hidden; }
+        .ch-cell { width: 380px; flex-shrink: 0; display: flex; align-items: center; padding: 0 20px; background: #050505; z-index: 10; border-right: 1px solid #222; }
+        .ch-num { width: 60px; font-weight: 800; color: #666; font-size: 1.2rem; }
+        .ch-img { width: 80px; object-fit: contain; margin-right: 20px; }
+        .ch-name { font-weight: 700; font-size: 1.1rem; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* PREVIEW PANE */
-        .linear-header { 
-            flex: 0 0 auto; width: 100%; height: 40vh; min-height: 350px;
-            margin: 0; position: relative; overflow: hidden; display: flex; z-index: 0;
-            padding-top: 100px; /* Space for Nav */
+        .prog-track { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; }
+        .prog-block { 
+            position: absolute; height: 70%; background: rgba(255,255,255,0.1); 
+            border-radius: 4px; padding: 0 15px; display: flex; flex-direction: column; justify-content: center; 
+            border-left: 1px solid rgba(0,0,0,0.5); transition: 0.2s;
         }
-        .lh-bg-blur { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(40px) brightness(0.4); z-index: 0; }
-        .header-content { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; gap: 40px; }
-        .lh-logo-box { width: 160px; aspect-ratio: 1/1; background: #111; border-radius: 16px; display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-shrink: 0; }
-        .lh-logo-img { width: 80%; height: 80%; object-fit: contain; }
-        .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; }
-        .lh-meta { font-size: 1rem; color: #ccc; margin-bottom: 10px; font-weight: 700; }
-        .lh-desc { font-size: 1rem; color: #eee; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-width: 90%; }
-        .preview-box-right { width: 450px; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; border: 1px solid #333; }
-        .preview-video { width: 100%; height: 100%; object-fit: cover; }
+        .prog-block:hover { background: rgba(255,255,255,0.2); border: 1px solid white; z-index: 5; }
+        .p-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-time { font-size: 0.8rem; color: #aaa; margin-top: 2px; }
+
+        .now-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #5DADE2; z-index: 30; pointer-events: none; box-shadow: 0 0 10px #5DADE2; }
+
+        /* SEARCH PAGE */
+        .search-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: var(--pad); }
+
+        /* POPUP */
+        #popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 7000; overflow-y: auto; }
+        .pop-hero { height: 60vh; background-size: cover; position: relative; }
+        .pop-grad { position: absolute; bottom: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000, transparent); }
+        .pop-con { display: flex; gap: 50px; padding: 0 var(--pad); margin-top: -150px; position: relative; align-items: flex-end; }
+        .pop-poster { width: 240px; aspect-ratio: 2/3; background: #222; border-radius: 12px; box-shadow: 0 20px 60px #000; background-size: cover; }
+        .pop-info { flex: 1; padding-bottom: 50px; }
+        .pop-btns { display: flex; gap: 15px; margin-top: 30px; }
+        .act-btn { padding: 15px 35px; border-radius: 10px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.15); color: white; }
+        .act-btn:hover { background: white; color: black; transform: scale(1.05); }
+        .act-btn.primary { background: white; color: black; }
+        .act-btn.danger { background: rgba(200,0,0,0.5); } .act-btn.danger:hover { background: red; color: white; }
+
+        /* SETTINGS */
+        .set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; padding: var(--pad); }
+        .set-box { background: #1a1a1a; padding: 30px; border-radius: 20px; }
+        .toggle-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; align-items: center; }
         
-        .epg-scroll-area { flex: 1; overflow-y: auto; background: #050505; }
-        .epg-scroll-area::-webkit-scrollbar { display: none; }
-
-        /* EPG */
-        .epg-header { display:flex; height: 40px; align-items:center; border-bottom:1px solid #222; background: #080808; position: sticky; top:0; z-index: 20; }
-        .epg-header-empty { width: 380px; flex-shrink:0; background:#080808; height:100%; border-right: 1px solid #222; }
-        .epg-header-time { display:flex; flex:1; overflow:hidden; position:relative; align-items: center; }
-        .time-marker { position:absolute; font-size:0.8rem; color:#888; font-weight: 600; border-left: 1px solid #333; padding-left: 8px; height: 20px; line-height: 20px; }
-
-        .epg-container { display: flex; flex-direction: column; width: 100%; }
-        .epg-row { display: flex; align-items: center; height: 80px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.1s; background: rgba(255,255,255,0.02); }
-        .epg-row:hover, .epg-row.focused { background: #222; }
-        
-        .epg-channel-col { width: 380px; display: flex; align-items: center; padding: 0 15px; border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0; background: #0f0f0f; z-index: 10; position:sticky; left:0; }
-        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
-        .epg-logo { width: 80px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
-        .epg-logo img { max-height: 50px; max-width: 100%; object-fit: contain; }
-        .epg-name { width: 200px; font-weight: 700; font-size: 1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-        .white-logos .epg-logo img, .white-logos .cc-logo, .white-logos .search-logo, .white-logos .rec-logo-overlay { filter: grayscale(100%) brightness(200%) contrast(100%); }
-
-        .epg-timeline { flex: 1; display: flex; align-items: center; height: 100%; overflow-x: auto; position: relative; scrollbar-width: none; }
-        .epg-timeline::-webkit-scrollbar { display: none; }
-
-        .time-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #5DADE2; z-index: 20; pointer-events: none; box-shadow: 0 0 8px #5DADE2; }
-
-        .epg-block { height: 80%; background: rgba(255,255,255,0.1); margin-right: 2px; border-radius: 4px; padding: 0 12px; display: flex; flex-direction: column; justify-content: center; border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; position: relative; overflow: hidden; }
-        .epg-block:hover { background: rgba(255,255,255,0.25); border-color: white; }
-        .prog-t { font-weight: 700; font-size: 0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .prog-d { font-size: 0.75rem; color: #ccc; }
-
-        /* CARDS */
-        .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 10px; }
-        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; }
-        ::-webkit-scrollbar { display: none; }
-        
-        .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
-        .card:hover, .card.focused { transform: scale(1.05); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
-        
-        .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
-        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #aaa; font-size: 1.2rem; } 
-        .c-square img { margin: 0 !important; }
-        .c-recording { width: 280px; height: 158px; background-size: cover; background-color: #222; position: relative; overflow: hidden; }
-        
-        .rec-logo-overlay { position: absolute; bottom: 8px; right: 8px; width: 40px; height: 40px; background: rgba(0,0,0,0.8); border-radius: 4px; padding: 4px; object-fit: contain; }
-        .rec-type-icon { position: absolute; top: 8px; left: 8px; width: 30px; height: 30px; background: rgba(0,0,0,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; }
-
-        .row-details { height: 0; overflow: hidden; transition: 0.3s; opacity: 0; padding-left: 5px; margin-top: 5px; }
-        .row-details.visible { height: auto; opacity: 1; margin-bottom: 20px; }
-        .rd-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
-        .rd-desc { font-size: 1rem; color: #bbb; margin-top: 5px; }
-
-        .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.6)); padding: 15px; opacity: 0; transition: opacity 0.2s; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
-        .card:hover .card-overlay { opacity: 1; }
-        .co-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 5px; }
-
-        .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
-        .channel-card { background: #222; border-radius: 12px; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
-        .channel-card:hover { transform: scale(1.05); border-color: white; background: #333; }
-        .cc-logo { width: 70%; height: 60%; object-fit: contain; margin-bottom: 8px; }
-        .cc-name { font-size: 0.9rem; font-weight: 700; text-align: center; }
-
-        /* SETTINGS & OVERLAYS */
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
-        .setting-card { background: #222; padding: 20px; border-radius: 16px; }
-        .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #ffffff; }
+        input:checked + .slider { background-color: white; }
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        
-        #content-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 6000; overflow-y: auto; }
-        .cp-hero { width: 100%; height: 70vh; background-size: cover; background-position: center; position: relative; }
-        .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
-        .cp-content-box { display: flex; gap: 40px; padding: 0 var(--page-gutter); margin-top: -150px; position: relative; z-index: 2; align-items: flex-end; }
-        .cp-poster { width: 200px; aspect-ratio: 1/1; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; display:flex; align-items:center; justify-content:center; }
-        .cp-poster.poster-mode { aspect-ratio: 2/3; } 
-        .cp-poster img { max-width:80%; max-height:80%; object-fit:contain; }
-        .cp-details { flex: 1; padding-bottom: 20px; }
-        .cp-title { font-size: 3.5rem; font-weight: 800; margin: 0; line-height: 1.1; margin-bottom: 15px; }
-        .cp-meta { font-size: 1.1rem; color: #ccc; display: flex; gap: 15px; margin-bottom: 20px; font-weight: 600; }
-        .cp-buttons { display: flex; gap: 15px; }
-        
-        #playback-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2100; pointer-events: none; flex-direction: column; justify-content: space-between; opacity: 0; transition: opacity 0.3s ease; }
-        body.mode-fullscreen #playback-ui { display: flex; }
-        body.mode-fullscreen #playback-ui.visible { opacity: 1; pointer-events: auto; }
-        .pb-top-bar { width: 100%; padding: 40px; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); display: flex; align-items: center; gap: 20px; }
-        .pb-channel-name { font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .pb-bottom-bar { width: 100%; padding: 50px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); display: flex; align-items: center; justify-content: space-between; }
-        .pb-meta { display: flex; align-items: center; gap: 15px; }
-        .pb-logo { height: 60px; width: auto; max-width: 120px; object-fit: contain; }
+        .white-logos img { filter: grayscale(100%) brightness(200%) contrast(100%); }
     </style>
 </head>
 <body class="mode-home">
 
-    <video id="global-bg-video" autoplay muted loop></video>
+    <video id="bg-vid" autoplay muted loop></video>
+
+    <div class="interface">
+        
+        <div class="nav-wrap">
+            <div class="nav-bar" id="main-nav"></div>
+        </div>
+
+        <div class="clock-cap">
+            <span id="clock">12:00</span>
+        </div>
+
+    </div>
+
+    <div class="content">
+        
+        <div id="page-home" class="page active"></div>
+
+        <div id="page-live" class="page" style="padding:0; overflow:hidden;">
+            <div class="preview-area">
+                <div class="prev-bg" id="prev-bg"></div>
+                <div class="prev-info">
+                    <img id="prev-logo" class="ch-logo-lg">
+                    <div class="prev-title" id="prev-title">Select Channel</div>
+                    <div class="prev-meta" id="prev-meta">--:--</div>
+                    <div class="prev-desc" id="prev-desc">Hover to preview.</div>
+                </div>
+                <div class="prev-video-box">
+                    <video id="prev-vid" style="width:100%; height:100%; object-fit:cover;" autoplay muted loop></video>
+                </div>
+            </div>
+            <div class="epg-wrapper">
+                <div class="epg-header">
+                    <div class="epg-corner"></div>
+                    <div class="epg-times" id="epg-times"></div>
+                </div>
+                <div class="epg-list" id="epg-list"></div>
+                <div class="now-line" id="now-line"></div>
+            </div>
+        </div>
+
+        <div id="page-rec" class="page"></div>
+
+        <div id="page-search" class="page">
+             <div class="row-wrap" id="search-results" style="padding-top:20px;"></div>
+        </div>
+        
+        <div id="page-tv" class="page"></div>
+        <div id="page-movies" class="page"></div>
+        <div id="page-yt" class="page"></div>
+        <div id="page-music" class="page"></div>
+
+        <div id="page-set" class="page">
+             <div class="set-grid">
+                 <div class="set-box">
+                     <h3>Tabs</h3>
+                     <div class="toggle-row">Live <label class="switch"><input type="checkbox" id="t-live" onchange="toggle('live')"><span class="slider"></span></label></div>
+                     <div class="toggle-row">TV Shows <label class="switch"><input type="checkbox" id="t-tv" onchange="toggle('tv')"><span class="slider"></span></label></div>
+                     <div class="toggle-row">Movies <label class="switch"><input type="checkbox" id="t-movies" onchange="toggle('movies')"><span class="slider"></span></label></div>
+                     <div class="toggle-row">YouTube <label class="switch"><input type="checkbox" id="t-yt" onchange="toggle('yt')"><span class="slider"></span></label></div>
+                     <div class="toggle-row">Music <label class="switch"><input type="checkbox" id="t-music" onchange="toggle('music')"><span class="slider"></span></label></div>
+                 </div>
+                 <div class="set-box">
+                     <h3>Preferences</h3>
+                     <div class="toggle-row">White Logos <label class="switch"><input type="checkbox" id="t-white" onchange="toggleWhite()"><span class="slider"></span></label></div>
+                     <button class="act-btn danger" style="width:100%; justify-content:center;" onclick="clearData()">Reset Data</button>
+                 </div>
+             </div>
+        </div>
+
+    </div>
+
+    <div id="popup">
+        <div class="pop-hero" id="p-hero"><div class="pop-grad"></div></div>
+        <div class="pop-con">
+            <div class="pop-poster" id="p-poster"></div>
+            <div class="pop-info">
+                <h1 id="p-title" style="font-size:3.5rem; font-weight:800; margin-bottom:15px;"></h1>
+                <p id="p-desc" style="font-size:1.2rem; color:#bbb; max-width:800px; line-height:1.6;"></p>
+                <div class="pop-btns" id="p-btns"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- STATE ---
+    let channels = [], movies = [], series = [], history = [], recs = [], favs = new Set();
+    let lastCh = null;
+    let currTab = 'home';
+    let epgStart = new Date().setMinutes(0,0,0) - 1800000; // Start -30m
+    const HOUR_MS = 3600000;
+    const PIX_PER_MS = 200 / (60*1000); // 200px per hour
     
-    <div id="overlay-player" class="overlay" style="background:black;">
-        <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
-        <h1>Now Playing</h1>
-        <button class="btn-settings focusable" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
-    </div>
-    
-    <div id="playback-ui">
-        <div class="pb-top-bar">
-            <button class="nav-item icon-only focusable" onclick="closeOverlays()"><i class="fas fa-arrow-left"></i></button>
-            <div class="pb-channel-name" id="pb-channel-name">Channel Name</div>
-        </div>
-        <div class="pb-bottom-bar">
-            <div class="pb-meta">
-                <img src="" id="pb-logo" class="pb-logo" />
-                <span style="background:#cc0000; padding:4px 8px; border-radius:4px; font-weight:800; font-size:0.8rem;">LIVE</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="info-capsule focusable" onclick="switchTab('settings', null)">
-        <div class="system-stack">
-            <span id="clock-el" class="sys-time">12:00</span>
-        </div>
-    </div>
-
-    <div class="top-bar-container">
-        <div class="nav-capsule mode-default" id="main-nav">
-        </div>
-    </div>
-
-    <div class="main-content" id="main-bg-target">
-        <div id="tab-home" class="tab-content active"></div>
-        <div id="tab-recordings" class="tab-content"></div>
-
-        <div id="tab-live" class="tab-content">
-            <div class="layout-container">
-                <div class="split-inner">
-                    <div class="vertical-filter-col" id="live-sidebar-container" style="display:none;"><div class="vert-capsule" id="live-sidebar"></div></div>
-                    <div class="linear-content-col">
-                        <div id="live-preview-header" class="linear-header">
-                            <div class="lh-bg-blur" id="lh-blur-bg"></div>
-                            <div class="header-content">
-                                <div class="lh-logo-box"><img id="static-hero-img" class="lh-logo-img" src=""></div>
-                                <div class="header-info-mid">
-                                    <h1 id="lh-title" class="lh-title">Select Channel</h1>
-                                    <div class="lh-meta"><span id="lh-time">--:--</span></div>
-                                    <p id="lh-desc" class="lh-desc">Hover over a program to see details.</p>
-                                </div>
-                                <div class="preview-box-right"><video id="preview-video" class="preview-video" autoplay muted loop></video></div>
-                            </div>
-                        </div>
-                        <div class="epg-header" id="epg-time-header">
-                            <div class="epg-header-empty"></div>
-                            <div class="epg-header-time" id="epg-header-time-row"></div>
-                        </div>
-                        <div class="epg-scroll-area" id="linear-list"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    // --- INIT ---
+    window.onload = () => {
+        loadData();
+        initToggles();
+        loadMockContent();
+        nav('home');
+        setInterval(updateClock, 1000);
         
-        <div id="tab-tv" class="tab-content">
-             <div class="layout-container"><div class="split-inner"><div class="vertical-filter-col"><div class="vert-capsule" id="tv-sidebar"></div></div><div class="content-col"><div id="tv-content-area"></div></div></div></div>
-        </div>
-
-        <div id="tab-movies" class="tab-content">
-             <div class="layout-container"><div class="split-inner"><div class="vertical-filter-col"><div class="vert-capsule" id="movies-sidebar"></div></div><div class="content-col"><div id="movies-content-area"></div></div></div></div>
-        </div>
+        // EPG Scroll & Time
+        updateTimeLine();
+        setInterval(updateTimeLine, 60000);
         
-        <div id="tab-youtube" class="tab-content">
-             <div class="split-view"><div class="vertical-filter-col"><div class="vert-capsule" id="yt-sidebar"></div></div><div class="content-col"><div id="yt-content-area" style="display:flex; flex-wrap:wrap; gap:20px;"></div></div></div>
-        </div>
+        document.addEventListener('keydown', handleKey);
+    };
+
+    function loadData() {
+        if(localStorage.getItem('favs')) favs = new Set(JSON.parse(localStorage.getItem('favs')));
+        if(localStorage.getItem('history')) history = JSON.parse(localStorage.getItem('history'));
+        if(localStorage.getItem('recs')) recs = JSON.parse(localStorage.getItem('recs'));
+        if(localStorage.getItem('lastCh')) lastCh = JSON.parse(localStorage.getItem('lastCh'));
+        if(localStorage.getItem('white') === 'true') document.body.classList.add('white-logos');
+    }
+
+    function initToggles() {
+        ['live','tv','movies','yt','music'].forEach(t => {
+            const val = localStorage.getItem('hide-'+t);
+            const el = document.getElementById('t-'+t);
+            if(el) el.checked = (val !== 'true');
+        });
+        const w = document.getElementById('t-white');
+        if(w) w.checked = document.body.classList.contains('white-logos');
+    }
+
+    // --- NAVIGATION LOGIC ---
+    function nav(tab) {
+        currTab = tab;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-'+(tab==='search'?'search':tab)).classList.add('active');
         
-        <div id="tab-music" class="tab-content">
-             <div class="split-view"><div class="vertical-filter-col"><div class="vert-capsule" id="music-sidebar"></div></div><div class="content-col"><h1>Music</h1></div></div>
-        </div>
+        // Dynamic Nav Bar
+        const nb = document.getElementById('main-nav');
+        nb.className = 'nav-bar'; // Reset class
         
-        <div id="tab-search" class="tab-content">
-            <div style="padding: 20px 0;" id="search-results"></div>
-        </div>
-
-        <div id="tab-settings" class="tab-content">
-            <div class="settings-grid">
-                <div class="setting-card">
-                    <h3>Tabs</h3>
-                    Live <label class="switch"><input type="checkbox" id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label><br><br>
-                    TV Shows <label class="switch"><input type="checkbox" id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label><br><br>
-                    Movies <label class="switch"><input type="checkbox" id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label><br><br>
-                    YouTube <label class="switch"><input type="checkbox" id="toggle-youtube" onchange="toggleFeature('youtube')"><span class="slider round"></span></label><br><br>
-                    Music <label class="switch"><input type="checkbox" id="toggle-music" onchange="toggleFeature('music')"><span class="slider round"></span></label>
-                </div>
-                 <div class="setting-card">
-                    <h3>Display</h3>
-                    White Logos <label class="switch"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label>
-                </div>
-                <div class="setting-card">
-                    <h3>Data</h3>
-                    <button class="btn-settings" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
-                </div>
-                <div class="setting-card">
-                    <h3>IPTV Login</h3>
-                    <input id="xc-url" class="setting-input" placeholder="http://url.com" style="width:100%; margin-bottom:10px;">
-                    <input id="xc-user" class="setting-input" placeholder="Username" style="width:100%; margin-bottom:10px;">
-                    <input id="xc-pass" class="setting-input" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
-                    <button class="btn-settings" onclick="loadXtream()">Login</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="content-page">
-        <div class="cp-hero" id="cp-hero"><div class="cp-grad"></div></div>
-        <div class="cp-content-box">
-            <div class="cp-poster" id="cp-poster"></div>
-            <div class="cp-details">
-                <h1 class="cp-title" id="cp-title">Title</h1>
-                <div class="cp-meta"><span id="cp-cat">Category</span></div>
-                <p class="cp-desc" id="cp-desc">Description...</p>
-                <div class="cp-buttons" id="cp-action-buttons"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let iptvChannels=[], vodMovies=[], vodSeries=[], watchHistory=[], favLive=new Set(), favStream=new Set(), lastLiveChannel = null;
-        let currentContext = 'Home';
-        let selectedContent = null;
-        let cloudRecordings = [
-            { id: "mock_f1", title: "Formula 1: Silverstone", owners: ["user_b"], status: "recording", program_image: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg", channel_logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Sky_Sports_Main_Event.svg/1200px-Sky_Sports_Main_Event.svg.png", type: "recording", channel_name: "Sky Sports F1" },
-            { id: "mock_remind", title: "Eastenders", owners: ["me"], status: "reminder", time_str: "Tonight 7:30pm", start_timestamp: new Date().getTime() + 1800000, program_image: "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/EastEnders_logo_2021.svg/1200px-EastEnders_logo_2021.svg.png", channel_logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png", type: "reminder", channel_name: "BBC One" }
-        ];
-
-        function isContentAllowed(type) {
-            if(localStorage.getItem('toggle-'+type) === 'false') return false;
-            return true;
+        // Define Nav Items based on Visibility
+        let html = '';
+        
+        // If on Recordings Tab -> Special Yellow Nav
+        if(tab === 'rec') {
+            document.body.className = 'theme-rec';
+            html = `
+                <div class="nav-btn icon" onclick="navSearch()"><i class="fas fa-search"></i></div>
+                <div class="nav-btn icon" onclick="nav('home')"><i class="fas fa-arrow-left"></i></div>
+                <div class="nav-btn active">Recordings</div>
+            `;
+        } 
+        // If Search -> Input
+        else if(tab === 'search') {
+            document.body.className = 'theme-default';
+            html = `
+                <div class="nav-btn icon" onclick="nav('home')"><i class="fas fa-arrow-left"></i></div>
+                <input class="search-input" id="s-input" placeholder="Search..." autofocus oninput="runSearch(this.value)">
+            `;
+            setTimeout(()=>document.getElementById('s-input').focus(), 100);
         }
-
-        function getNavHtml(isCloudPage) {
-            if(isCloudPage) {
-                return `
-                    <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                    <div class="nav-item nav-back focusable" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>
-                    <div class="nav-item active focusable" onclick="void(0)">Recordings</div>
-                `;
-            }
-            let html = `<div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                        <div id="nav-home" class="nav-item focusable" onclick="switchTab('home')">Home</div>`;
-            if(isContentAllowed('live')) html += `<div id="nav-live" class="nav-item focusable" onclick="switchTab('live')">Live</div>`;
-            html += `<div id="nav-recordings" class="nav-item focusable" onclick="switchTab('recordings')">Recordings</div>`;
-            if(isContentAllowed('tv')) html += `<div id="nav-tv" class="nav-item focusable" onclick="switchTab('tv')">TV Shows</div>`;
-            if(isContentAllowed('movies')) html += `<div id="nav-movies" class="nav-item focusable" onclick="switchTab('movies')">Movies</div>`;
-            if(isContentAllowed('youtube')) html += `<div id="nav-youtube" class="nav-item focusable" onclick="switchTab('youtube')">YouTube</div>`;
-            if(isContentAllowed('music')) html += `<div id="nav-music" class="nav-item focusable" onclick="switchTab('music')">Music</div>`;
-            return html;
-        }
-
-        window.onload = () => {
-            document.body.classList.add('mode-home');
-            ['live','tv','movies','youtube','music'].forEach(f => {
-                if(localStorage.getItem('toggle-'+f) === null) localStorage.setItem('toggle-'+f, 'true');
-            });
-            if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
-            if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
-            if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
-            if(localStorage.getItem('lastLiveChannel')) lastLiveChannel = JSON.parse(localStorage.getItem('lastLiveChannel'));
-            if(localStorage.getItem('cloudRecordings')) cloudRecordings = JSON.parse(localStorage.getItem('cloudRecordings'));
-
-            if(localStorage.getItem('whiteLogo') === 'true') {
-                document.getElementById('toggle-whitelogo').checked = true;
-                document.body.classList.add('white-logos');
-            }
-            ['live','tv','movies','youtube','music'].forEach(f => {
-                const el = document.getElementById('toggle-'+f);
-                if(el) el.checked = isContentAllowed(f);
-            });
-
-            if(document.getElementById('xc-url').value = localStorage.getItem('xc_url')) loadXtream();
+        // Standard Nav
+        else {
+            // Theme Class
+            const themes = {live:'live', tv:'tv', movies:'movies', yt:'yt', music:'music', home:'default'};
+            document.body.className = `theme-${themes[tab]||'default'}`;
             
-            switchTab('home');
-            updateClock(); setInterval(updateClock, 1000);
-            setTimeout(setupKeyboard, 500);
+            html += `<div class="nav-btn icon" onclick="navSearch()"><i class="fas fa-search"></i></div>`;
+            html += `<div class="nav-btn ${tab==='home'?'active':''}" onclick="nav('home')">Home</div>`;
+            
+            if(isShow('live')) html += `<div class="nav-btn ${tab==='live'?'active':''}" onclick="nav('live')">Live</div>`;
+            
+            // Recordings always available in main list
+            html += `<div class="nav-btn" onclick="nav('rec')">Recordings</div>`;
+            
+            if(isShow('tv')) html += `<div class="nav-btn ${tab==='tv'?'active':''}" onclick="nav('tv')">TV Shows</div>`;
+            if(isShow('movies')) html += `<div class="nav-btn ${tab==='movies'?'active':''}" onclick="nav('movies')">Movies</div>`;
+            if(isShow('yt')) html += `<div class="nav-btn ${tab==='yt'?'active':''}" onclick="nav('yt')">YouTube</div>`;
+            if(isShow('music')) html += `<div class="nav-btn ${tab==='music'?'active':''}" onclick="nav('music')">Music</div>`;
+            
+            html += `<div class="nav-btn ${tab==='set'?'active':''}" onclick="nav('set')">Settings</div>`;
+        }
+        
+        nb.innerHTML = html;
+
+        // Render Page Content
+        if(tab === 'home') renderHome();
+        if(tab === 'live') renderEPG();
+        if(tab === 'rec') renderRecs();
+        if(tab === 'tv') renderVOD('tv', series);
+        if(tab === 'movies') renderVOD('movies', movies);
+    }
+
+    function isShow(t) { return localStorage.getItem('hide-'+t) !== 'true'; }
+
+    // --- HOME RENDER ---
+    function renderHome() {
+        const p = document.getElementById('page-home'); p.innerHTML = '';
+        
+        // 1. Continue Watching (Priority Logic)
+        const cwRow = mkRow('Continue Watching', 'fa-history');
+        // Slot 1: Last Live
+        if(lastLiveChannel) cwRow.scroll.appendChild(mkCard(lastLiveChannel, 'sq', playLive));
+        // Slot 2: Urgent Reminder
+        const now = Date.now();
+        const urg = recs.find(r => r.type==='rem' && r.start > now && r.start - now < 3600000);
+        if(urg) cwRow.scroll.appendChild(mkRecCard(urg));
+        // Slot 3+: History
+        history.slice(0,10).forEach(h => {
+             if(h.type === 'ch' && (!lastLiveChannel || h.id !== lastLiveChannel.id)) cwRow.scroll.appendChild(mkCard(h, 'sq', playLive));
+             if(h.type !== 'ch') cwRow.scroll.appendChild(mkCard(h, 'poster', openPop));
+        });
+        if(cwRow.scroll.children.length) p.appendChild(cwRow.wrap);
+
+        // 2. Watchlist
+        const wl = [...movies, ...series].filter(i => favs.has(i.id));
+        if(wl.length) {
+            const wRow = mkRow('Watchlist', 'fa-list');
+            wl.forEach(i => wRow.scroll.appendChild(mkCard(i, 'poster', openPop)));
+            p.appendChild(wRow.wrap);
+        }
+
+        // 3. Recordings & Reminders
+        const rRow = mkRow('Recordings & Reminders', 'fa-dot-circle');
+        recs.forEach(r => rRow.scroll.appendChild(mkRecCard(r)));
+        if(recs.length) p.appendChild(rRow.wrap);
+
+        // 4. Favourites
+        const fv = channels.filter(c => favs.has(c.id));
+        if(fv.length) {
+            const fRow = mkRow('Favourite Channels', 'fa-heart');
+            fv.forEach(c => fRow.scroll.appendChild(mkCard(c, 'sq', playLive)));
+            p.appendChild(fRow.wrap);
+        }
+
+        // 5. VOD Rows
+        if(isShow('movies')) {
+            const mRow = mkRow('Top Movies', 'fa-film');
+            movies.forEach(m => mRow.scroll.appendChild(mkCard(m, 'poster', openPop)));
+            p.appendChild(mRow.wrap);
+        }
+        if(isShow('tv')) {
+            const tRow = mkRow('Recommended TV', 'fa-tv');
+            series.forEach(s => tRow.scroll.appendChild(mkCard(s, 'poster', openPop)));
+            p.appendChild(tRow.wrap);
+        }
+    }
+
+    // --- EPG / LIVE ---
+    function renderEPG() {
+        // Time Header (Static Range -30m to +2.5h)
+        const times = document.getElementById('epg-times');
+        times.innerHTML = '';
+        let t = epgStart;
+        for(let i=0; i<6; i++) { // 3 hours in 30min chunks
+            const date = new Date(t);
+            const str = date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            times.innerHTML += `<div class="time-mark" style="left:${i*100}px">${str}</div>`;
+            t += 1800000;
+        }
+
+        const list = document.getElementById('epg-list');
+        list.innerHTML = '';
+        
+        channels.forEach(ch => {
+            const row = document.createElement('div'); row.className = 'ch-row';
+            row.onclick = () => openPop({...ch, type:'ch'});
+            row.innerHTML = `
+                <div class="ch-cell">
+                    <div class="ch-num">${ch.id}</div>
+                    <img class="ch-img" src="${ch.logo}">
+                    <div class="ch-name">${ch.name}</div>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-block" style="left:0px; width:100px;"><div class="p-title">Previous</div></div>
+                    <div class="prog-block" style="left:100px; width:200px;"><div class="p-title">Current Program</div><div class="p-time">Now</div></div>
+                    <div class="prog-block" style="left:300px; width:200px;"><div class="p-title">Next Program</div><div class="p-time">Later</div></div>
+                </div>
+            `;
+            // Hover Preview Update
+            row.onmouseenter = () => {
+                document.getElementById('prev-title').innerText = ch.name;
+                document.getElementById('prev-logo').src = ch.logo;
+                document.getElementById('prev-bg').style.backgroundImage = `url('${ch.logo}')`;
+            };
+            list.appendChild(row);
+        });
+        
+        updateTimeLine();
+    }
+
+    function updateTimeLine() {
+        const line = document.getElementById('now-line');
+        const now = Date.now();
+        // Calculate px offset: (Now - EPGStart) * PixPerMs
+        // EPGStart is fixed at -30m relative to load, ideally this shifts.
+        // Simplified: Line sits at 100px + (mins/60 * 200px) relative to the "Current" block
+        const min = new Date().getMinutes();
+        line.style.left = `${400 + (min/60)*200}px`; // Accounting for sidebar (380) + padding
+    }
+
+    function moveEPG(dir) {
+        // Shift time window
+        epgStart += (dir * 3 * HOUR_MS);
+        renderEPG();
+    }
+
+    // --- SEARCH ---
+    function navSearch() { nav('search'); }
+    function runSearch(q) {
+        const res = document.getElementById('search-results'); res.innerHTML = '';
+        if(!q) return; q = q.toLowerCase();
+
+        // Priority Logic
+        let types = ['ch', 'rec', 'mov', 'tv'];
+        if(currTab === 'rec') types = ['rec', 'ch', 'mov', 'tv'];
+        if(currTab === 'movies') types = ['mov', 'tv', 'ch', 'rec'];
+
+        types.forEach(type => {
+            let items = [];
+            let title = "";
+            
+            if(type === 'ch' && isShow('live')) { items = channels.filter(c=>c.name.toLowerCase().includes(q)); title="Channels"; }
+            if(type === 'rec') { items = recs.filter(r=>r.title.toLowerCase().includes(q)); title="Recordings"; }
+            if(type === 'mov' && isShow('movies')) { items = movies.filter(m=>m.name.toLowerCase().includes(q)); title="Movies"; }
+            if(type === 'tv' && isShow('tv')) { items = series.filter(s=>s.name.toLowerCase().includes(q)); title="TV Shows"; }
+
+            if(items.length) {
+                const r = mkRow(title, 'fa-search');
+                items.forEach(i => {
+                    if(type === 'rec') r.scroll.appendChild(mkRecCard(i));
+                    else if(type === 'ch') r.scroll.appendChild(mkCard(i, 'sq', playLive));
+                    else r.scroll.appendChild(mkCard(i, 'poster', openPop));
+                });
+                res.appendChild(r.wrap);
+            }
+        });
+    }
+
+    // --- COMPONENT BUILDERS ---
+    function mkRow(title, icon) {
+        const wrap = document.createElement('div'); wrap.className = 'row-wrap';
+        const head = document.createElement('div'); head.className = 'row-head';
+        head.innerHTML = `<i class="fas ${icon}"></i> ${title}`;
+        const scroll = document.createElement('div'); scroll.className = 'row-scroll';
+        
+        // Hover Details (Below Row)
+        const meta = document.createElement('div'); meta.className = 'row-meta';
+        meta.innerHTML = `<div class="meta-title"></div><div class="meta-desc"></div>`;
+        
+        wrap.append(head, scroll, meta);
+        scroll.onmouseleave = () => meta.classList.remove('show');
+        
+        // Enhance append to attach hover logic
+        const originalAppend = scroll.appendChild;
+        scroll.appendChild = function(card) {
+            card.onmouseenter = () => {
+                meta.querySelector('.meta-title').innerText = card.dataset.title;
+                meta.querySelector('.meta-desc').innerText = card.dataset.desc;
+                meta.classList.add('show');
+            };
+            return originalAppend.call(this, card);
         };
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock-el').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return { wrap, scroll };
+    }
+
+    function mkCard(i, type, clickFn) {
+        const d = document.createElement('div'); d.className = 'card'; d.tabIndex = 0;
+        d.onclick = () => clickFn(i);
+        d.dataset.title = i.name || i.title;
+        d.dataset.desc = i.cat || "Info...";
+        
+        if(type === 'sq') {
+            d.innerHTML = `<div class="card-sq"><img src="${i.logo}" class="card-img"></div>`;
+        } else {
+            d.innerHTML = `<div class="card-poster" style="background-image:url('${i.img}')"></div>`;
+        }
+        return d;
+    }
+
+    function mkRecCard(r) {
+        const d = document.createElement('div'); d.className = 'card'; d.tabIndex = 0;
+        d.onclick = () => openPop(r);
+        d.dataset.title = r.title;
+        d.dataset.desc = r.type === 'rem' ? "Reminder" : "Recorded";
+        
+        const icon = r.type === 'rem' ? 'fa-bell' : 'fa-circle';
+        const color = r.type === 'rem' ? '' : 'color:red';
+        
+        d.innerHTML = `
+            <div class="card-rec" style="background-image:url('${r.img}')"></div>
+            <div class="rec-badge"><i class="fas ${icon}" style="${color}"></i></div>
+            <img src="${r.logo}" class="rec-ch-logo">
+        `;
+        return d;
+    }
+
+    // --- POPUP & PLAYBACK ---
+    function openPop(i) {
+        const pop = document.getElementById('popup');
+        pop.style.display = 'block';
+        document.getElementById('p-hero').style.backgroundImage = `url('${i.img || i.logo}')`;
+        
+        const poster = document.getElementById('p-poster');
+        if(i.type === 'ch') {
+            poster.innerHTML = `<img src="${i.logo}" style="width:80%;">`;
+            poster.style.backgroundImage = 'none';
+        } else {
+            poster.innerHTML = '';
+            poster.style.backgroundImage = `url('${i.img}')`;
         }
 
-        function cleanName(name) { return name ? name.trim() : ""; }
-
-        function switchTab(tabId) {
-            if (tabId !== 'search') currentContext = tabId.charAt(0).toUpperCase() + tabId.slice(1);
-            const nav = document.getElementById('main-nav');
-            const bg = document.getElementById('main-bg-target');
+        document.getElementById('p-title').innerText = i.name || i.title;
+        document.getElementById('p-desc').innerText = "Description...";
+        
+        const btns = document.getElementById('p-btns');
+        btns.innerHTML = '';
+        
+        // Buttons
+        if(i.type === 'rec') {
+            btns.innerHTML += `<button class="act-btn danger" onclick="delRec('${i.id}')"><i class="fas fa-stop"></i> Stop Recording</button>`;
+        } else if(i.type === 'rem') {
+            btns.innerHTML += `<button class="act-btn danger" onclick="delRec('${i.id}')"><i class="fas fa-bell-slash"></i> Cancel</button>`;
+        } else {
+            btns.innerHTML += `<button class="act-btn primary" onclick="playLive(i)"><i class="fas fa-play"></i> ${i.type==='ch'?'Watch Live':'Play'}</button>`;
             
-            // Background classes
-            bg.className = 'main-content'; 
-            if(tabId !== 'home' && tabId !== 'settings' && tabId !== 'search' && tabId !== 'recordings') bg.classList.add('page-'+tabId+'-bg');
-            
-            // Nav Theme
-            nav.className = 'nav-capsule mode-' + (tabId==='search'?'default':tabId);
-            
-            if (tabId === 'recordings') {
-                nav.innerHTML = getNavHtml(true);
+            if(i.type === 'ch') {
+                btns.innerHTML += `<button class="act-btn" onclick="setRec(i, 'rec')"><i class="fas fa-circle"></i> Record</button>`;
             } else {
-                nav.innerHTML = getNavHtml(false);
+                const inW = favs.has(i.id);
+                btns.innerHTML += `<button class="act-btn" onclick="togFav(i)">${inW?'Remove':'Add'} Watchlist</button>`;
             }
-
-            if(tabId !== 'recordings') {
-                const el = document.getElementById('nav-'+tabId);
-                if(el) {
-                    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-                    el.classList.add('active');
-                }
-            }
-
-            if (tabId === 'live') {
-                renderExpandedNav('Live', ['All Channels', 'Favourites', 'Entertainment', 'Sports', 'Movies', 'News', 'Extra']);
-            }
-            if (tabId === 'tv') { renderExpandedNav('TV', []); }
-            if (tabId === 'movies') { renderExpandedNav('Movies', []); }
-            if (tabId === 'youtube') { renderExpandedNav('YouTube', []); }
-            if (tabId === 'music') { renderExpandedNav('Music', []); }
-
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-
-            if(tabId === 'home') renderHome();
-            if(tabId === 'recordings') renderRecordingsPage();
-            if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0], "Current Program Info"); }
-            if(tabId === 'tv') { renderVODSidebar('tv'); loadStreamContent('tv', 'All'); }
-            if(tabId === 'movies') { renderVODSidebar('movies'); loadStreamContent('movies', 'All'); }
-            
-            if(tabId === 'search') setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
-        }
-
-        function renderExpandedNav(type, items) {
-            const nav = document.getElementById('main-nav');
-            let html = `<div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div><div class="nav-item nav-back focusable" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>`;
-            if (items.length === 0) html += `<div class="nav-item active focusable" onclick="void(0)">${type === 'TV' ? 'TV Shows' : type}</div>`;
-            else {
-                items.forEach((item, idx) => {
-                    let active = idx === 0 ? 'active' : '';
-                    let clickFn = `handleLiveFilter('${item}', this)`;
-                    html += `<div class="nav-item ${active} focusable" onclick="${clickFn}">${item}</div>`;
-                });
-            }
-            nav.innerHTML = html;
-        }
-
-        function handleLiveFilter(cat, el) {
-            document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            renderLiveList(cat);
-        }
-
-        function renderLiveList(cat) {
-            const list = document.getElementById('linear-list');
-            list.innerHTML = '';
-            
-            let filtered = [];
-            if(cat === 'All Channels') filtered = iptvChannels;
-            else if(cat === 'Favourites') filtered = iptvChannels.filter(c => favLive.has(c.id));
-            else if(cat === 'Extra') filtered = iptvChannels.filter(c => c.cat === 'Extra');
-            else filtered = iptvChannels.filter(c => c.cat === cat);
-
-            const fragment = document.createDocumentFragment();
-            const now = new Date();
-            const currentMin = now.getMinutes();
-            
-            // Time Header Sync
-            const headerRow = document.getElementById('epg-header-time-row');
-            headerRow.innerHTML = '';
-            let timeHTML = "";
-            let startH = now.getHours();
-            // Sky Style: -30 mins, 0, +1h, +2h
-            timeHTML += `<div class="time-marker" style="left:100px;">${startH}:30</div>`;
-            timeHTML += `<div class="time-marker" style="left:300px;">${startH+1}:00</div>`;
-            timeHTML += `<div class="time-marker" style="left:500px;">${startH+2}:00</div>`;
-            headerRow.innerHTML = timeHTML;
-
-            filtered.forEach(ch => {
-                const row = document.createElement('div'); row.className = 'epg-row focusable'; row.tabIndex = 0;
-                row.onclick = () => openContentPage(ch); 
-
-                const left = document.createElement('div'); left.className = 'epg-channel-col';
-                left.innerHTML = `<div class="epg-num">${ch.id}</div><div class="epg-logo"><img src="${ch.logo}"></div><div class="epg-name">${cleanName(ch.name)}</div>`;
-                
-                const timeline = document.createElement('div'); timeline.className = 'epg-timeline';
-                
-                const timeLine = document.createElement('div'); timeLine.className = 'time-line';
-                timeLine.style.left = `${100 + (currentMin/60)*200}px`; // 30min offset (100px) + ratio of hour block (200px)
-                timeline.appendChild(timeLine);
-
-                // Blocks
-                const bf = document.createDocumentFragment();
-                bf.appendChild(mkBlk("Previous", "100px", {past:true}, ch));
-                bf.appendChild(mkBlk("Current Program", "200px", {curr:true}, ch)); 
-                bf.appendChild(mkBlk("Next Program", "200px", {fut:true}, ch)); 
-                bf.appendChild(mkBlk("Later", "200px", {fut:true}, ch));
-                
-                timeline.appendChild(bf);
-                row.append(left, timeline);
-                fragment.appendChild(row);
-                
-                // Key Handler for Arrow Scrolling
-                row.addEventListener('keydown', (e) => {
-                    if(e.key === 'ArrowRight') timeline.scrollBy({left:600, behavior:'smooth'});
-                    if(e.key === 'ArrowLeft') timeline.scrollBy({left:-600, behavior:'smooth'});
-                });
-                
-                row.onmouseenter = () => updatePreview(ch, "Current Program", "Now");
-            });
-            list.appendChild(fragment);
-        }
-
-        function mkBlk(t, w, meta, c) {
-            const d = document.createElement('div'); d.className='epg-block'; d.style.minWidth=w;
-            d.innerHTML = `<div class="prog-t">${t}</div><div class="prog-d">Info</div>`;
-            d.onclick = (e) => { e.stopPropagation(); openContentPage({...c, title:t, ...meta}); };
-            return d;
-        }
-
-        function updatePreview(ch, title, time) {
-            document.getElementById('lh-title').innerText = cleanName(ch.name);
-            document.getElementById('lh-desc').innerText = title;
-            if(ch.logo) document.getElementById('static-hero-img').src = ch.logo;
-            document.getElementById('lh-blur-bg').style.backgroundImage = `url('${ch.logo}')`;
-        }
-
-        function renderVODSidebar(type) {
-            const sb = document.getElementById(type + '-sidebar');
-            sb.innerHTML = '';
-            const items = ['Browse All', 'Continue Watching', 'Watchlist'];
-            items.forEach(c => {
-                const item = document.createElement('div'); item.className = 'v-item focusable'; item.innerText = c;
-                item.onclick = () => loadStreamContent(type, c === 'Browse All' ? 'All' : c);
-                sb.appendChild(item);
-            });
-        }
-
-        function loadStreamContent(type, mode) {
-            const container = document.getElementById(type + '-content-area'); container.innerHTML = '';
-            const source = type === 'tv' ? vodSeries : vodMovies;
-            if (mode === 'All') {
-                const cwItems = watchHistory.filter(h => h.type === type);
-                if(cwItems.length > 0) addVODRow(container, "Continue Watching", cwItems, "fa-history");
-                addVODRow(container, "All Content", source.slice(0, 50), "fa-layer-group");
-            } else if (mode === 'Watchlist') {
-                const grid = document.createElement('div'); grid.className = 'channels-grid';
-                renderGridItems(grid, source.filter(i => favStream.has(i.stream_id || i.series_id)));
-                container.appendChild(grid);
-            } else if (mode === 'Continue') {
-                const grid = document.createElement('div'); grid.className = 'channels-grid';
-                renderGridItems(grid, watchHistory.filter(h => h.type === type));
-                container.appendChild(grid);
-            }
-        }
-
-        function renderGridItems(grid, items) {
-            items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster focusable'; card.tabIndex=0;
-                if(i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.stream_icon || i.cover}')`;
-                card.onclick = () => openContentPage(i);
-                grid.appendChild(card);
-            });
-        }
-
-        function addVODRow(container, title, items, icon) {
-            const wrapper = document.createElement('div'); wrapper.className = 'row-container';
-            const header = document.createElement('div'); header.className = 'section-header'; header.innerHTML = `<i class="fas ${icon}"></i> ${title}`;
-            const scroller = document.createElement('div'); scroller.className = 'scroller';
-            const details = document.createElement('div'); details.className = 'row-details';
-            details.innerHTML = `<h3 class="rd-title"></h3><p class="rd-desc"></p>`;
-
-            items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster focusable'; card.tabIndex = 0;
-                if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
-                card.onclick = () => openContentPage(i);
-                card.onmouseenter = () => { details.querySelector('.rd-title').innerText = i.name; details.querySelector('.rd-desc').innerText = "Description..."; details.classList.add('visible'); };
-                scroller.appendChild(card);
-            });
-            wrapper.onmouseleave = () => details.classList.remove('visible');
-            wrapper.appendChild(header); wrapper.appendChild(scroller); wrapper.appendChild(details); container.appendChild(wrapper);
-        }
-
-        function enableSearchMode(query) {
-            const nav = document.getElementById('main-nav');
-            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back focusable" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input focusable" id="search-input" placeholder="Search..." autofocus></div>`;
-            const inp = document.getElementById('search-input');
-            inp.addEventListener('input', (e) => performSearch(e.target.value));
-            setTimeout(() => inp.focus(), 100);
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-search').classList.add('active');
-            document.getElementById('search-results').innerHTML = '';
-        }
-        function exitSearchMode() { switchTab('home'); }
-
-        function performSearch(q) {
-            const res = document.getElementById('search-results'); res.innerHTML = '';
-            if(!q) return; q = q.toLowerCase();
-            
-            // Priority
-            let order = ['Channels', 'Recordings', 'Movies', 'TV Shows'];
-            if(currentContext === 'Movies') order = ['Movies', 'TV Shows', 'Channels', 'Recordings'];
-            if(currentContext === 'Recordings') order = ['Recordings', 'Channels', 'Movies', 'TV Shows'];
-            
-            const channels = isContentAllowed('live') ? iptvChannels.filter(c => c.name.toLowerCase().includes(q)) : [];
-            const movies = isContentAllowed('movies') ? vodMovies.filter(m => m.name.toLowerCase().includes(q)) : [];
-            const tv = isContentAllowed('tv') ? vodSeries.filter(s => s.name.toLowerCase().includes(q)) : [];
-            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q)); 
-
-            const resultsMap = { 'Channels': channels, 'Recordings': recs, 'Movies': movies, 'TV Shows': tv };
-            const iconMap = { 'Channels': 'fa-tv', 'Recordings': 'fa-dot-circle', 'Movies': 'fa-film', 'TV Shows': 'fa-tv' };
-
-            order.forEach(type => {
-                const items = resultsMap[type];
-                if(items && items.length > 0) {
-                    const wrapper = document.createElement('div'); wrapper.className = 'row-container';
-                    wrapper.innerHTML = `<div class="section-header"><i class="fas ${iconMap[type]}"></i> ${type === 'Recordings' ? 'Recordings & Reminders' : type}</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
-                    const scroller = wrapper.querySelector('.scroller');
-                    const details = wrapper.querySelector('.row-details');
-                    items.forEach(i => {
-                        const card = document.createElement('div'); card.tabIndex=0;
-                        if(type === 'Channels') {
-                            card.className = 'card c-square focusable'; card.style.background='#222';
-                            card.innerHTML = `<img src="${i.logo}" class="cc-logo">`;
-                            card.onclick = () => playChannel(i);
-                        } else if(type === 'Recordings') {
-                            card.className = 'card c-recording focusable'; card.style.backgroundImage=`url('${i.program_image}')`;
-                            const icon = i.type === 'reminder' ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-circle" style="color:red"></i>';
-                            card.innerHTML = `<div class="rec-type-icon">${icon}</div><img src="${i.channel_logo}" class="rec-logo-overlay">`;
-                            card.onclick = () => openContentPage({...i, name: i.title, logo: i.channel_logo});
-                        } else {
-                            card.className = 'card c-poster focusable'; 
-                            if(i.stream_icon || i.cover) card.style.backgroundImage=`url('${i.stream_icon || i.cover}')`;
-                            card.onclick = () => openContentPage({...i, type: type === 'TV Shows' ? 'tv' : 'movies'});
-                        }
-                        card.onmouseenter = () => { details.querySelector('.rd-title').innerText = i.name || i.title; details.querySelector('.rd-desc').innerText = type; details.classList.add('visible'); };
-                        scroller.appendChild(card);
-                    });
-                    wrapper.onmouseleave = () => details.classList.remove('visible');
-                    res.appendChild(wrapper);
-                }
-            });
-        }
-
-        // --- CONTINUE WATCHING ---
-        function renderHome() {
-            const tab = document.getElementById('tab-home'); tab.innerHTML = '';
-            const container = document.createElement('div'); container.style.marginTop = "20px";
-
-            const cwWrapper = document.createElement('div'); cwWrapper.className = 'row-container';
-            cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
-            const cwScroller = cwWrapper.querySelector('.scroller');
-            const cwDetails = cwWrapper.querySelector('.row-details');
-            
-            // Slot 1: Last Watched
-            if(lastLiveChannel) {
-                const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                c.innerHTML = `<img src="${lastLiveChannel.logo}" class="cc-logo">`;
-                c.onclick = () => playChannel(lastLiveChannel);
-                c.onmouseenter = () => { cwDetails.querySelector('.rd-title').innerText = lastLiveChannel.name; cwDetails.querySelector('.rd-desc').innerText = "Last Watched"; cwDetails.classList.add('visible'); };
-                cwScroller.appendChild(c);
-            }
-
-            // Slot 2: Urgent
-            const now = Date.now();
-            const urgent = cloudRecordings.find(r => r.type === 'reminder' && r.start_timestamp && (r.start_timestamp - now) < 3600000 && (r.start_timestamp > now));
-            if(urgent) {
-                const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
-                c.style.backgroundImage = `url('${urgent.program_image}')`;
-                c.innerHTML = `<div class="rec-type-icon"><i class="fas fa-bell"></i></div><img src="${urgent.channel_logo}" class="rec-logo-overlay">`;
-                c.onclick = () => openContentPage({...urgent, name: urgent.title});
-                c.onmouseenter = () => { cwDetails.querySelector('.rd-title').innerText = urgent.title; cwDetails.querySelector('.rd-desc').innerText = "Starting Soon"; cwDetails.classList.add('visible'); };
-                cwScroller.appendChild(c);
-            }
-
-            // Slot 3+: Mixed
-            const recentChans = watchHistory.filter(h => h.type === 'live' && (!lastLiveChannel || h.name !== lastLiveChannel.name)).slice(0,5);
-            recentChans.forEach(ch => {
-                 const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                 c.innerHTML = `<img src="${ch.logo}" class="cc-logo">`;
-                 c.onclick = () => playChannel(ch);
-                 c.onmouseenter = () => { cwDetails.querySelector('.rd-title').innerText = cleanName(ch.name); cwDetails.querySelector('.rd-desc').innerText = "Recent Channel"; cwDetails.classList.add('visible'); };
-                 cwScroller.appendChild(c);
-            });
-            const recentVOD = watchHistory.filter(h => h.type !== 'live').slice(0,5);
-            recentVOD.forEach(h => {
-                 const c = document.createElement('div'); c.className = 'card c-poster focusable'; c.tabIndex=0;
-                 if(h.img) c.style.backgroundImage=`url('${h.img}')`;
-                 c.onclick = () => openContentPage(h);
-                 cwScroller.appendChild(c);
-            });
-            cwScroller.onmouseleave = () => cwDetails.classList.remove('visible');
-            container.appendChild(cwWrapper);
-
-            // Watchlist
-            const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
-            if(allFavs.length > 0) addVODRow(container, "Watchlist", allFavs, "fa-list");
-
-            // Recordings & Reminders
-            const recWrapper = document.createElement('div'); recWrapper.className = 'row-container';
-            recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
-            const recScroller = recWrapper.querySelector('.scroller');
-            const recDet = recWrapper.querySelector('.row-details');
-            cloudRecordings.filter(r => r.owners.includes('me')).forEach(r => {
-                const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
-                c.style.backgroundImage = `url('${r.program_image}')`;
-                const icon = r.type === 'reminder' ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-circle" style="color:red"></i>';
-                c.innerHTML = `<div class="rec-type-icon">${icon}</div><img src="${r.channel_logo}" class="rec-logo-overlay">`;
-                c.onclick = () => openContentPage({...r, name: r.title, logo: r.channel_logo});
-                c.onmouseenter = () => { recDet.querySelector('.rd-title').innerText = r.title; recDet.querySelector('.rd-desc').innerText = r.type; recDet.classList.add('visible'); };
-                recScroller.appendChild(c);
-            });
-            recScroller.onmouseleave = () => recDet.classList.remove('visible');
-            container.appendChild(recWrapper);
-
-            // Favourites
-            const favChans = iptvChannels.filter(c => favLive.has(c.id));
-            if(favChans.length > 0) {
-                const w = document.createElement('div'); w.className = 'row-container';
-                w.innerHTML = `<div class="section-header"><i class="fas fa-heart" style="color:red"></i> Favourite Channels</div><div class="scroller"></div>`;
-                favChans.forEach(ch => {
-                    const c = document.createElement('div'); c.className='card c-square focusable'; c.style.background='#222';
-                    c.innerHTML = `<img src="${ch.logo}" class="cc-logo">`;
-                    c.onclick = () => playChannel(ch);
-                    w.querySelector('.scroller').appendChild(c);
-                });
-                container.appendChild(w);
-            }
-            
-            if(isContentAllowed('movies') && vodMovies.length > 0) addVODRow(container, "Top Movies", vodMovies.slice(0,10), "fa-film");
-            if(isContentAllowed('tv') && vodSeries.length > 0) addVODRow(container, "Recommended TV Shows", vodSeries.slice(0,10), "fa-tv");
-
-            tab.appendChild(container);
         }
         
-        function renderRecordingsPage() {
-            const tab = document.getElementById('tab-recordings'); tab.innerHTML = '<h1>My Recordings</h1>';
-            const myRecs = cloudRecordings.filter(r => r.owners.includes('me') && r.type === 'recording');
-            if(myRecs.length > 0) {
-                const w = document.createElement('div'); w.className='row-container'; w.innerHTML=`<div class="section-header">Recordings</div><div class="scroller"></div>`;
-                myRecs.forEach(r => {
-                    const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
-                    c.style.backgroundImage = `url('${r.program_image}')`;
-                    c.innerHTML = `<img src="${r.channel_logo}" class="rec-logo-overlay">`;
-                    c.onclick = () => openContentPage({...r, name: r.title});
-                    w.querySelector('.scroller').appendChild(c);
-                });
-                tab.appendChild(w);
-            }
-        }
+        btns.innerHTML += `<button class="act-btn" onclick="document.getElementById('popup').style.display='none'">Back</button>`;
+    }
 
-        function openContentPage(i) {
-            selectedContent = i;
-            document.getElementById('content-page').style.display = 'block';
-            document.getElementById('cp-title').innerText = i.name || i.title;
-            const bg = i.stream_icon || i.cover || i.img || i.program_image || i.logo;
-            document.getElementById('cp-hero').style.backgroundImage = `url('${bg}')`;
-            
-            const isLive = !i.stream_id && !i.series_id;
-            const poster = document.getElementById('cp-poster');
-            if(isLive) { poster.className = 'cp-poster square'; poster.innerHTML = `<img src="${bg}">`; poster.style.backgroundImage='none'; }
-            else { poster.className = 'cp-poster poster-mode'; poster.innerHTML = ''; poster.style.backgroundImage=`url('${bg}')`; }
+    function playLive(ch) {
+        lastLiveChannel = ch;
+        localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
+        // Add to history (remove dupe)
+        history = history.filter(h => h.id !== ch.id);
+        history.unshift({...ch, type:'ch'});
+        localStorage.setItem('history', JSON.stringify(history));
 
-            const b = document.getElementById('cp-action-buttons'); b.innerHTML = '';
-            
-            if(i.status === 'recording') b.innerHTML += `<button class="btn-settings focusable" style="background:red;" onclick="toggleRec(true)">Stop Recording</button>`;
-            else if(i.type === 'reminder') b.innerHTML += `<button class="btn-settings focusable" style="background:red;" onclick="toggleRec(true)">Cancel Reminder</button>`;
-            else if(isLive) {
-                 b.innerHTML += `<button class="btn-settings focusable" style="background:white; color:black;" onclick="playChannel(selectedContent)">Watch Live</button>`;
-                 b.innerHTML += `<button class="btn-settings focusable" onclick="addRec()">Record</button>`;
-                 if(i.past) b.innerHTML += `<button class="btn-settings focusable">Watch From Start</button>`;
+        document.body.classList.add('fullscreen');
+        const v = document.getElementById('bg-vid');
+        v.src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; // Mock
+        v.play();
+    }
+
+    // --- DATA HELPERS ---
+    function togFav(i) {
+        if(favs.has(i.id)) favs.delete(i.id); else favs.add(i.id);
+        localStorage.setItem('favs', JSON.stringify([...favs]));
+        openPop(i); // Refresh
+    }
+    
+    function setRec(i, type) {
+        recs.push({ ...i, id: Date.now(), type: type, title: i.name, start: Date.now() + 3600000 });
+        localStorage.setItem('recs', JSON.stringify(recs));
+        alert(type==='rec'?"Recording Started":"Reminder Set");
+    }
+
+    function delRec(id) {
+        recs = recs.filter(r => r.id != id);
+        localStorage.setItem('recs', JSON.stringify(recs));
+        document.getElementById('popup').style.display='none';
+        if(currTab === 'home' || currTab === 'rec') nav(currTab);
+    }
+
+    function updateClock() {
+        const d = new Date();
+        document.getElementById('clock').innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function toggle(k) { localStorage.setItem('hide-'+k, !document.getElementById('t-'+k).checked); nav('home'); }
+    function toggleWhite() { document.body.classList.toggle('white-logos'); localStorage.setItem('white', document.body.classList.contains('white-logos')); }
+    function clearData() { localStorage.clear(); location.reload(); }
+    
+    function handleKey(e) {
+        if(e.key === 'ArrowRight' && currTab === 'live') moveEPG(1);
+        if(e.key === 'ArrowLeft' && currTab === 'live') moveEPG(-1);
+        if(e.key === 'Escape') {
+            if(document.body.classList.contains('fullscreen')) {
+                document.body.classList.remove('fullscreen');
+                document.getElementById('bg-vid').pause();
             } else {
-                 b.innerHTML += `<button class="btn-settings focusable" style="background:white; color:black;" onclick="playCurrentContent()">Play</button>`;
-                 b.innerHTML += `<button class="btn-settings focusable" onclick="togFav()">Watchlist</button>`;
+                document.getElementById('popup').style.display = 'none';
             }
-            b.innerHTML += `<button class="btn-settings focusable" onclick="enableSearchMode('${i.name||i.title}')">Search</button>`;
-            b.innerHTML += `<button class="btn-settings focusable" onclick="document.getElementById('content-page').style.display='none'">Back</button>`;
         }
+    }
 
-        function playChannel(ch) {
-            lastLiveChannel = ch; localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
-            watchHistory = watchHistory.filter(h => h.name !== ch.name);
-            watchHistory.unshift({...ch, type:'live', progress:0});
-            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
-            
-            const v = document.getElementById('global-bg-video');
-            v.src = ch.url || "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
-            document.body.classList.add('mode-fullscreen');
-            document.getElementById('playback-ui').classList.add('visible');
-            document.getElementById('pb-title').innerText = i.name;
-            document.getElementById('pb-logo').src = i.logo;
-            v.play();
-        }
-        
-        function playCurrentContent() {
-            watchHistory = watchHistory.filter(h => h.name !== selectedContent.name);
-            watchHistory.unshift({ ...selectedContent, type: selectedContent.stream_id?'movies':'tv', img: selectedContent.stream_icon||selectedContent.cover });
-            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
-            document.getElementById('content-page').style.display='none'; renderHome();
-        }
-
-        function smartRecord() {
-            const newRec = { id: Date.now(), title: selectedContent.name, type: 'recording', status: 'recording', program_image: selectedContent.logo, channel_logo: selectedContent.logo, owners:['me'] };
-            cloudRecordings.push(newRec); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
-            openContentPage(newRec); renderHome();
-        }
-
-        function setReminder(i) {
-            const newRem = { id: "rem_"+Date.now(), title: i.program_title, type: 'reminder', status: 'reminder', program_image: i.logo, channel_logo: i.logo, owners:['me'], time_str: "Tonight" };
-            cloudRecordings.push(newRem); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
-            openContentPage(newRem); renderHome();
-        }
-
-        function toggleRec(remove) {
-            if(remove) { cloudRecordings = cloudRecordings.filter(r => r.id !== selectedContent.id); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings)); document.getElementById('content-page').style.display='none'; renderHome(); }
-        }
-        
-        function addToWatchlist() {
-            const id = selectedContent.stream_id || selectedContent.series_id;
-            if(favStream.has(id)) favStream.delete(id); else favStream.add(id);
-            localStorage.setItem('favStream', JSON.stringify([...favStream]));
-            openContentPage(selectedContent);
-        }
-        
-        function toggleFavLive(id) { if(favLive.has(id)) favLive.delete(id); else favLive.add(id); localStorage.setItem('favLive', JSON.stringify([...favLive])); renderHome(); }
-        function loadXtream() { 
-            iptvChannels=[{id:1,name:"BBC One",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",cat:"Entertainment"},{id:2,name:"BBC Two",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BBC_Two_logo_2021.svg/512px-BBC_Two_logo_2021.svg.png",cat:"Entertainment"}];
-            vodMovies=[{stream_id:10,name:"Inception",stream_icon:"https://image.tmdb.org/t/p/w500/9gk7admal4ZLcnwnCSALLQU3rjD.jpg",category_name:"Sci-Fi"}];
-            vodSeries=[{series_id:20,name:"Breaking Bad",cover:"https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",category_name:"Drama"}];
-            renderHome();
-        }
-        function applyToggles() { switchTab('home'); }
-        function toggleFeature(f) { localStorage.setItem('toggle-'+f, document.getElementById('toggle-'+f).checked); applyToggles(); }
-        function toggleWhiteLogo() { localStorage.setItem('whiteLogo', document.getElementById('toggle-whitelogo').checked); document.body.classList.toggle('white-logos'); }
-        function showSettingsSection(id, el) { document.querySelectorAll('[id^="set-"]').forEach(x=>x.style.display='none'); document.getElementById('set-'+id).style.display='block'; }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.body.classList.remove('mode-fullscreen'); document.getElementById('global-bg-video').pause(); }
-        function clearHistory() { watchHistory=[]; localStorage.setItem('watch_history', JSON.stringify(watchHistory)); renderHome(); }
-        
-        function setupKeyboard() {
-            document.addEventListener('keydown', (e) => {
-                if(e.key === 'Escape') {
-                    if(document.body.classList.contains('mode-fullscreen')) closeOverlays();
-                    else if(document.getElementById('content-page').style.display === 'block') document.getElementById('content-page').style.display='none';
-                    else switchTab('home');
-                }
-            });
-        }
-    </script>
+    function loadMockContent() {
+        channels=[{id:101,name:"BBC One",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",cat:"Entertainment"},{id:102,name:"BBC Two",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BBC_Two_logo_2021.svg/512px-BBC_Two_logo_2021.svg.png",cat:"Entertainment"}];
+        movies=[{id:'m1',name:"Inception",img:"https://image.tmdb.org/t/p/w500/9gk7admal4ZLcnwnCSALLQU3rjD.jpg",cat:"Action"}];
+        series=[{id:'s1',name:"Breaking Bad",img:"https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",cat:"Drama"}];
+        if(!recs.length) recs=[{id:'r1',title:"F1 Race",type:'rec',img:movies[0].img,logo:channels[0].logo}];
+    }
+</script>
 </body>
 </html>
