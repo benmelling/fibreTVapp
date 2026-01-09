@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V114</title>
+    <title>StreamTV OS V115</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -59,9 +59,9 @@
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- PLAYBACK UI (NEW FIX) --- */
+        /* --- PLAYBACK UI --- */
         #playback-ui {
-            display: none; /* Hidden by default */
+            display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2100; pointer-events: none;
             flex-direction: column; justify-content: space-between;
@@ -310,6 +310,7 @@
         } 
         .c-square img { margin: 0 !important; }
 
+        /* FIX 1: New Recording Card Style */
         .c-recording { 
             width: 280px; height: 158px; background-size: cover; background-color: #222; 
             position: relative; overflow: hidden; 
@@ -390,7 +391,7 @@
     <div id="overlay-player" class="overlay" style="background:black;">
         <i class="fas fa-play-circle fa-4x" style="margin-bottom: 20px;"></i>
         <h1>Now Playing</h1>
-        <button class="btn-settings" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
+        <button class="btn-settings focusable" style="width:auto; margin-top:20px;" onclick="closeOverlays()">Stop</button>
     </div>
     
     <div id="playback-ui">
@@ -410,13 +411,13 @@
         <div class="del-box">
             <h2 style="margin-top:0;">Delete Recording</h2>
             <p>Where do you want to delete this from?</p>
-            <button class="del-btn" onclick="executeDelete('my')">Remove from My Library</button>
-            <button class="del-btn danger" onclick="executeDelete('pool')">Delete File for Everyone</button>
-            <button class="del-btn" style="text-align:center; margin-top:25px; background:transparent;" onclick="closeDeleteModal()">Cancel</button>
+            <button class="del-btn focusable" onclick="executeDelete('my')">Remove from My Library</button>
+            <button class="del-btn danger focusable" onclick="executeDelete('pool')">Delete File for Everyone</button>
+            <button class="del-btn focusable" style="text-align:center; margin-top:25px; background:transparent;" onclick="closeDeleteModal()">Cancel</button>
         </div>
     </div>
 
-    <div class="info-capsule" onclick="switchTab('settings', null)">
+    <div class="info-capsule focusable" onclick="switchTab('settings', null)">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
             <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
@@ -482,9 +483,9 @@
                 <div class="split-inner">
                     <div class="vertical-filter-col">
                         <div class="vert-capsule">
-                            <div class="v-item active" onclick="showSettingsSection('mytv', this)">My TV</div>
-                            <div class="v-item" onclick="showSettingsSection('features', this)">App Features</div>
-                            <div class="v-item" onclick="showSettingsSection('user', this)">User Details</div>
+                            <div class="v-item active focusable" onclick="showSettingsSection('mytv', this)">My TV</div>
+                            <div class="v-item focusable" onclick="showSettingsSection('features', this)">App Features</div>
+                            <div class="v-item focusable" onclick="showSettingsSection('user', this)">User Details</div>
                         </div>
                     </div>
                     <div class="content-col settings-content">
@@ -492,19 +493,19 @@
                         <div id="set-mytv" style="display:block;">
                              <div class="section-header">Inputs</div>
                              <div class="scroller" style="margin-bottom:30px;">
-                                <div class="card c-square" style="background:#222;" onclick="alert('HDMI 1')"><i class="fas fa-plug fa-2x"></i><br>HDMI 1</div>
-                                <div class="card c-square" style="background:#222;" onclick="alert('HDMI 2')"><i class="fas fa-plug fa-2x"></i><br>HDMI 2</div>
+                                <div class="card c-square focusable" style="background:#222;" onclick="alert('HDMI 1')"><i class="fas fa-plug fa-2x"></i><br>HDMI 1</div>
+                                <div class="card c-square focusable" style="background:#222;" onclick="alert('HDMI 2')"><i class="fas fa-plug fa-2x"></i><br>HDMI 2</div>
                              </div>
                              
                              <div class="section-header">Apps</div>
                              <div class="scroller" style="margin-bottom:30px;">
-                                <div class="card c-app" style="background:#333;">Netflix</div>
-                                <div class="card c-app" style="background:#333;">Prime</div>
+                                <div class="card c-app focusable" style="background:#333;">Netflix</div>
+                                <div class="card c-app focusable" style="background:#333;">Prime</div>
                              </div>
 
                              <div class="section-header">System</div>
                              <div class="settings-grid">
-                                <div class="setting-card" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
+                                <div class="setting-card focusable" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
                              </div>
                         </div>
 
@@ -514,17 +515,17 @@
                                 <div class="setting-card">
                                     <span class="setting-label">Clear History</span>
                                     <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">Clears all Continue Watching items except the last watched channel.</p>
-                                    <button class="btn-settings" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
+                                    <button class="btn-settings focusable" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Visible Tabs</span>
-                                    <div style="margin-bottom:10px;">Live Tab <label class="switch"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:10px;">TV Shows <label class="switch"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:10px;">Movies <label class="switch"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">Live Tab <label class="switch focusable"><input type="checkbox" checked id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">TV Shows <label class="switch focusable"><input type="checkbox" checked id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
+                                    <div style="margin-bottom:10px;">Movies <label class="switch focusable"><input type="checkbox" checked id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Display</span>
-                                    <div style="margin-top:15px;">White Channel Logos <label class="switch"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
+                                    <div style="margin-top:15px;">White Channel Logos <label class="switch focusable"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
                                 </div>
                             </div>
                         </div>
@@ -534,19 +535,19 @@
                             <div class="settings-grid">
                                 <div class="setting-card">
                                     <span class="setting-label">Xtream Codes Login</span>
-                                    <input id="xc-url" class="setting-input" placeholder="http://url.com">
-                                    <input id="xc-user" class="setting-input" placeholder="Username">
-                                    <input id="xc-pass" class="setting-input" type="password" placeholder="Password">
-                                    <button class="btn-settings" onclick="loadXtream()">Login</button>
+                                    <input id="xc-url" class="setting-input focusable" placeholder="http://url.com">
+                                    <input id="xc-user" class="setting-input focusable" placeholder="Username">
+                                    <input id="xc-pass" class="setting-input focusable" type="password" placeholder="Password">
+                                    <button class="btn-settings focusable" onclick="loadXtream()">Login</button>
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Filters</span>
-                                    <input id="prefix-filter" class="setting-input" placeholder="Prefixes (comma separated)" oninput="localStorage.setItem('prefixFilter', this.value)">
-                                    <input id="suffix-filter" class="setting-input" style="margin-top:10px;" placeholder="Suffixes (comma separated)" oninput="localStorage.setItem('suffixFilter', this.value)">
+                                    <input id="prefix-filter" class="setting-input focusable" placeholder="Prefixes (comma separated)" oninput="localStorage.setItem('prefixFilter', this.value)">
+                                    <input id="suffix-filter" class="setting-input focusable" style="margin-top:10px;" placeholder="Suffixes (comma separated)" oninput="localStorage.setItem('suffixFilter', this.value)">
                                 </div>
                                 <div class="setting-card">
                                     <span class="setting-label">Recording API</span>
-                                    <input id="rec-api" class="setting-input" placeholder="http://server-address:port" oninput="localStorage.setItem('recApi', this.value)">
+                                    <input id="rec-api" class="setting-input focusable" placeholder="http://server-address:port" oninput="localStorage.setItem('recApi', this.value)">
                                 </div>
                             </div>
                         </div>
@@ -580,25 +581,26 @@
         let currentContext = 'Home';
         let selectedContent = null; 
         
+        // MOCK DATA UPDATE
         let cloudRecordings = [
             { 
                 id: "mock_f1", 
                 title: "Formula 1: Silverstone", 
                 owners: ["user_b"], 
                 status: "recording", 
-                img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg",
-                channel_logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Sky_Sports_Main_Event.svg/1200px-Sky_Sports_Main_Event.svg.png"
+                program_image: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg", // Program Image
+                channel_logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Sky_Sports_Main_Event.svg/1200px-Sky_Sports_Main_Event.svg.png" // Channel Logo
             }
         ];
 
         const defaultNav = `
-            <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-            <div id="nav-home" class="nav-item active" onclick="switchTab('home')">Home</div>
-            <div id="nav-live" class="nav-item" onclick="switchTab('live')">Live</div>
-            <div id="nav-tv" class="nav-item" onclick="switchTab('tv')">TV Shows</div>
-            <div id="nav-movies" class="nav-item" onclick="switchTab('movies')">Movies</div>
-            <div id="nav-youtube" class="nav-item" onclick="switchTab('youtube')">YouTube</div>
-            <div id="nav-music" class="nav-item" onclick="switchTab('music')">Music</div>
+            <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+            <div id="nav-home" class="nav-item active focusable" onclick="switchTab('home')">Home</div>
+            <div id="nav-live" class="nav-item focusable" onclick="switchTab('live')">Live</div>
+            <div id="nav-tv" class="nav-item focusable" onclick="switchTab('tv')">TV Shows</div>
+            <div id="nav-movies" class="nav-item focusable" onclick="switchTab('movies')">Movies</div>
+            <div id="nav-youtube" class="nav-item focusable" onclick="switchTab('youtube')">YouTube</div>
+            <div id="nav-music" class="nav-item focusable" onclick="switchTab('music')">Music</div>
         `;
 
         window.onload = () => {
@@ -699,18 +701,18 @@
         function renderExpandedNav(type, items) {
             const nav = document.getElementById('main-nav');
             let html = `
-                <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                <div class="nav-item nav-back" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>
+                <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+                <div class="nav-item nav-back focusable" onclick="switchTab('home')"><i class="fas fa-arrow-left"></i></div>
             `;
             if (items.length === 0) {
-                 html += `<div class="nav-item active" onclick="void(0)">${type === 'TV' ? 'TV Shows' : type}</div>`;
+                 html += `<div class="nav-item active focusable" onclick="void(0)">${type === 'TV' ? 'TV Shows' : type}</div>`;
             } else {
                 items.forEach((item, idx) => {
                     let active = idx === 0 ? 'active' : ''; 
                     let clickFn = '';
                     if(type === 'Live') clickFn = `handleLiveFilter('${item.replace(/'/g, "")}', this)`;
                     if(type === 'TV' || type === 'Movies') clickFn = `handleVODFilter('${type}', '${item}', this)`;
-                    html += `<div class="nav-item ${active}" onclick="${clickFn}">${item}</div>`;
+                    html += `<div class="nav-item ${active} focusable" onclick="${clickFn}">${item}</div>`;
                 });
             }
             nav.innerHTML = html;
@@ -722,11 +724,11 @@
             if(cat === 'Sports') {
                 const nav = document.getElementById('main-nav');
                 nav.innerHTML = `
-                    <div class="nav-item icon-only" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
-                    <div class="nav-item nav-back" onclick="switchTab('live')"><i class="fas fa-arrow-left"></i></div>
-                    <div class="nav-item active" onclick="toggleSportsActive(this, 'All Sports')">All Sports</div>
-                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
-                    <div class="nav-item" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
+                    <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
+                    <div class="nav-item nav-back focusable" onclick="switchTab('live')"><i class="fas fa-arrow-left"></i></div>
+                    <div class="nav-item active focusable" onclick="toggleSportsActive(this, 'All Sports')">All Sports</div>
+                    <div class="nav-item focusable" onclick="toggleSportsActive(this, 'Sports')">Sports</div>
+                    <div class="nav-item focusable" onclick="toggleSportsActive(this, 'Sports Extra')">Sports Extra</div>
                 `;
                 renderLiveList('All Sports');
             } else { renderLiveList(cat); }
@@ -766,7 +768,7 @@
                 grid.className = 'channels-grid';
                 filtered.forEach(ch => {
                     const card = document.createElement('div');
-                    card.className = 'channel-card'; card.tabIndex=0;
+                    card.className = 'channel-card focusable'; card.tabIndex=0;
                     card.onclick = () => openContentPage(ch); 
                     card.innerHTML = `<img src="${ch.logo}" class="cc-logo"><div class="cc-name">${cleanName(ch.name)}</div>`;
                     grid.appendChild(card);
@@ -783,7 +785,7 @@
             filtered.forEach(ch => {
                 const isFav = favLive.has(ch.id);
                 const row = document.createElement('div');
-                row.className = 'epg-row'; row.tabIndex = 0;
+                row.className = 'epg-row focusable'; row.tabIndex = 0;
                 
                 row.onmouseover = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
                 row.onfocus = () => updatePreview(ch, "Current Program Info", "12:00 - 13:00");
@@ -818,14 +820,14 @@
         function renderVODSidebar(type) {
             const sb = document.getElementById(type + '-sidebar');
             sb.innerHTML = '';
-            sb.innerHTML += `<div class="v-item active" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Browse All</div>`;
-            sb.innerHTML += `<div class="v-item" onclick="loadStreamContent('${type}', 'Continue'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Continue Watching</div>`;
-            sb.innerHTML += `<div class="v-item" onclick="loadStreamContent('${type}', 'Watchlist'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Watchlist</div>`;
+            sb.innerHTML += `<div class="v-item active focusable" onclick="loadStreamContent('${type}', 'All'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Browse All</div>`;
+            sb.innerHTML += `<div class="v-item focusable" onclick="loadStreamContent('${type}', 'Continue'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Continue Watching</div>`;
+            sb.innerHTML += `<div class="v-item focusable" onclick="loadStreamContent('${type}', 'Watchlist'); document.querySelectorAll('#${type}-sidebar .v-item').forEach(i=>i.classList.remove('active')); this.classList.add('active');">Watchlist</div>`;
 
             const source = type === 'tv' ? vodSeries : vodMovies;
             const cats = [...new Set(source.map(i => i.category_name))].filter(Boolean);
             cats.forEach(c => {
-                const item = document.createElement('div'); item.className = 'v-item'; item.innerText = c;
+                const item = document.createElement('div'); item.className = 'v-item focusable'; item.innerText = c;
                 item.onclick = () => { document.querySelectorAll(`#${type}-sidebar .v-item`).forEach(i=>i.classList.remove('active')); item.classList.add('active'); loadStreamContent(type, c); };
                 sb.appendChild(item);
             });
@@ -868,7 +870,7 @@
         function renderGridItems(grid, items) {
             if(items.length === 0) grid.innerHTML = '<p>No content found.</p>';
             items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster';
+                const card = document.createElement('div'); card.className = 'card c-poster focusable';
                 card.tabIndex = 0;
                 if(i.stream_icon || i.cover || i.img) card.style.backgroundImage = `url('${i.stream_icon || i.cover || i.img}')`;
                 card.onclick = () => openContentPage(i);
@@ -885,7 +887,7 @@
             details.innerHTML = `<h3 class="rd-title"></h3><p class="rd-desc"></p>`;
 
             items.forEach(i => {
-                const card = document.createElement('div'); card.className = 'card c-poster'; card.tabIndex = 0;
+                const card = document.createElement('div'); card.className = 'card c-poster focusable'; card.tabIndex = 0;
                 if(i.img || i.stream_icon || i.cover) card.style.backgroundImage = `url('${i.img || i.stream_icon || i.cover}')`;
                 const showDetails = () => { details.querySelector('.rd-title').innerText = cleanName(i.name); details.querySelector('.rd-desc').innerText = "Description unavailable in this demo."; details.classList.add('visible'); };
                 card.onmouseenter = showDetails; card.onfocus = showDetails;
@@ -899,7 +901,7 @@
         function enableSearchMode() {
             previousNavState = currentContext.toLowerCase();
             const nav = document.getElementById('main-nav');
-            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
+            nav.innerHTML = `<div class="nav-search-container"><div class="nav-item nav-back focusable" onclick="exitSearchMode()"><i class="fas fa-arrow-left"></i></div><input type="text" class="nav-search-input focusable" placeholder="Search..." oninput="performSearch(this.value)" autofocus></div>`;
             setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-search').classList.add('active');
@@ -918,7 +920,7 @@
             const channels = iptvChannels.filter(c => c.name.toLowerCase().includes(q));
             const movies = vodMovies.filter(m => m.name.toLowerCase().includes(q));
             const tv = vodSeries.filter(s => s.name.toLowerCase().includes(q));
-            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q)); // Fix 3: Recordings in Search
+            const recs = cloudRecordings.filter(r => r.title.toLowerCase().includes(q)); 
 
             const resultsMap = { 'Channels': channels, 'Recordings': recs, 'Movies': movies, 'TV Shows': tv };
 
@@ -934,16 +936,16 @@
                     toShow.forEach(i => {
                         const card = document.createElement('div');
                         if(type === 'Channels') {
-                            card.className = 'card c-square'; card.style.background='#222';
+                            card.className = 'card c-square focusable'; card.style.background='#222';
                             card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
                             card.onclick = () => playChannel(i);
                         } else if(type === 'Recordings') {
-                            card.className = 'card c-recording'; // Fix 1: New Recording Card Style
-                            card.style.backgroundImage = `url('${i.img}')`;
+                            card.className = 'card c-recording focusable'; // Fix 3: Search uses new card style
+                            card.style.backgroundImage = `url('${i.program_image}')`;
                             card.innerHTML = `<img src="${i.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(i.title)}</div></div>`;
                             card.onclick = () => alert("Playing Recording");
                         } else {
-                            card.className = 'card c-poster'; 
+                            card.className = 'card c-poster focusable'; 
                             const img = i.stream_icon || i.cover;
                             if(img) card.style.backgroundImage=`url('${img}')`;
                             card.innerHTML = `<div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
@@ -958,21 +960,21 @@
                     scroller.onmouseleave = () => details.classList.remove('visible');
                     
                     if(items.length > 10) {
-                        const moreBtn = document.createElement('button'); moreBtn.className = 'btn-more'; moreBtn.innerText = "Show More";
+                        const moreBtn = document.createElement('button'); moreBtn.className = 'btn-more focusable'; moreBtn.innerText = "Show More";
                         moreBtn.onclick = () => {
                              items.slice(10).forEach(i => {
                                 const card = document.createElement('div');
                                 if(type === 'Channels') {
-                                    card.className = 'card c-square'; card.style.background='#222';
+                                    card.className = 'card c-square focusable'; card.style.background='#222';
                                     card.innerHTML = `<img src="${i.logo}" class="search-logo" style="width:80%; height:80%; object-fit:contain;"><div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
                                     card.onclick = () => playChannel(i);
                                 } else if(type === 'Recordings') {
-                                    card.className = 'card c-recording';
-                                    card.style.backgroundImage = `url('${i.img}')`;
+                                    card.className = 'card c-recording focusable';
+                                    card.style.backgroundImage = `url('${i.program_image}')`;
                                     card.innerHTML = `<img src="${i.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(i.title)}</div></div>`;
                                     card.onclick = () => alert("Playing Recording");
                                 } else {
-                                    card.className = 'card c-poster'; 
+                                    card.className = 'card c-poster focusable'; 
                                     const img = i.stream_icon || i.cover;
                                     if(img) card.style.backgroundImage=`url('${img}')`;
                                     card.innerHTML = `<div class="card-overlay"><div class="co-title">${cleanName(i.name)}</div></div>`;
@@ -1000,7 +1002,7 @@
             const cwScroller = cwWrapper.querySelector('.scroller');
             
             if(lastLiveChannel) {
-                const c = document.createElement('div'); c.className = 'card c-square'; c.tabIndex=0;
+                const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0;
                 c.style.background = '#222'; 
                 c.innerHTML = `<img src="${lastLiveChannel.logo}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;">`;
                 c.onclick = () => playChannel(lastLiveChannel);
@@ -1010,7 +1012,7 @@
             }
             
             watchHistory.filter(h => h.type !== 'live').forEach(h => {
-                const c = document.createElement('div'); c.className = 'card c-poster'; c.tabIndex=0;
+                const c = document.createElement('div'); c.className = 'card c-poster focusable'; c.tabIndex=0;
                 if(h.img) c.style.backgroundImage = `url('${h.img}')`;
                 c.onclick = () => openContentPage(h);
                 c.onmouseenter = () => { cwWrapper.querySelector('.rd-title').innerText = cleanName(h.name); cwWrapper.querySelector('.rd-desc').innerText = "Resume"; cwWrapper.querySelector('.row-details').classList.add('visible'); };
@@ -1021,22 +1023,32 @@
             container.appendChild(cwWrapper);
 
             const recWrapper = document.createElement('div'); recWrapper.className = 'row-container';
-            recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div>`;
+            recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const recScroller = recWrapper.querySelector('.scroller');
+            const recDetails = recWrapper.querySelector('.row-details');
             
-            const btnRec = document.createElement('div'); btnRec.className='card c-square'; btnRec.tabIndex=0; btnRec.style.background='#333';
+            const btnRec = document.createElement('div'); btnRec.className='card c-square focusable'; btnRec.tabIndex=0; btnRec.style.background='#333';
             btnRec.innerHTML = '<i class="fas fa-cloud fa-3x" style="color:#aaa;"></i><div style="font-size:0.9rem; color:#fff; font-weight:700;">Cloud<br>Recordings</div>';
             btnRec.onclick = () => switchTab('recordings');
             recScroller.appendChild(btnRec);
 
             cloudRecordings.filter(r => r.owners.includes('me')).forEach(r => {
                 // Fix 1: New Recording Card Style
-                const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
-                c.style.backgroundImage = `url('${r.img}')`;
-                c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
+                const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
+                c.style.backgroundImage = `url('${r.program_image}')`;
+                c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title"></div></div>`; // Title hidden in overlay, shown in row details
                 c.onclick = () => alert("Playing Recording (Mock)");
+                
+                // Fix 1: Hover Logic shows Program Name, not Channel
+                c.onmouseenter = () => { 
+                    recDetails.querySelector('.rd-title').innerText = cleanName(r.title); 
+                    recDetails.querySelector('.rd-desc').innerText = "Recorded Program"; 
+                    recDetails.classList.add('visible'); 
+                };
+                c.onfocus = c.onmouseenter;
                 recScroller.appendChild(c);
             });
+            recScroller.onmouseleave = () => recDetails.classList.remove('visible');
             container.appendChild(recWrapper);
 
             const allFavs = [...vodMovies, ...vodSeries].filter(i => favStream.has(i.stream_id || i.series_id));
@@ -1049,7 +1061,7 @@
             utils.forEach(u => {
                 const w = document.createElement('div'); w.className = 'row-container';
                 let html = `<div class="section-header"><i class="fas ${u.i}"></i> ${u.t}</div><div class="scroller">`;
-                u.c.forEach(i => html += `<div class="card ${u.type}" tabindex="0" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
+                u.c.forEach(i => html += `<div class="card ${u.type} focusable" tabindex="0" style="background:#222; display:grid; place-items:center; color:#888;">${i}</div>`);
                 html += `</div>`; w.innerHTML = html; container.appendChild(w);
             });
             tab.appendChild(container);
@@ -1062,8 +1074,8 @@
             if(myRecs.length > 0) {
                 const w = document.createElement('div'); w.className='row-container'; w.innerHTML=`<div class="section-header">My Recordings</div><div class="scroller"></div>`;
                 myRecs.forEach(r => {
-                    const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
-                    c.style.backgroundImage = `url('${r.img}')`;
+                    const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
+                    c.style.backgroundImage = `url('${r.program_image}')`;
                     c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
                     c.onclick = () => alert("Playing Recording");
                     w.querySelector('.scroller').appendChild(c);
@@ -1075,8 +1087,8 @@
             if(pooled.length > 0) {
                 const w = document.createElement('div'); w.className='row-container'; w.innerHTML=`<div class="section-header">Pooled Recordings</div><div class="scroller"></div>`;
                 pooled.forEach(r => {
-                    const c = document.createElement('div'); c.className='card c-recording'; c.tabIndex=0;
-                    c.style.backgroundImage = `url('${r.img}')`;
+                    const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
+                    c.style.backgroundImage = `url('${r.program_image}')`;
                     c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title">${cleanName(r.title)}</div></div>`;
                     c.onclick = () => alert("Playing Pooled Recording");
                     w.querySelector('.scroller').appendChild(c);
@@ -1146,21 +1158,14 @@
             if(Hls.isSupported() && url.endsWith('.m3u8')) { const hls = new Hls(); hls.loadSource(url); hls.attachMedia(vid); hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play()); } else { vid.src = url; vid.play(); }
             document.body.classList.add('mode-fullscreen');
             
-            // FIX 3: Update Playback UI
             const ui = document.getElementById('playback-ui');
             document.getElementById('pb-channel-name').innerText = cleanName(ch.name);
             document.getElementById('pb-logo').src = ch.logo;
             ui.classList.add('visible');
             
-            // Auto hide UI logic
             let uiTimeout;
-            const resetUiTimer = () => {
-                ui.classList.add('visible');
-                clearTimeout(uiTimeout);
-                uiTimeout = setTimeout(() => ui.classList.remove('visible'), 4000);
-            };
-            document.onmousemove = resetUiTimer;
-            document.onkeydown = resetUiTimer;
+            const resetUiTimer = () => { ui.classList.add('visible'); clearTimeout(uiTimeout); uiTimeout = setTimeout(() => ui.classList.remove('visible'), 4000); };
+            document.onmousemove = resetUiTimer; document.onkeydown = resetUiTimer;
             resetUiTimer();
         }
 
@@ -1188,29 +1193,38 @@
             btnContainer.innerHTML = '';
             
             const btnPlay = document.createElement('button');
-            btnPlay.className = 'btn-settings'; btnPlay.style = "background:white; color:black; width:auto; padding:15px 40px;";
+            btnPlay.className = 'btn-settings focusable'; btnPlay.style = "background:white; color:black; width:auto; padding:15px 40px;";
             btnPlay.innerHTML = '<i class="fas fa-play"></i> Play';
             btnPlay.onclick = () => playCurrentContent();
             btnContainer.appendChild(btnPlay);
 
             if(!i.stream_id && !i.series_id) {
                 const btnRec = document.createElement('button');
-                btnRec.className = 'btn-settings'; btnRec.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+                btnRec.className = 'btn-settings focusable'; btnRec.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
                 btnRec.innerHTML = '<i class="fas fa-circle" style="color:red;"></i> Record';
                 btnRec.onclick = () => smartRecord();
                 btnContainer.appendChild(btnRec);
+                
+                // Fix 2: Add Favourite Button for Live Channels
+                const inFav = favLive.has(i.id);
+                const btnFav = document.createElement('button');
+                btnFav.className = 'btn-settings focusable'; btnFav.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 20px;";
+                btnFav.innerHTML = inFav ? '<i class="fas fa-heart" style="color:red;"></i>' : '<i class="far fa-heart"></i>';
+                btnFav.onclick = () => { toggleFavLive(i.id); openContentPage(i); };
+                btnContainer.appendChild(btnFav);
+
             } else {
                 const id = i.stream_id || i.series_id;
                 const inWatchlist = favStream.has(id);
                 const btnWatch = document.createElement('button');
-                btnWatch.className = 'btn-settings'; btnWatch.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+                btnWatch.className = 'btn-settings focusable'; btnWatch.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
                 btnWatch.innerHTML = inWatchlist ? '<i class="fas fa-minus"></i> Remove from Watchlist' : '<i class="fas fa-plus"></i> Add to Watchlist';
                 btnWatch.onclick = () => { addToWatchlist(); openContentPage(i); }; 
                 btnContainer.appendChild(btnWatch);
             }
             
             const btnBack = document.createElement('button');
-            btnBack.className = 'btn-settings'; btnBack.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
+            btnBack.className = 'btn-settings focusable'; btnBack.style = "background:rgba(255,255,255,0.15); width:auto; padding:15px 30px;";
             btnBack.innerText = "Back";
             btnBack.onclick = () => closeContentPage();
             btnContainer.appendChild(btnBack);
@@ -1235,6 +1249,11 @@
             if(favStream.has(id)) { favStream.delete(id); alert("Removed from Watchlist"); } else { favStream.add(id); alert("Added to Watchlist"); }
             localStorage.setItem('favStream', JSON.stringify([...favStream]));
         }
+        
+        function toggleFavLive(id) {
+            if(favLive.has(id)) favLive.delete(id); else favLive.add(id);
+            localStorage.setItem('favLive', JSON.stringify([...favLive]));
+        }
 
         function smartRecord() {
             if(!selectedContent) return;
@@ -1244,7 +1263,14 @@
                 if(existing.owners.includes('me')) { alert("You are already recording this."); } 
                 else { existing.owners.push('me'); alert("Added to Library (Shared Recording)"); }
             } else {
-                cloudRecordings.push({ id: id, title: selectedContent.name, img: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg", channel_logo: selectedContent.logo, owners: ['me'], status: 'recording' });
+                cloudRecordings.push({ 
+                    id: id, 
+                    title: selectedContent.name, 
+                    program_image: "https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg", // Mock placeholder
+                    channel_logo: selectedContent.logo || selectedContent.stream_icon || selectedContent.cover, 
+                    owners: ['me'], 
+                    status: 'recording' 
+                });
                 alert("Recording Started");
             }
             localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
@@ -1263,22 +1289,37 @@
             document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); 
             document.body.classList.remove('mode-fullscreen'); 
             const vid = document.getElementById('global-bg-video');
-            vid.pause(); // Stop video when leaving fullscreen
-            vid.src = ""; // Clear src to ensure it stops buffering
+            vid.pause(); vid.src = ""; 
         }
-        function renderSidebar(id, items) { const el = document.getElementById(id+'-sidebar'); if(el) { el.innerHTML=''; items.forEach(i=>el.innerHTML+=`<div class="v-item">${i}</div>`); } }
+        function renderSidebar(id, items) { const el = document.getElementById(id+'-sidebar'); if(el) { el.innerHTML=''; items.forEach(i=>el.innerHTML+=`<div class="v-item focusable">${i}</div>`); } }
 
         function setupKeyboard() {
             document.addEventListener('keydown', (e) => {
-                // FIX 2: Re-reinforced Escape Listener
-                if (e.key === 'Escape' || e.key === 'Backspace') {
-                    e.preventDefault();
-                    if(document.body.classList.contains('mode-fullscreen')) closeOverlays();
-                    else if (document.getElementById('content-page').style.display === 'block') closeContentPage();
-                    else if (document.getElementById('tab-search').classList.contains('active')) exitSearchMode();
-                    else switchTab('home');
-                }
+                const active = document.activeElement;
+                if (e.key === 'Enter') { if (active && active.classList.contains('focusable')) active.click(); } 
+                else if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); if(document.body.classList.contains('mode-fullscreen')) closeOverlays(); else if (document.getElementById('content-page').style.display === 'block') closeContentPage(); else if (document.getElementById('tab-search').classList.contains('active')) exitSearchMode(); else switchTab('home'); } 
+                else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(e.key); }
             });
+        }
+
+        function navigate(direction) {
+            const focusables = Array.from(document.querySelectorAll('.focusable, input, button')).filter(el => { return el.offsetParent !== null && !el.disabled; });
+            if (focusables.length === 0) return;
+            const current = document.activeElement;
+            if (!focusables.includes(current)) { focusables[0].focus(); return; }
+            const currentRect = current.getBoundingClientRect();
+            let bestCandidate = null; let minDistance = Infinity;
+            focusables.forEach(el => {
+                if (el === current) return;
+                const rect = el.getBoundingClientRect();
+                let dist = Infinity;
+                if (direction === 'ArrowRight' && rect.left >= currentRect.right && Math.abs(rect.top - currentRect.top) < 100) dist = Math.sqrt(Math.pow(rect.left - currentRect.right, 2) + Math.pow(rect.top - currentRect.top, 2));
+                else if (direction === 'ArrowLeft' && rect.right <= currentRect.left && Math.abs(rect.top - currentRect.top) < 100) dist = Math.sqrt(Math.pow(currentRect.left - rect.right, 2) + Math.pow(rect.top - currentRect.top, 2));
+                else if (direction === 'ArrowDown' && rect.top >= currentRect.bottom) dist = Math.sqrt(Math.pow(rect.left - currentRect.left, 2) + Math.pow(rect.top - currentRect.bottom, 2));
+                else if (direction === 'ArrowUp' && rect.bottom <= currentRect.top) dist = Math.sqrt(Math.pow(rect.left - currentRect.left, 2) + Math.pow(currentRect.top - rect.bottom, 2));
+                if (dist < minDistance) { minDistance = dist; bestCandidate = el; }
+            });
+            if (bestCandidate) { bestCandidate.focus(); bestCandidate.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
         }
     </script>
 </body>
