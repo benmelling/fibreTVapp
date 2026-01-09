@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V128 (Restored)</title>
+    <title>StreamTV OS V128 (Full)</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -26,31 +26,62 @@
             --page-gutter: 50px;
 
             /* THEME COLORS */
-            --col-live: #0047AB;   --col-live-bg: rgba(0, 71, 171, 0.4);   --col-live-txt: #8FA4C8;
-            --col-tv: #D35400;     --col-tv-bg: rgba(211, 84, 0, 0.4);     --col-tv-txt: #eec1a4;
-            --col-movie: #27AE60;  --col-movie-bg: rgba(39, 174, 96, 0.4); --col-movie-txt: #a4eec1;
-            --col-yt: #E50914;     --col-yt-bg: rgba(229, 9, 20, 0.3);     --col-yt-txt: #C88F93;
-            --col-music: #C2185B;  --col-music-bg: rgba(194, 24, 91, 0.3); --col-music-txt: #C88FA8;
-            --col-rec: #F1C40F;    --col-rec-bg: rgba(241, 196, 15, 0.3);  --col-rec-txt: #F9E79F;
+            --col-live: #0047AB;   
+            --col-live-bg: rgba(0, 71, 171, 0.4);   
+            --col-live-txt: #8FA4C8;
+            
+            --col-tv: #D35400;     
+            --col-tv-bg: rgba(211, 84, 0, 0.4);     
+            --col-tv-txt: #eec1a4;
+            
+            --col-movie: #27AE60;  
+            --col-movie-bg: rgba(39, 174, 96, 0.4); 
+            --col-movie-txt: #a4eec1;
+            
+            --col-yt: #E50914;     
+            --col-yt-bg: rgba(229, 9, 20, 0.3);     
+            --col-yt-txt: #C88F93;
+            
+            --col-music: #C2185B;  
+            --col-music-bg: rgba(194, 24, 91, 0.3); 
+            --col-music-txt: #C88FA8;
+            
+            --col-rec: #F1C40F;    
+            --col-rec-bg: rgba(241, 196, 15, 0.3);  
+            --col-rec-txt: #F9E79F;
         }
 
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-color);
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
-            height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
             user-select: none;
         }
 
         /* --- GLOBAL BACKGROUND --- */
         #global-bg-video {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: -1;
-            opacity: 1; transition: opacity 0.5s ease, filter 0.5s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 1;
+            transition: opacity 0.5s ease, filter 0.5s ease;
             pointer-events: none;
             filter: blur(30px) brightness(0.4);
         }
@@ -64,21 +95,31 @@
         
         body.mode-fullscreen .top-bar-container, 
         body.mode-fullscreen .main-content,
-        body.mode-fullscreen .info-capsule { display: none !important; }
+        body.mode-fullscreen .info-capsule {
+            display: none !important;
+        }
 
-        /* --- NAVIGATION (FLOATING) --- */
+        /* --- NAVIGATION --- */
         .top-bar-container {
-            position: fixed; top: 30px; left: var(--page-gutter); 
-            z-index: 6000; display: flex; align-items: flex-start;
-            max-width: 85%; pointer-events: auto;
+            position: fixed;
+            top: 30px;
+            left: var(--page-gutter); 
+            z-index: 6000;
+            display: flex;
+            align-items: flex-start;
+            max-width: 85%;
+            pointer-events: auto;
         }
 
         .nav-capsule {
             background: var(--surface-translucent);
-            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border-radius: var(--radius-capsule);
             padding: 5px;
-            display: flex; align-items: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -86,13 +127,24 @@
         }
 
         .nav-item {
-            height: 44px; padding: 0 24px; 
+            height: 44px;
+            padding: 0 24px; 
             border-radius: var(--radius-capsule);
-            color: #888; font-weight: 700; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s; white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
+            color: #888;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .nav-item:hover, .nav-item.focused { color: white !important; background: rgba(255,255,255,0.1); }
+
+        .nav-item:hover, .nav-item.focused {
+            color: white !important;
+            background: rgba(255,255,255,0.1);
+        }
         
         /* THEMED ACTIVE STATES */
         .nav-capsule.mode-live { border-color: var(--col-live); background: rgba(0, 0, 40, 0.9); }
@@ -110,7 +162,6 @@
         .nav-capsule.mode-music { border-color: var(--col-music); background: rgba(60, 0, 40, 0.9); }
         .nav-capsule.mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
 
-        /* RECORDINGS THEME (YELLOW) */
         .nav-capsule.mode-recordings { border-color: var(--col-rec); background: rgba(60, 50, 0, 0.9); }
         .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
         
@@ -432,14 +483,12 @@
                         </div>
                     </div>
                     <div class="content-col settings-content">
-                        
                         <div id="set-mytv" style="display:block;">
                              <div class="section-header"><i class="fas fa-desktop"></i> System</div>
                              <div class="settings-grid">
                                 <div class="setting-card focusable" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
                              </div>
                         </div>
-
                         <div id="set-features" style="display:none;">
                             <div class="section-header">App Features</div>
                             <div class="settings-grid">
@@ -966,7 +1015,7 @@
             history = history.filter(x=>x.id!==i.id); history.unshift({...i, type:'ch'});
             localStorage.setItem('hist', JSON.stringify(history));
             
-            const v = document.getElementById('bg-vid');
+            const v = document.getElementById('global-bg-video');
             v.src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
             document.body.classList.add('mode-fullscreen');
             document.getElementById('pb-ui').classList.add('vis');
