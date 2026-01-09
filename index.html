@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V129 (Full Restoration)</title>
+    <title>StreamTV OS V130</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -13,16 +13,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- VARIABLES --- */
         :root {
             --bg-color: #000000;
-            --surface-color: #1a1a1a;
             --surface-translucent: rgba(20, 20, 20, 0.95);
             --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
             --radius-capsule: 50px;
             --radius-card: 12px;
-            --sidebar-width: 260px;
             --page-gutter: 50px;
 
             /* THEME COLORS */
@@ -34,106 +30,60 @@
             --col-rec: #F1C40F;    
         }
 
-        * {
-            box-sizing: border-box;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
             user-select: none;
         }
 
-        /* --- BACKGROUND VIDEO --- */
+        /* GLOBAL BACKGROUND */
         #global-bg-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 1;
-            transition: opacity 0.5s ease, filter 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1;
+            opacity: 1; transition: opacity 0.5s ease;
             pointer-events: none;
             filter: blur(30px) brightness(0.4);
         }
-        
-        body.mode-fullscreen #global-bg-video { 
-            opacity: 1; 
-            filter: blur(0) brightness(1); 
-            z-index: 0; 
-            pointer-events: auto; 
-        }
-        
-        /* HIDE UI WHEN FULLSCREEN */
+        body.mode-fullscreen #global-bg-video { filter: blur(0); z-index: 0; pointer-events: auto; }
         body.mode-fullscreen .top-bar-container, 
         body.mode-fullscreen .main-content,
-        body.mode-fullscreen .info-capsule {
-            display: none !important;
-        }
+        body.mode-fullscreen .info-capsule { display: none !important; }
 
-        /* --- NAVIGATION --- */
+        /* NAVIGATION */
         .top-bar-container {
-            position: fixed;
-            top: 30px;
-            left: var(--page-gutter); 
-            z-index: 6000;
-            display: flex;
-            align-items: flex-start;
-            max-width: 85%;
-            pointer-events: auto;
+            position: fixed; top: 30px; left: var(--page-gutter); 
+            z-index: 6000; display: flex; align-items: flex-start;
+            max-width: 85%; pointer-events: auto;
         }
 
         .nav-capsule {
             background: var(--surface-translucent);
             backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
             border-radius: var(--radius-capsule);
             padding: 5px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            pointer-events: auto;
+            display: flex; align-items: center; gap: 5px;
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transition: border-color 0.3s, background-color 0.3s;
+            transition: 0.3s;
         }
 
         .nav-item {
-            height: 44px;
-            padding: 0 24px; 
+            height: 44px; padding: 0 24px; 
             border-radius: var(--radius-capsule);
-            color: #888;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #888; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .nav-item:hover, .nav-item.focused {
-            color: white !important;
-            background: rgba(255,255,255,0.1);
-        }
+        .nav-item:hover, .nav-item.focused { color: white !important; background: rgba(255,255,255,0.1); }
+        .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } 
         
-        .nav-item.icon-only { padding: 0; width: 44px; }
-        .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
-
-        /* THEME STYLES FOR NAV */
+        /* Theme Specific Active States */
         .nav-capsule.mode-live { border-color: var(--col-live); background: rgba(0, 0, 40, 0.9); }
         .nav-capsule.mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
 
@@ -143,18 +93,12 @@
         .nav-capsule.mode-movies { border-color: var(--col-movie); background: rgba(0, 40, 10, 0.9); }
         .nav-capsule.mode-movies .nav-item.active { background: var(--col-movie) !important; color: white !important; }
 
-        .nav-capsule.mode-youtube { border-color: var(--col-yt); background: rgba(60, 0, 0, 0.9); }
-        .nav-capsule.mode-youtube .nav-item.active { background: var(--col-yt) !important; color: white !important; }
-
-        .nav-capsule.mode-music { border-color: var(--col-music); background: rgba(60, 0, 40, 0.9); }
-        .nav-capsule.mode-music .nav-item.active { background: var(--col-music) !important; color: white !important; }
-
         .nav-capsule.mode-recordings { border-color: var(--col-rec); background: rgba(60, 50, 0, 0.9); }
         .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
-        
-        .nav-capsule.mode-default .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } 
 
-        .nav-search-container { display:flex; align-items:center; width:100%; min-width: 350px; padding-left: 10px; }
+        .nav-item.icon-only { padding: 0; width: 44px; }
+        .nav-back { padding: 0; width: 54px; }
+        .nav-search-container { display:flex; align-items:center; width:350px; padding-left:10px; }
         .nav-search-input { background: transparent; border: none; color: white; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 600; flex:1; outline: none; padding: 0 15px; }
 
         .info-capsule {
@@ -162,92 +106,48 @@
             background: var(--surface-translucent); backdrop-filter: blur(25px);
             border-radius: var(--radius-capsule); height: 54px; padding: 0 25px;
             display: flex; align-items: center; gap: 15px;
-            border: 1px solid rgba(255,255,255,0.15); z-index: 6000; cursor: pointer;
-            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.15); z-index: 6000;
         }
-        .system-stack { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); line-height: 1.2; }
         .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
 
-        /* --- MAIN CONTENT LAYOUT --- */
+        /* MAIN CONTENT - Removed top padding from container, applied to tabs */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-top: 130px; padding-bottom: 50px; 
             display: flex; flex-direction: column;
             background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, #111 100%);
         }
         
-        .page-live-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #001a40 100%) !important; }
-        .page-tv-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #401a00 100%) !important; }
-        .page-movies-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #00331a 100%) !important; }
-        .page-yt-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #400000 100%) !important; }
-        .page-music-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #400033 100%) !important; }
-
-        .tab-content { display: none; padding: 0 var(--page-gutter) 50px var(--page-gutter); height: 100%; flex-direction: column; }
+        .tab-content { display: none; padding: 130px var(--page-gutter) 50px var(--page-gutter); height: 100%; flex-direction: column; }
         .tab-content.active { display: flex; animation: fadeIn 0.4s ease; }
         
-        #tab-home.active, #tab-recordings.active { display: block; overflow-y: auto; padding: 0 var(--page-gutter) 100px var(--page-gutter); }
+        /* LIVE TAB SPECIAL: No Padding so preview hits top */
         #tab-live.active { padding: 0; overflow: hidden; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .layout-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
-        .split-inner { display: flex; gap: 40px; flex: 1; overflow: hidden; height: 100%; }
-
-        .vertical-filter-col { 
-            width: var(--sidebar-width); flex-shrink: 0; 
-            display: flex; flex-direction: column; justify-content: flex-start; 
-            height: 100%; margin: 0; 
-            padding-left: var(--page-gutter);
-            margin-top: 20px;
-        }
-        
-        .vert-capsule { 
-            background: rgba(25, 25, 25, 0.95); border-radius: 25px; padding: 20px; 
-            display: flex; flex-direction: column; gap: 10px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            height: calc(100vh - 180px); 
-            overflow-y: auto; z-index: 50; 
-        }
-        .vert-capsule::-webkit-scrollbar { display:none; }
-
-        .v-item { 
-            padding: 15px 20px; border-radius: 12px; color: #999; font-weight: 600; font-size: 1rem; 
-            cursor: pointer; transition: all 0.2s; text-align: left; 
-            display: flex; align-items: center; gap: 15px; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; margin-bottom: 5px;
-        }
-        .v-item:hover, .v-item.focused { color: white; background: rgba(255,255,255,0.1); }
-        .v-item.active { background: white; color: black; font-weight: 800; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-
-        .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; height: 100%; }
-        .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 0; overflow: hidden; }
-
-        /* --- PREVIEW PANE (FIXED TOP) --- */
+        /* PREVIEW PANE */
         .linear-header { 
-            flex: 0 0 auto; width: 100%; height: 35vh; min-height: 280px;
-            margin: 0; 
-            overflow: hidden; background: #111; position: relative;
-            display: flex; z-index: 0;
-            padding-top: 100px; 
-            margin-top: -130px; /* Pulls it up flush to top of screen */
+            flex: 0 0 auto; width: 100%; height: 40vh; min-height: 350px;
+            margin: 0; position: relative; overflow: hidden; display: flex; z-index: 0;
+            padding-top: 100px; /* Space for Nav */
         }
         .lh-bg-blur { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(40px) brightness(0.4); z-index: 0; }
         .header-content { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; gap: 40px; }
-        .lh-logo-box { width: 180px; aspect-ratio: 1/1; background: black; border-radius: 16px; display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-shrink: 0; }
+        .lh-logo-box { width: 160px; aspect-ratio: 1/1; background: #111; border-radius: 16px; display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-shrink: 0; }
         .lh-logo-img { width: 80%; height: 80%; object-fit: contain; }
         .header-info-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; color: white; }
-        .lh-meta { display: flex; gap: 15px; margin-bottom: 12px; align-items: center; font-weight: 700; color: #ddd; font-size: 1rem; }
+        .lh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.1; }
+        .lh-meta { font-size: 1rem; color: #ccc; margin-bottom: 10px; font-weight: 700; }
         .lh-desc { font-size: 1rem; color: #eee; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-width: 90%; }
         .preview-box-right { width: 450px; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-shrink: 0; border: 1px solid #333; }
         .preview-video { width: 100%; height: 100%; object-fit: cover; }
         
-        .epg-scroll-area { flex: 1; overflow-y: auto; padding-bottom: 50px; min-height: 0; background: #050505; }
+        .epg-scroll-area { flex: 1; overflow-y: auto; background: #050505; }
         .epg-scroll-area::-webkit-scrollbar { display: none; }
 
-        /* --- EPG (SKY STYLE) --- */
+        /* EPG */
         .epg-header { display:flex; height: 40px; align-items:center; border-bottom:1px solid #222; background: #080808; position: sticky; top:0; z-index: 20; }
-        .epg-header-empty { width: 400px; flex-shrink:0; background:#080808; height:100%; border-right: 1px solid #222; }
+        .epg-header-empty { width: 380px; flex-shrink:0; background:#080808; height:100%; border-right: 1px solid #222; }
         .epg-header-time { display:flex; flex:1; overflow:hidden; position:relative; align-items: center; }
         .time-marker { position:absolute; font-size:0.8rem; color:#888; font-weight: 600; border-left: 1px solid #333; padding-left: 8px; height: 20px; line-height: 20px; }
 
@@ -255,12 +155,12 @@
         .epg-row { display: flex; align-items: center; height: 80px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.1s; background: rgba(255,255,255,0.02); }
         .epg-row:hover, .epg-row.focused { background: #222; }
         
-        .epg-channel-col { width: 400px; display: flex; align-items: center; padding: 0 15px; border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0; background: #0f0f0f; z-index: 10; position:sticky; left:0; }
-        .epg-num { width: 70px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
-        .epg-logo { width: 90px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
-        .epg-logo img { max-height: 55px; max-width: 100%; object-fit: contain; filter: none; transition: filter 0.3s; }
-        .epg-name { width: 200px; font-weight: 700; font-size: 1.1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-right: 10px; }
-        
+        .epg-channel-col { width: 380px; display: flex; align-items: center; padding: 0 15px; border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0; background: #0f0f0f; z-index: 10; position:sticky; left:0; }
+        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
+        .epg-logo { width: 80px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
+        .epg-logo img { max-height: 50px; max-width: 100%; object-fit: contain; }
+        .epg-name { width: 200px; font-weight: 700; font-size: 1rem; color: #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
         .white-logos .epg-logo img, .white-logos .cc-logo, .white-logos .search-logo, .white-logos .rec-logo-overlay { filter: grayscale(100%) brightness(200%) contrast(100%); }
 
         .epg-timeline { flex: 1; display: flex; align-items: center; height: 100%; overflow-x: auto; position: relative; scrollbar-width: none; }
@@ -270,57 +170,50 @@
 
         .epg-block { height: 80%; background: rgba(255,255,255,0.1); margin-right: 2px; border-radius: 4px; padding: 0 12px; display: flex; flex-direction: column; justify-content: center; border: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; position: relative; overflow: hidden; }
         .epg-block:hover { background: rgba(255,255,255,0.25); border-color: white; }
-        .prog-t { font-weight: 700; font-size: 0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:white; }
+        .prog-t { font-weight: 700; font-size: 0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .prog-d { font-size: 0.75rem; color: #ccc; }
 
-        /* --- ROWS & CARDS --- */
+        /* CARDS */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 10px; }
-        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; align-items: flex-end; }
+        .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; }
         ::-webkit-scrollbar { display: none; }
         
         .card { flex: 0 0 auto; background: var(--surface-color); border-radius: var(--radius-card); position: relative; cursor: pointer; overflow: hidden; transition: transform 0.2s; border: 2px solid transparent; }
         .card:hover, .card.focused { transform: scale(1.05); z-index: 5; outline: 3px solid white; border-radius: var(--radius-card); }
         
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
-        .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
-        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: flex !important; align-items: center; justify-content: center; font-weight: 700; color: #aaa; font-size: 1.2rem; } 
+        .c-square { width: 160px; height: 160px; background-size: cover; background-color: #222; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #aaa; font-size: 1.2rem; } 
         .c-square img { margin: 0 !important; }
-
         .c-recording { width: 280px; height: 158px; background-size: cover; background-color: #222; position: relative; overflow: hidden; }
-        .rec-logo-overlay { position: absolute; bottom: 8px; right: 8px; width: 40px; height: 40px; background: rgba(0,0,0,0.8); border-radius: 4px; padding: 4px; object-fit: contain; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .rec-type-icon { position: absolute; top: 8px; left: 8px; width: 30px; height: 30px; background: rgba(0,0,0,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        
+        .rec-logo-overlay { position: absolute; bottom: 8px; right: 8px; width: 40px; height: 40px; background: rgba(0,0,0,0.8); border-radius: 4px; padding: 4px; object-fit: contain; }
+        .rec-type-icon { position: absolute; top: 8px; left: 8px; width: 30px; height: 30px; background: rgba(0,0,0,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; }
 
-        .row-details { height: 0; overflow: hidden; transition: height 0.3s ease, opacity 0.3s ease; opacity: 0; padding-left: 5px; margin-top: 5px; }
+        .row-details { height: 0; overflow: hidden; transition: 0.3s; opacity: 0; padding-left: 5px; margin-top: 5px; }
         .row-details.visible { height: auto; opacity: 1; margin-bottom: 20px; }
-        .rd-title { font-size: 1.5rem; font-weight: 800; margin: 0; color: white; }
-        .rd-desc { font-size: 1rem; color: #bbb; max-width: 600px; margin-top: 5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .rd-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
+        .rd-desc { font-size: 1rem; color: #bbb; margin-top: 5px; }
 
         .card-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.6)); padding: 15px; opacity: 0; transition: opacity 0.2s; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
-        .card:hover .card-overlay, .card.focused .card-overlay { opacity: 1; }
-        .co-title { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 5px; margin-top: auto; }
-        .co-desc { font-size: 0.85rem; color: #ccc; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card:hover .card-overlay { opacity: 1; }
+        .co-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 5px; }
 
-        /* SEARCH GRID */
         .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
         .channel-card { background: #222; border-radius: 12px; aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
-        .channel-card:hover, .channel-card.focused { transform: scale(1.05); border-color: white; background: #333; }
+        .channel-card:hover { transform: scale(1.05); border-color: white; background: #333; }
         .cc-logo { width: 70%; height: 60%; object-fit: contain; margin-bottom: 8px; }
         .cc-name { font-size: 0.9rem; font-weight: 700; text-align: center; }
 
         /* SETTINGS & OVERLAYS */
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 800px; }
         .setting-card { background: #222; padding: 20px; border-radius: 16px; }
-        .setting-label { font-size:1.1rem; font-weight:700; margin-bottom:10px; display:block; }
-        .setting-input { background: #111; border: 1px solid #333; color: white; padding: 12px; width: 100%; margin-top: 5px; border-radius: 8px; font-family:'Outfit'; }
         .btn-settings { background: var(--col-live); color: white; border: none; padding: 12px; width: 100%; margin-top: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-settings.focused { background: white; color: black; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; float:right; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #ffffff; }
         input:checked + .slider:before { transform: translateX(22px); background-color: black; }
-        .switch.focused .slider { outline: 2px solid var(--col-live); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         
@@ -331,30 +224,19 @@
         .cp-poster { width: 200px; aspect-ratio: 1/1; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; display:flex; align-items:center; justify-content:center; }
         .cp-poster.poster-mode { aspect-ratio: 2/3; } 
         .cp-poster img { max-width:80%; max-height:80%; object-fit:contain; }
-        
         .cp-details { flex: 1; padding-bottom: 20px; }
         .cp-title { font-size: 3.5rem; font-weight: 800; margin: 0; line-height: 1.1; margin-bottom: 15px; }
         .cp-meta { font-size: 1.1rem; color: #ccc; display: flex; gap: 15px; margin-bottom: 20px; font-weight: 600; }
-        .cp-desc { font-size: 1.1rem; color: #bbb; max-width: 800px; margin-bottom: 30px; line-height: 1.6; }
         .cp-buttons { display: flex; gap: 15px; }
         
         #playback-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2100; pointer-events: none; flex-direction: column; justify-content: space-between; opacity: 0; transition: opacity 0.3s ease; }
         body.mode-fullscreen #playback-ui { display: flex; }
         body.mode-fullscreen #playback-ui.visible { opacity: 1; pointer-events: auto; }
         .pb-top-bar { width: 100%; padding: 40px; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); display: flex; align-items: center; gap: 20px; }
-        .pb-back-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; pointer-events: auto; transition: background 0.2s; }
-        .pb-back-btn:hover, .pb-back-btn:focus { background: white; color: black; }
         .pb-channel-name { font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         .pb-bottom-bar { width: 100%; padding: 50px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); display: flex; align-items: center; justify-content: space-between; }
         .pb-meta { display: flex; align-items: center; gap: 15px; }
         .pb-logo { height: 60px; width: auto; max-width: 120px; object-fit: contain; }
-        .pb-live-badge { background: #cc0000; color: white; padding: 5px 10px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; }
-
-        #delete-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:7000; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
-        .del-box { background:#222; padding:30px; border-radius:20px; text-align:center; max-width:500px; border:1px solid #444; }
-        .del-btn { margin-top:15px; width:100%; text-align:left; background:#333; padding:15px; border:none; color:white; font-size:1.1rem; border-radius:10px; cursor:pointer; }
-        .del-btn:hover { background:#444; }
-        .del-btn.danger { color:#ff5555; }
     </style>
 </head>
 <body class="mode-home">
@@ -369,33 +251,20 @@
     
     <div id="playback-ui">
         <div class="pb-top-bar">
-            <button class="pb-back-btn focusable" onclick="closeOverlays()"><i class="fas fa-arrow-left"></i></button>
+            <button class="nav-item icon-only focusable" onclick="closeOverlays()"><i class="fas fa-arrow-left"></i></button>
             <div class="pb-channel-name" id="pb-channel-name">Channel Name</div>
         </div>
         <div class="pb-bottom-bar">
             <div class="pb-meta">
                 <img src="" id="pb-logo" class="pb-logo" />
-                <div class="pb-live-badge">LIVE</div>
+                <span style="background:#cc0000; padding:4px 8px; border-radius:4px; font-weight:800; font-size:0.8rem;">LIVE</span>
             </div>
-        </div>
-    </div>
-    
-    <div id="delete-modal">
-        <div class="del-box">
-            <h2 style="margin-top:0;">Delete</h2>
-            <p>Where do you want to delete this from?</p>
-            <button class="del-btn" onclick="executeDelete('my')">Remove from My Library</button>
-            <button class="del-btn danger" onclick="executeDelete('pool')">Delete File for Everyone</button>
-            <button class="del-btn" style="text-align:center; margin-top:25px; background:transparent;" onclick="closeDeleteModal()">Cancel</button>
         </div>
     </div>
 
     <div class="info-capsule focusable" onclick="switchTab('settings', null)">
         <div class="system-stack">
             <span id="clock-el" class="sys-time">12:00</span>
-            <div style="display:flex; gap:8px; opacity:0.8; font-size:0.85rem; color:white;">
-                <span id="date-el">01 Jan</span>
-            </div>
         </div>
     </div>
 
@@ -455,59 +324,30 @@
             <div style="padding: 20px 0;" id="search-results"></div>
         </div>
 
-        <div id="tab-settings" class="tab-content" style="padding:0;">
-            <div class="layout-container">
-                <div class="split-inner">
-                    <div class="vertical-filter-col">
-                        <div class="vert-capsule">
-                            <div class="v-item active focusable" onclick="showSettingsSection('mytv', this)">My TV</div>
-                            <div class="v-item focusable" onclick="showSettingsSection('features', this)">App Features</div>
-                            <div class="v-item focusable" onclick="showSettingsSection('user', this)">User Details</div>
-                        </div>
-                    </div>
-                    <div class="content-col settings-content">
-                        
-                        <div id="set-mytv" style="display:block;">
-                             <div class="section-header"><i class="fas fa-desktop"></i> System</div>
-                             <div class="settings-grid">
-                                <div class="setting-card focusable" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
-                             </div>
-                        </div>
-
-                        <div id="set-features" style="display:none;">
-                            <div class="section-header">App Features</div>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <span class="setting-label">Clear History</span>
-                                    <button class="btn-settings focusable" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
-                                </div>
-                                <div class="setting-card">
-                                    <span class="setting-label">Visible Tabs</span>
-                                    <div style="margin-bottom:5px;">Live <label class="switch focusable"><input type="checkbox" id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:5px;">TV Shows <label class="switch focusable"><input type="checkbox" id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:5px;">Movies <label class="switch focusable"><input type="checkbox" id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:5px;">YouTube <label class="switch focusable"><input type="checkbox" id="toggle-youtube" onchange="toggleFeature('youtube')"><span class="slider round"></span></label></div>
-                                    <div style="margin-bottom:5px;">Music <label class="switch focusable"><input type="checkbox" id="toggle-music" onchange="toggleFeature('music')"><span class="slider round"></span></label></div>
-                                </div>
-                                <div class="setting-card">
-                                    <span class="setting-label">Display</span>
-                                    <div style="margin-top:10px;">White Logos <label class="switch focusable"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="set-user" style="display:none;">
-                            <div class="section-header">IPTV Provider</div>
-                            <div class="settings-grid">
-                                <div class="setting-card">
-                                    <span class="setting-label">Xtream Login</span>
-                                    <input id="xc-url" class="setting-input focusable" placeholder="http://url.com">
-                                    <input id="xc-user" class="setting-input focusable" placeholder="Username">
-                                    <input id="xc-pass" class="setting-input focusable" type="password" placeholder="Password">
-                                    <button class="btn-settings focusable" onclick="loadXtream()">Login</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div id="tab-settings" class="tab-content">
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <h3>Tabs</h3>
+                    Live <label class="switch"><input type="checkbox" id="toggle-live" onchange="toggleFeature('live')"><span class="slider round"></span></label><br><br>
+                    TV Shows <label class="switch"><input type="checkbox" id="toggle-tv" onchange="toggleFeature('tv')"><span class="slider round"></span></label><br><br>
+                    Movies <label class="switch"><input type="checkbox" id="toggle-movies" onchange="toggleFeature('movies')"><span class="slider round"></span></label><br><br>
+                    YouTube <label class="switch"><input type="checkbox" id="toggle-youtube" onchange="toggleFeature('youtube')"><span class="slider round"></span></label><br><br>
+                    Music <label class="switch"><input type="checkbox" id="toggle-music" onchange="toggleFeature('music')"><span class="slider round"></span></label>
+                </div>
+                 <div class="setting-card">
+                    <h3>Display</h3>
+                    White Logos <label class="switch"><input type="checkbox" id="toggle-whitelogo" onchange="toggleWhiteLogo()"><span class="slider round"></span></label>
+                </div>
+                <div class="setting-card">
+                    <h3>Data</h3>
+                    <button class="btn-settings" style="background:#cc0000;" onclick="clearHistory()">Clear History</button>
+                </div>
+                <div class="setting-card">
+                    <h3>IPTV Login</h3>
+                    <input id="xc-url" class="setting-input" placeholder="http://url.com" style="width:100%; margin-bottom:10px;">
+                    <input id="xc-user" class="setting-input" placeholder="Username" style="width:100%; margin-bottom:10px;">
+                    <input id="xc-pass" class="setting-input" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
+                    <button class="btn-settings" onclick="loadXtream()">Login</button>
                 </div>
             </div>
         </div>
@@ -564,7 +404,6 @@
             ['live','tv','movies','youtube','music'].forEach(f => {
                 if(localStorage.getItem('toggle-'+f) === null) localStorage.setItem('toggle-'+f, 'true');
             });
-
             if(localStorage.getItem('favLive')) favLive = new Set(JSON.parse(localStorage.getItem('favLive')));
             if(localStorage.getItem('favStream')) favStream = new Set(JSON.parse(localStorage.getItem('favStream')));
             if(localStorage.getItem('watch_history')) watchHistory = JSON.parse(localStorage.getItem('watch_history'));
@@ -575,8 +414,6 @@
                 document.getElementById('toggle-whitelogo').checked = true;
                 document.body.classList.add('white-logos');
             }
-            
-            // Set toggle states in settings UI
             ['live','tv','movies','youtube','music'].forEach(f => {
                 const el = document.getElementById('toggle-'+f);
                 if(el) el.checked = isContentAllowed(f);
@@ -592,7 +429,6 @@
         function updateClock() {
             const now = new Date();
             document.getElementById('clock-el').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('date-el').innerText = String(now.getDate()).padStart(2, '0') + " " + now.toLocaleString('default', { month: 'long' });
         }
 
         function cleanName(name) { return name ? name.trim() : ""; }
@@ -602,15 +438,17 @@
             const nav = document.getElementById('main-nav');
             const bg = document.getElementById('main-bg-target');
             
+            // Background classes
             bg.className = 'main-content'; 
-            nav.className = 'nav-capsule mode-default';
+            if(tabId !== 'home' && tabId !== 'settings' && tabId !== 'search' && tabId !== 'recordings') bg.classList.add('page-'+tabId+'-bg');
+            
+            // Nav Theme
+            nav.className = 'nav-capsule mode-' + (tabId==='search'?'default':tabId);
             
             if (tabId === 'recordings') {
                 nav.innerHTML = getNavHtml(true);
-                nav.classList.add('mode-recordings'); 
             } else {
                 nav.innerHTML = getNavHtml(false);
-                nav.classList.remove('mode-recordings');
             }
 
             if(tabId !== 'recordings') {
@@ -622,13 +460,12 @@
             }
 
             if (tabId === 'live') {
-                nav.className = 'nav-capsule mode-live'; bg.classList.add('page-live-bg'); 
                 renderExpandedNav('Live', ['All Channels', 'Favourites', 'Entertainment', 'Sports', 'Movies', 'News', 'Extra']);
             }
-            if (tabId === 'tv') { nav.className = 'nav-capsule mode-tv'; bg.classList.add('page-tv-bg'); renderExpandedNav('TV', []); }
-            if (tabId === 'movies') { nav.className = 'nav-capsule mode-movies'; bg.classList.add('page-movies-bg'); renderExpandedNav('Movies', []); }
-            if (tabId === 'youtube') { nav.className = 'nav-capsule mode-youtube'; bg.classList.add('page-yt-bg'); renderExpandedNav('YouTube', []); }
-            if (tabId === 'music') { nav.className = 'nav-capsule mode-music'; bg.classList.add('page-music-bg'); renderExpandedNav('Music', []); }
+            if (tabId === 'tv') { renderExpandedNav('TV', []); }
+            if (tabId === 'movies') { renderExpandedNav('Movies', []); }
+            if (tabId === 'youtube') { renderExpandedNav('YouTube', []); }
+            if (tabId === 'music') { renderExpandedNav('Music', []); }
 
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
@@ -638,9 +475,8 @@
             if(tabId === 'live') { renderLiveList('All Channels'); if(iptvChannels.length) updatePreview(iptvChannels[0], "Current Program Info"); }
             if(tabId === 'tv') { renderVODSidebar('tv'); loadStreamContent('tv', 'All'); }
             if(tabId === 'movies') { renderVODSidebar('movies'); loadStreamContent('movies', 'All'); }
-            if(tabId === 'search') setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
             
-            applyToggles();
+            if(tabId === 'search') setTimeout(() => document.querySelector('.nav-search-input').focus(), 100);
         }
 
         function renderExpandedNav(type, items) {
@@ -663,12 +499,6 @@
             renderLiveList(cat);
         }
 
-        function handleVODFilter(type, cat, el) {
-             document.querySelectorAll('.nav-capsule .nav-item').forEach(i => i.classList.remove('active'));
-             el.classList.add('active');
-             loadStreamContent(type.toLowerCase(), cat);
-        }
-
         function renderLiveList(cat) {
             const list = document.getElementById('linear-list');
             list.innerHTML = '';
@@ -682,13 +512,13 @@
             const fragment = document.createDocumentFragment();
             const now = new Date();
             const currentMin = now.getMinutes();
-            const currentTimeRatio = currentMin / 60; 
-
-            // Time Header Sync (-30m to +2.5h)
+            
+            // Time Header Sync
             const headerRow = document.getElementById('epg-header-time-row');
             headerRow.innerHTML = '';
             let timeHTML = "";
             let startH = now.getHours();
+            // Sky Style: -30 mins, 0, +1h, +2h
             timeHTML += `<div class="time-marker" style="left:100px;">${startH}:30</div>`;
             timeHTML += `<div class="time-marker" style="left:300px;">${startH+1}:00</div>`;
             timeHTML += `<div class="time-marker" style="left:500px;">${startH+2}:00</div>`;
@@ -704,10 +534,10 @@
                 const timeline = document.createElement('div'); timeline.className = 'epg-timeline';
                 
                 const timeLine = document.createElement('div'); timeLine.className = 'time-line';
-                timeLine.style.left = `${100 + (currentMin/60)*200}px`;
+                timeLine.style.left = `${100 + (currentMin/60)*200}px`; // 30min offset (100px) + ratio of hour block (200px)
                 timeline.appendChild(timeLine);
 
-                // Blocks: Previous(30m), Current(1h), Next(1h), Later...
+                // Blocks
                 const bf = document.createDocumentFragment();
                 bf.appendChild(mkBlk("Previous", "100px", {past:true}, ch));
                 bf.appendChild(mkBlk("Current Program", "200px", {curr:true}, ch)); 
@@ -981,63 +811,78 @@
 
             const b = document.getElementById('cp-action-buttons'); b.innerHTML = '';
             
-            if(i.status === 'recording') b.innerHTML += `<button class="p-btn red" onclick="toggleRec(true)">Stop Recording</button>`;
-            else if(i.type === 'reminder') b.innerHTML += `<button class="p-btn red" onclick="toggleRec(true)">Cancel Reminder</button>`;
+            if(i.status === 'recording') b.innerHTML += `<button class="btn-settings focusable" style="background:red;" onclick="toggleRec(true)">Stop Recording</button>`;
+            else if(i.type === 'reminder') b.innerHTML += `<button class="btn-settings focusable" style="background:red;" onclick="toggleRec(true)">Cancel Reminder</button>`;
             else if(isLive) {
-                 b.innerHTML += `<button class="p-btn cta" onclick="playCh(selectedContent)">Watch Live</button>`;
-                 b.innerHTML += `<button class="p-btn" onclick="addRec()">Record</button>`;
-                 if(i.past) b.innerHTML += `<button class="p-btn">Watch From Start</button>`;
+                 b.innerHTML += `<button class="btn-settings focusable" style="background:white; color:black;" onclick="playChannel(selectedContent)">Watch Live</button>`;
+                 b.innerHTML += `<button class="btn-settings focusable" onclick="addRec()">Record</button>`;
+                 if(i.past) b.innerHTML += `<button class="btn-settings focusable">Watch From Start</button>`;
             } else {
-                 b.innerHTML += `<button class="p-btn cta">Play</button>`;
-                 b.innerHTML += `<button class="p-btn" onclick="togFav()">Watchlist</button>`;
+                 b.innerHTML += `<button class="btn-settings focusable" style="background:white; color:black;" onclick="playCurrentContent()">Play</button>`;
+                 b.innerHTML += `<button class="btn-settings focusable" onclick="togFav()">Watchlist</button>`;
             }
-            b.innerHTML += `<button class="p-btn" onclick="enableSearchMode('${i.name||i.title}')">Search</button>`;
-            b.innerHTML += `<button class="p-btn" onclick="document.getElementById('content-page').style.display='none'">Back</button>`;
+            b.innerHTML += `<button class="btn-settings focusable" onclick="enableSearchMode('${i.name||i.title}')">Search</button>`;
+            b.innerHTML += `<button class="btn-settings focusable" onclick="document.getElementById('content-page').style.display='none'">Back</button>`;
         }
 
-        function playCh(i) {
-            lastLiveChannel = i; localStorage.setItem('lastLiveChannel', JSON.stringify(i));
-            history = history.filter(x=>x.id!==i.id); history.unshift({...i, type:'ch'});
-            localStorage.setItem('hist', JSON.stringify(history));
+        function playChannel(ch) {
+            lastLiveChannel = ch; localStorage.setItem('lastLiveChannel', JSON.stringify(ch));
+            watchHistory = watchHistory.filter(h => h.name !== ch.name);
+            watchHistory.unshift({...ch, type:'live', progress:0});
+            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
             
             const v = document.getElementById('global-bg-video');
-            v.src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
+            v.src = ch.url || "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
             document.body.classList.add('mode-fullscreen');
             document.getElementById('playback-ui').classList.add('visible');
             document.getElementById('pb-title').innerText = i.name;
             document.getElementById('pb-logo').src = i.logo;
             v.play();
         }
+        
+        function playCurrentContent() {
+            watchHistory = watchHistory.filter(h => h.name !== selectedContent.name);
+            watchHistory.unshift({ ...selectedContent, type: selectedContent.stream_id?'movies':'tv', img: selectedContent.stream_icon||selectedContent.cover });
+            localStorage.setItem('watch_history', JSON.stringify(watchHistory));
+            document.getElementById('content-page').style.display='none'; renderHome();
+        }
 
-        function renderRecs() {
-            const c = document.getElementById('t-rec'); c.innerHTML='<h1>My Recordings</h1>';
-            const rList = recs.filter(r => r.type === 'rec');
-            if(rList.length) {
-                const r = mkRow('Recorded','fa-dot-circle'); rList.forEach(i=>r.scroller.appendChild(mkCard(i,'rec',openPop)));
-                c.appendChild(r.wrap);
-            }
+        function smartRecord() {
+            const newRec = { id: Date.now(), title: selectedContent.name, type: 'recording', status: 'recording', program_image: selectedContent.logo, channel_logo: selectedContent.logo, owners:['me'] };
+            cloudRecordings.push(newRec); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
+            openContentPage(newRec); renderHome();
         }
-        function renderCats(id, list) {
-            const m = document.getElementById(id+'-cat'); m.innerHTML='';
-            list.forEach(c => {
-                const d=document.createElement('div'); d.className='v-btn'; d.innerText=c;
-                d.onclick=()=>loadStreamContent(id, c);
-                m.appendChild(d);
-            });
+
+        function setReminder(i) {
+            const newRem = { id: "rem_"+Date.now(), title: i.program_title, type: 'reminder', status: 'reminder', program_image: i.logo, channel_logo: i.logo, owners:['me'], time_str: "Tonight" };
+            cloudRecordings.push(newRem); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings));
+            openContentPage(newRem); renderHome();
         }
-        function renderVod(id, mode) {
-            const c = document.getElementById(id+'-list'); c.innerHTML='';
-            const src = id==='mov'?movies:series;
-            if(mode==='All') { addVODRow(c, "Recommended", src, 'fa-star'); }
+
+        function toggleRec(remove) {
+            if(remove) { cloudRecordings = cloudRecordings.filter(r => r.id !== selectedContent.id); localStorage.setItem('cloudRecordings', JSON.stringify(cloudRecordings)); document.getElementById('content-page').style.display='none'; renderHome(); }
         }
-        function addRec() { recs.push({...selectedContent, type:'rec', status:'recording', logo:selectedContent.logo, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
-        function addRem() { recs.push({...selectedContent, type:'remind', status:'reminder', logo:selectedContent.logo, start:Date.now()+1800000, title:selectedContent.program_title||selectedContent.name}); localStorage.setItem('recs',JSON.stringify(recs)); openPop(recs[recs.length-1]); renderHome(); }
-        function modRec(id) { recs = recs.filter(r=>r.id!=id && r.id!=selectedContent.id); localStorage.setItem('recs',JSON.stringify(recs)); document.getElementById('content-page').style.display='none'; if(currTab==='home') renderHome(); }
-        function togFav() { if(favs.has(selectedContent.id)) favs.delete(selectedContent.id); else favs.add(selectedContent.id); localStorage.setItem('favs',JSON.stringify([...favs])); }
-        function updSet() { ['live','tv','mov','yt','mus'].forEach(t=>localStorage.setItem('tg-'+t, document.getElementById('tg-'+t).checked)); switchTab('home'); }
-        function togWhite() { document.body.classList.toggle('white-logos'); localStorage.setItem('white', document.body.classList.contains('white-logos')); }
-        function clearData() { localStorage.clear(); location.reload(); }
-        function closePlayer() { document.body.classList.remove('mode-fullscreen'); document.getElementById('pb-ui').classList.remove('vis'); document.getElementById('bg-vid').pause(); }
+        
+        function addToWatchlist() {
+            const id = selectedContent.stream_id || selectedContent.series_id;
+            if(favStream.has(id)) favStream.delete(id); else favStream.add(id);
+            localStorage.setItem('favStream', JSON.stringify([...favStream]));
+            openContentPage(selectedContent);
+        }
+        
+        function toggleFavLive(id) { if(favLive.has(id)) favLive.delete(id); else favLive.add(id); localStorage.setItem('favLive', JSON.stringify([...favLive])); renderHome(); }
+        function loadXtream() { 
+            iptvChannels=[{id:1,name:"BBC One",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",cat:"Entertainment"},{id:2,name:"BBC Two",logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/BBC_Two_logo_2021.svg/512px-BBC_Two_logo_2021.svg.png",cat:"Entertainment"}];
+            vodMovies=[{stream_id:10,name:"Inception",stream_icon:"https://image.tmdb.org/t/p/w500/9gk7admal4ZLcnwnCSALLQU3rjD.jpg",category_name:"Sci-Fi"}];
+            vodSeries=[{series_id:20,name:"Breaking Bad",cover:"https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",category_name:"Drama"}];
+            renderHome();
+        }
+        function applyToggles() { switchTab('home'); }
+        function toggleFeature(f) { localStorage.setItem('toggle-'+f, document.getElementById('toggle-'+f).checked); applyToggles(); }
+        function toggleWhiteLogo() { localStorage.setItem('whiteLogo', document.getElementById('toggle-whitelogo').checked); document.body.classList.toggle('white-logos'); }
+        function showSettingsSection(id, el) { document.querySelectorAll('[id^="set-"]').forEach(x=>x.style.display='none'); document.getElementById('set-'+id).style.display='block'; }
+        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.body.classList.remove('mode-fullscreen'); document.getElementById('global-bg-video').pause(); }
+        function clearHistory() { watchHistory=[]; localStorage.setItem('watch_history', JSON.stringify(watchHistory)); renderHome(); }
         
         function setupKeyboard() {
             document.addEventListener('keydown', (e) => {
