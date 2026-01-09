@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V116</title>
+    <title>StreamTV OS V117</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -260,24 +260,34 @@
             border: 1px solid transparent; background: rgba(255,255,255,0.03); overflow:hidden;
         }
         .epg-row:hover, .epg-row.focused { background: #333; border-color: rgba(255,255,255,0.2); }
+        
+        /* FIX 2: EPG Spacing Update */
         .epg-channel-col {
-            width: 350px; display: flex; align-items: center; padding: 0 15px;
+            width: 400px; /* Increased Width */
+            display: flex; align-items: center; padding: 0 15px;
             border-right: 1px solid rgba(255,255,255,0.1); height: 100%; flex-shrink: 0;
         }
-        .epg-num { width: 60px; color: #888; font-weight: 800; font-size: 1.2rem; justify-content: center; display:flex; margin-right: 10px; }
-        .epg-logo { width: 100px; justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; } 
+        .epg-num { 
+            width: 70px; /* Increased */
+            color: #888; font-weight: 800; font-size: 1.2rem; 
+            justify-content: center; display:flex; margin-right: 10px; 
+        }
+        .epg-logo { 
+            width: 90px; /* Adjusted */
+            justify-content: center; padding-right: 15px; display:flex; margin-right: 10px; 
+        } 
         .epg-logo img { max-height: 55px; max-width: 100%; object-fit: contain; filter: none; transition: filter 0.3s; }
+        .epg-name { 
+            width: 200px; /* Increased */
+            font-weight: 700; font-size: 1.1rem; color: #eee; 
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; 
+            margin-right: 10px;
+        }
         
         .white-logos .epg-logo img, 
         .white-logos .cc-logo,
         .white-logos .search-logo { filter: grayscale(100%) brightness(200%) contrast(100%); }
 
-        .epg-name { 
-            width: 180px; font-weight: 700; font-size: 1.1rem; color: #eee; 
-            white-space:nowrap; overflow:hidden; text-overflow:ellipsis; 
-            margin-right: 20px; /* FIX 3: Spacing */
-        }
-        
         .epg-timeline {
             flex: 1; display: flex; align-items: center; height: 100%; overflow: hidden; position: relative;
         }
@@ -307,7 +317,6 @@
         .c-poster { width: 160px; height: 240px; background-size: cover; background-color: #222; }
         .c-thumb { width: 280px; height: 158px; background-size: cover; background-color: #222; }
         
-        /* FIX 5: Ensure strict centering */
         .c-square { 
             width: 160px; height: 160px; background-size: cover; background-color: #222; 
             display: flex !important; align-items: center; justify-content: center; 
@@ -371,7 +380,6 @@
         .cp-hero { width: 100%; height: 70vh; background-size: cover; background-position: center; position: relative; }
         .cp-grad { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #000 10%, transparent 100%); }
         .cp-content-box { display: flex; gap: 40px; padding: 0 var(--page-gutter); margin-top: -150px; position: relative; z-index: 2; align-items: flex-end; }
-        /* FIX 3: Square Poster Logic on Channel Page */
         .cp-poster { width: 220px; aspect-ratio: 1/1; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); background: #333; background-size: cover; display:flex; align-items:center; justify-content:center; }
         .cp-poster.poster-mode { aspect-ratio: 2/3; } /* For VOD */
         .cp-poster img { max-width:80%; max-height:80%; object-fit:contain; }
@@ -598,7 +606,7 @@
             }
         ];
 
-        // FIX 4: Cloud Recording Nav
+        // FIX 4: Cloud Recording Nav Update
         function getNavHtml(isCloudPage) {
             return `
                 <div class="nav-item icon-only focusable" onclick="enableSearchMode()"><i class="fas fa-search"></i></div>
@@ -677,7 +685,6 @@
             bg.className = 'main-content'; 
             nav.className = 'nav-capsule mode-default';
             
-            // FIX 4: Toggle Nav for Cloud Page
             if (tabId === 'recordings') nav.innerHTML = getNavHtml(true);
             else nav.innerHTML = getNavHtml(false);
 
@@ -1003,17 +1010,16 @@
             });
         }
 
-        // FIX 1: Home Render Logic Updated
+        // FIX 1: Continue Watching Logic Refined
         function renderHome() {
             const tab = document.getElementById('tab-home'); tab.innerHTML = '';
             const container = document.createElement('div'); container.style.marginTop = "20px";
 
-            // Continue Watching Logic: Slot 1 (Last Live), Slot 2-6 (Prev Live), Slot 7-11 (Recordings), Then VOD
             const cwWrapper = document.createElement('div'); cwWrapper.className = 'row-container';
             cwWrapper.innerHTML = `<div class="section-header"><i class="fas fa-history"></i> Continue Watching</div><div class="scroller" id="home-cw-scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const cwScroller = cwWrapper.querySelector('.scroller');
             
-            // 1. Last Live Channel
+            // 1. Last Watched Channel (Always First)
             if(lastLiveChannel) {
                 const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0;
                 c.style.background = '#222'; 
@@ -1024,8 +1030,12 @@
                 cwScroller.appendChild(c);
             }
             
-            // 2. Previous Live Channels (deduped, not last)
+            // 2. Mix of Recordings (5), Previous Channels (5), and Resume VOD
             const prevLive = watchHistory.filter(h => h.type === 'live' && (!lastLiveChannel || h.name !== lastLiveChannel.name)).slice(0, 5);
+            const myRecs = cloudRecordings.filter(r => r.owners.includes('me')).slice(0, 5);
+            const resumeVOD = watchHistory.filter(h => h.type !== 'live');
+
+            // Add Previous Channels
             prevLive.forEach(ch => {
                 const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0;
                 c.style.background = '#222'; 
@@ -1036,8 +1046,7 @@
                 cwScroller.appendChild(c);
             });
 
-            // 3. My Recordings (Up to 5)
-            const myRecs = cloudRecordings.filter(r => r.owners.includes('me')).slice(0, 5);
+            // Add Recordings
             myRecs.forEach(r => {
                 const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
                 c.style.backgroundImage = `url('${r.program_image}')`;
@@ -1048,8 +1057,8 @@
                 cwScroller.appendChild(c);
             });
 
-            // 4. VOD Resume
-            watchHistory.filter(h => h.type !== 'live').forEach(h => {
+            // Add VOD Resume
+            resumeVOD.forEach(h => {
                 const c = document.createElement('div'); c.className = 'card c-poster focusable'; c.tabIndex=0;
                 if(h.img) c.style.backgroundImage = `url('${h.img}')`;
                 c.onclick = () => openContentPage(h);
@@ -1057,51 +1066,58 @@
                 c.onfocus = c.onmouseenter;
                 cwScroller.appendChild(c);
             });
+            
             cwScroller.onmouseleave = () => cwWrapper.querySelector('.row-details').classList.remove('visible');
             container.appendChild(cwWrapper);
 
-            // FIX 2: Added Favourite Channels Row
-            const favChans = iptvChannels.filter(c => favLive.has(c.id));
-            if(favChans.length > 0) {
-                const w = document.createElement('div'); w.className = 'row-container';
-                w.innerHTML = `<div class="section-header"><i class="fas fa-heart" style="color:red"></i> Favourite Channels</div><div class="scroller"></div>`;
-                favChans.forEach(ch => {
-                    const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0; c.style.background='#222';
-                    c.innerHTML = `<img src="${ch.logo}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;">`;
-                    c.onclick = () => playChannel(ch);
-                    w.querySelector('.scroller').appendChild(c);
-                });
-                container.appendChild(w);
-            }
-
+            // FIX 2: Recordings & Reminders + Favourite Channels
             const recWrapper = document.createElement('div'); recWrapper.className = 'row-container';
             recWrapper.innerHTML = `<div class="section-header"><i class="fas fa-dot-circle" style="color:red"></i> Recordings & Reminders</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
             const recScroller = recWrapper.querySelector('.scroller');
+            const recDetails = recWrapper.querySelector('.row-details');
             
             const btnRec = document.createElement('div'); btnRec.className='card c-square focusable'; btnRec.tabIndex=0; btnRec.style.background='#333';
             btnRec.innerHTML = '<i class="fas fa-cloud fa-3x" style="color:#aaa;"></i><div style="font-size:0.9rem; color:#fff; font-weight:700;">Cloud<br>Recordings</div>';
             btnRec.onclick = () => switchTab('recordings');
             recScroller.appendChild(btnRec);
 
-            // Only personal recordings beyond the 5 in CW appear here if needed, or repeat them. For consistency, let's show all personal here.
             cloudRecordings.filter(r => r.owners.includes('me')).forEach(r => {
                 const c = document.createElement('div'); c.className='card c-recording focusable'; c.tabIndex=0;
                 c.style.backgroundImage = `url('${r.program_image}')`;
                 c.innerHTML = `<img src="${r.channel_logo || ''}" class="rec-logo-overlay"><div class="card-overlay"><div class="co-title"></div></div>`;
                 c.onclick = () => alert("Playing Recording (Mock)");
-                c.onmouseenter = () => { recWrapper.querySelector('.rd-title').innerText = cleanName(r.title); recWrapper.querySelector('.rd-desc').innerText = "Recording"; recWrapper.querySelector('.row-details').classList.add('visible'); };
+                c.onmouseenter = () => { recDetails.querySelector('.rd-title').innerText = cleanName(r.title); recDetails.querySelector('.rd-desc').innerText = "Recording"; recDetails.classList.add('visible'); };
                 c.onfocus = c.onmouseenter;
                 recScroller.appendChild(c);
             });
-            recScroller.onmouseleave = () => recWrapper.querySelector('.row-details').classList.remove('visible');
+            recScroller.onmouseleave = () => recDetails.classList.remove('visible');
             container.appendChild(recWrapper);
+
+            // FIX 3: Favourite Channels Row + Hover
+            const favChans = iptvChannels.filter(c => favLive.has(c.id));
+            if(favChans.length > 0) {
+                const w = document.createElement('div'); w.className = 'row-container';
+                w.innerHTML = `<div class="section-header"><i class="fas fa-heart" style="color:red"></i> Favourite Channels</div><div class="scroller"></div><div class="row-details"><h3 class="rd-title"></h3><p class="rd-desc"></p></div>`;
+                const scroller = w.querySelector('.scroller');
+                const details = w.querySelector('.row-details');
+                
+                favChans.forEach(ch => {
+                    const c = document.createElement('div'); c.className = 'card c-square focusable'; c.tabIndex=0; c.style.background='#222';
+                    c.innerHTML = `<img src="${ch.logo}" class="cc-logo" style="width:80%; height:80%; object-fit:contain;">`;
+                    c.onclick = () => playChannel(ch);
+                    c.onmouseenter = () => { details.querySelector('.rd-title').innerText = cleanName(ch.name); details.querySelector('.rd-desc').innerText = "Live Channel"; details.classList.add('visible'); };
+                    scroller.appendChild(c);
+                });
+                w.onmouseleave = () => details.classList.remove('visible');
+                container.appendChild(w);
+            }
 
             // FIX 2: Added New Rows
             if(vodSeries.length > 0) addVODRow(container, "Featured Shows", vodSeries.slice(0,10));
-            if(vodMovies.length > 0) addVODRow(container, "Top Movies", vodMovies.slice(0,10)); // Mock filter
-            if(vodMovies.length > 0) addVODRow(container, "Top Kids Movies", vodMovies.filter(m => m.category_name.includes("Kids")).slice(0,10));
-            if(vodSeries.length > 0) addVODRow(container, "Recommended TV Shows", vodSeries.filter(s => !s.category_name.includes("Kids")).slice(0,10));
-            if(vodSeries.length > 0) addVODRow(container, "Recommended Kids Shows", vodSeries.filter(s => s.category_name.includes("Kids")).slice(0,10));
+            if(vodMovies.length > 0) addVODRow(container, "Top Movies", vodMovies.slice(0,10)); 
+            if(vodMovies.length > 0) addVODRow(container, "Top Kids Movies", vodMovies.filter(m => m.category_name && m.category_name.includes("Kids")).slice(0,10));
+            if(vodSeries.length > 0) addVODRow(container, "Recommended TV Shows", vodSeries.filter(s => s.category_name && !s.category_name.includes("Kids")).slice(0,10));
+            if(vodSeries.length > 0) addVODRow(container, "Recommended Kids Shows", vodSeries.filter(s => s.category_name && s.category_name.includes("Kids")).slice(0,10));
 
             tab.appendChild(container);
         }
@@ -1220,7 +1236,6 @@
             const heroDiv = document.getElementById('cp-hero');
             heroDiv.style.backgroundImage = `url('${bg}')`;
             
-            // FIX 3: Channel Logo Display
             if(!i.stream_id && !i.series_id) {
                 posterDiv.classList.remove('poster-mode');
                 posterDiv.style.backgroundImage = 'none';
@@ -1294,7 +1309,7 @@
         function toggleFavLive(id) {
             if(favLive.has(id)) favLive.delete(id); else favLive.add(id);
             localStorage.setItem('favLive', JSON.stringify([...favLive]));
-            renderHome(); // Refresh home to show favorite row
+            renderHome(); 
         }
 
         function smartRecord() {
