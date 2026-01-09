@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StreamTV OS V128 (Full)</title>
+    <title>StreamTV OS V129 (Full Restoration)</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- RESET & VARIABLES --- */
+        /* --- VARIABLES --- */
         :root {
             --bg-color: #000000;
             --surface-color: #1a1a1a;
@@ -27,28 +27,11 @@
 
             /* THEME COLORS */
             --col-live: #0047AB;   
-            --col-live-bg: rgba(0, 71, 171, 0.4);   
-            --col-live-txt: #8FA4C8;
-            
             --col-tv: #D35400;     
-            --col-tv-bg: rgba(211, 84, 0, 0.4);     
-            --col-tv-txt: #eec1a4;
-            
             --col-movie: #27AE60;  
-            --col-movie-bg: rgba(39, 174, 96, 0.4); 
-            --col-movie-txt: #a4eec1;
-            
             --col-yt: #E50914;     
-            --col-yt-bg: rgba(229, 9, 20, 0.3);     
-            --col-yt-txt: #C88F93;
-            
             --col-music: #C2185B;  
-            --col-music-bg: rgba(194, 24, 91, 0.3); 
-            --col-music-txt: #C88FA8;
-            
             --col-rec: #F1C40F;    
-            --col-rec-bg: rgba(241, 196, 15, 0.3);  
-            --col-rec-txt: #F9E79F;
         }
 
         * {
@@ -71,7 +54,7 @@
             user-select: none;
         }
 
-        /* --- GLOBAL BACKGROUND --- */
+        /* --- BACKGROUND VIDEO --- */
         #global-bg-video {
             position: fixed;
             top: 0;
@@ -93,6 +76,7 @@
             pointer-events: auto; 
         }
         
+        /* HIDE UI WHEN FULLSCREEN */
         body.mode-fullscreen .top-bar-container, 
         body.mode-fullscreen .main-content,
         body.mode-fullscreen .info-capsule {
@@ -123,7 +107,7 @@
             pointer-events: auto;
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: border-color 0.3s, background-color 0.3s;
         }
 
         .nav-item {
@@ -146,7 +130,10 @@
             background: rgba(255,255,255,0.1);
         }
         
-        /* THEMED ACTIVE STATES */
+        .nav-item.icon-only { padding: 0; width: 44px; }
+        .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
+
+        /* THEME STYLES FOR NAV */
         .nav-capsule.mode-live { border-color: var(--col-live); background: rgba(0, 0, 40, 0.9); }
         .nav-capsule.mode-live .nav-item.active { background: var(--col-live) !important; color: white !important; }
 
@@ -165,11 +152,7 @@
         .nav-capsule.mode-recordings { border-color: var(--col-rec); background: rgba(60, 50, 0, 0.9); }
         .nav-capsule.mode-recordings .nav-item.active { background: var(--col-rec) !important; color: black !important; }
         
-        /* Default Home Active */
         .nav-capsule.mode-default .nav-item.active { background: white; color: black; box-shadow: 0 2px 15px rgba(255,255,255,0.25); } 
-
-        .nav-item.icon-only { padding: 0; width: 44px; }
-        .nav-back { padding: 0; width: 54px; font-size: 1.1rem; justify-content: center; }
 
         .nav-search-container { display:flex; align-items:center; width:100%; min-width: 350px; padding-left: 10px; }
         .nav-search-input { background: transparent; border: none; color: white; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 600; flex:1; outline: none; padding: 0 15px; }
@@ -185,7 +168,7 @@
         .system-stack { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); line-height: 1.2; }
         .sys-time { font-size: 1.1rem; font-weight: 800; color: white; }
 
-        /* --- MAIN CONTENT --- */
+        /* --- MAIN CONTENT LAYOUT --- */
         .main-content {
             flex: 1; overflow-y: auto; overflow-x: hidden;
             padding-top: 130px; padding-bottom: 50px; 
@@ -193,7 +176,6 @@
             background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, #111 100%);
         }
         
-        /* Page Backgrounds */
         .page-live-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #001a40 100%) !important; }
         .page-tv-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #401a00 100%) !important; }
         .page-movies-bg { background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, #00331a 100%) !important; }
@@ -240,13 +222,14 @@
         .content-col { flex: 1; overflow-y: auto; padding-right: 4%; padding-top: 10px; padding-bottom: 150px; height: 100%; }
         .linear-content-col { flex: 1; display: flex; flex-direction: column; height: 100%; padding-right: 0; overflow: hidden; }
 
-        /* --- PREVIEW PANE (TOP FLUSH) --- */
+        /* --- PREVIEW PANE (FIXED TOP) --- */
         .linear-header { 
             flex: 0 0 auto; width: 100%; height: 35vh; min-height: 280px;
-            margin: 0; /* Flush to top */
+            margin: 0; 
             overflow: hidden; background: #111; position: relative;
             display: flex; z-index: 0;
-            padding-top: 100px; /* Space for Floating Nav */
+            padding-top: 100px; 
+            margin-top: -130px; /* Pulls it up flush to top of screen */
         }
         .lh-bg-blur { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(40px) brightness(0.4); z-index: 0; }
         .header-content { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; gap: 40px; }
@@ -290,7 +273,7 @@
         .prog-t { font-weight: 700; font-size: 0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:white; }
         .prog-d { font-size: 0.75rem; color: #ccc; }
 
-        /* --- CARDS & ROWS --- */
+        /* --- ROWS & CARDS --- */
         .section-header { font-size: 1.3rem; font-weight: 800; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 10px; }
         .scroller { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px; scroll-behavior: smooth; margin-left: -5px; padding-right: 5%; align-items: flex-end; }
         ::-webkit-scrollbar { display: none; }
@@ -483,12 +466,14 @@
                         </div>
                     </div>
                     <div class="content-col settings-content">
+                        
                         <div id="set-mytv" style="display:block;">
                              <div class="section-header"><i class="fas fa-desktop"></i> System</div>
                              <div class="settings-grid">
                                 <div class="setting-card focusable" onclick="alert('Opening Android Settings...')"><h3>OS Settings</h3><p style="color:#888;">Open Android / FireTV Settings</p></div>
                              </div>
                         </div>
+
                         <div id="set-features" style="display:none;">
                             <div class="section-header">App Features</div>
                             <div class="settings-grid">
@@ -1018,7 +1003,7 @@
             const v = document.getElementById('global-bg-video');
             v.src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; 
             document.body.classList.add('mode-fullscreen');
-            document.getElementById('pb-ui').classList.add('vis');
+            document.getElementById('playback-ui').classList.add('visible');
             document.getElementById('pb-title').innerText = i.name;
             document.getElementById('pb-logo').src = i.logo;
             v.play();
